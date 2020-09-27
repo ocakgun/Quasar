@@ -41,9 +41,9 @@ class el2_dec_ib_ctl extends Module{
   val dcsr            = io.dbg_cmd_addr(11,0)
 
   val ib0_debug_in    = ((Fill(32,debug_read_gpr) & Cat(Fill(12,0.U(1.W)),dreg,"b110000000110011".U))|
-                        (Fill(32,debug_write_gpr) & Cat("b00000000000000000110".U,dreg,"b0110011".U))|
-                        (Fill(32,debug_read_csr)  & Cat(dcsr,"b00000010000001110011".U))|
-                        (Fill(32,debug_write_csr) & Cat(dcsr,"b00000001000001110011".U)))
+    (Fill(32,debug_write_gpr) & Cat("b00000000000000000110".U,dreg,"b0110011".U))|
+    (Fill(32,debug_read_csr)  & Cat(dcsr,"b00000010000001110011".U))|
+    (Fill(32,debug_write_csr) & Cat(dcsr,"b00000001000001110011".U)))
 
 
   // machine is in halted state, pipe empty, write will always happen next cycle
@@ -62,7 +62,7 @@ class el2_dec_ib_ctl_IO extends Bundle{
   val dbg_cmd_write		    =Input(UInt(1.W))  // dbg cmd is write
   val dbg_cmd_type		    =Input(UInt(2.W))  // dbg type
   val dbg_cmd_addr		    =Input(UInt(32.W)) // expand to 31:0
-  val i0_brp				=Input(new el2_br_pkt_t) // i0 branch packet from aligner
+  val i0_brp				      =Input(new el2_br_pkt_t) // i0 branch packet from aligner
   val ifu_i0_bp_index       =Input(UInt((pt1.BTB_ADDR_HI+1).W)) // BP index(Changed size)
   val ifu_i0_bp_fghr        =Input(UInt((pt1.BHT_GHR_SIZE).W)) // BP FGHR
   val ifu_i0_bp_btag        =Input(UInt((pt1.BTB_BTAG_SIZE).W)) // BP tag
@@ -90,6 +90,6 @@ class el2_dec_ib_ctl_IO extends Bundle{
   val dec_debug_wdata_rs1_d =Output(UInt(1.W))  // put debug write data onto rs1 source: machine is halted
   val dec_debug_fence_d     =Output(UInt(1.W))  // debug fence inst
 }
-object ib_gen extends App{
-  chisel3.Driver.emitVerilog(new el2_dec_ib_ctl)
-}
+//object ib_gen extends App{
+//  chisel3.Driver.emitVerilog(new el2_dec_ib_ctl)
+//}
