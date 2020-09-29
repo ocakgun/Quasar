@@ -12,7 +12,7 @@ class el2_dec_dec_ctl extends Module with el2_lib{
   def pattern(y : List[Int]) : UInt = {
     val pat : Array[UInt] = new Array[UInt](y.size)
     for (i <- 0 until y.size){
-      pat(i) = if(y(i)>0) io.ins(y(i)) else !io.ins(y(i).abs)
+      pat(i) = if(y(i)>=0) io.ins(y(i)) else !io.ins(y(i).abs)
     }
     pat.reduce(_&_)
   }
@@ -88,10 +88,10 @@ class el2_dec_dec_ctl extends Module with el2_lib{
     pattern(List(-25,-6,4)) | pattern(List(-5,4))
   io.out.presync := pattern(List(-5,3)) | pattern(List(-13,7,6,4)) |
     pattern(List(-13,8,6,4)) | pattern(List(-13,9,6,4)) |
-    pattern(List(-13,9,6,4)) | pattern(List(-13,10,6,4)) |
-    pattern(List(-13,11,6,4)) | pattern(List(15,13,6,4)) |
-    pattern(List(16,13,6,4)) | pattern(List(17,13,6,4)) |
-    pattern(List(18,13,6,4)) | pattern(List(19,13,6,4))
+    pattern(List(-13,10,6,4)) | pattern(List(-13,11,6,4)) |
+    pattern(List(15,13,6,4)) | pattern(List(16,13,6,4)) |
+    pattern(List(17,13,6,4)) | pattern(List(18,13,6,4)) |
+    pattern(List(19,13,6,4))
   io.out.postsync := pattern(List(12,-5,3)) | pattern(List(-22,-13,-12,6,4)) |
     pattern(List(-13,7,6,4)) | pattern(List(-13,8,6,4)) |
     pattern(List(-13,9,6,4)) | pattern(List(-13,10,6,4)) |
@@ -107,13 +107,17 @@ class el2_dec_dec_ctl extends Module with el2_lib{
     pattern(List(-31,-30,-29,-28,-27,-26,-6,5,4,-3,1,0)) |
     pattern(List(-14,-13,-12,6,5,-4,-3,1,0)) |
     pattern(List(14,6,5,-4,-3,-2,1,0)) |
-    pattern(List(-12,-6,-5,4,-3,1,0)) | pattern(List(-14,-13,5,-4,-3,-2,1,0)) |
+    pattern(List(-12,-6,-5,4,-3,1,0)) |
+    pattern(List(-14,-13,5,-4,-3,-2,1,0)) |
     pattern(List(12,6,5,4,-3,-2,1,0)) |
-    pattern(List(-31,-30,-29,-28,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,3,2,1,0)) |
+    pattern(List(-31,-30,-29,-28,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,-17,-16,-15,-14,-13,-11,-10,-9,-8,-7,-6,-5,-4,3,2,1,0)) |
     pattern(List(-31,-30,-29,-28,-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,3,2,1,0)) |
-    pattern(List(-13,-6,-5,-4,-3,-2,1,0)) | pattern(List(6,5,-4,3,2,1,0)) |
-    pattern(List(13,-6,-5,4,-3,1,0)) | pattern(List(-14,-12,-6,-4,-3,-2,1,0)) |
-    pattern(List(-6,4,-3,-2,1,0))
+    pattern(List(13,6,5,4,-3,-2,1,0)) |
+    pattern(List(-13,-6,-5,-4,-3,-2,1,0)) |
+    pattern(List(6,5,-4,3,2,1,0)) |
+    pattern(List(13,-6,-5,4,-3,1,0)) |
+    pattern(List(-14,-12,-6,-4,-3,-2,1,0)) |
+    pattern(List(-6,4,-3,2,1,0))
 }
 
 object dec_dec_ctl extends App {
