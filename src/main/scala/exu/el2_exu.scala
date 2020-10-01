@@ -39,7 +39,7 @@ class el2_exu extends Module with param{
    	
 	val i0_flush_path_x 	 	=rvdffe(i0_flush_path_d,x_data_en.asBool,io.clk,io.scan_mode)
 	io.exu_csr_rs1_x		:=rvdffe(csr_rs1_in_d,x_data_en.asBool,io.clk,io.scan_mode)
-	i0_predict_p_x			:=rvdffe_pred_pkt(i0_predict_p_d,x_data_en.asBool,io.clk,io.scan_mode)
+	i0_predict_p_x			:=rvdffe(i0_predict_p_d,x_data_en.asBool,io.clk,io.scan_mode)
 	val predpipe_x   		 =rvdffe(predpipe_d,x_data_en.asBool,io.clk,io.scan_mode)
 	val predpipe_r			 =rvdffe(predpipe_x ,r_data_en.asBool,io.clk,io.scan_mode)	
 	val ghr_x			=rvdffe(ghr_x_ns ,x_ctl_en.asBool,io.clk,io.scan_mode)
@@ -47,7 +47,7 @@ class el2_exu extends Module with param{
 	val i0_flush_upper_x		=rvdffe(i0_flush_upper_d ,x_ctl_en.asBool,io.clk,io.scan_mode)
 	val i0_taken_x			=rvdffe(i0_taken_d ,x_ctl_en.asBool,io.clk,io.scan_mode)
 	val i0_valid_x			=rvdffe(i0_valid_d ,x_ctl_en.asBool,io.clk,io.scan_mode)	
-	i0_pp_r                         :=rvdffe_pred_pkt(i0_predict_p_x,r_ctl_en.asBool,io.clk,io.scan_mode)
+	i0_pp_r                         :=rvdffe(i0_predict_p_x,r_ctl_en.asBool,io.clk,io.scan_mode)
 	val pred_temp1		        =rvdffe(io.pred_correct_npc_x(6,1) ,r_ctl_en.asBool,io.clk,io.scan_mode)		
 	val i0_pred_correct_upper_r	=rvdffe(i0_pred_correct_upper_x ,r_ctl_en.asBool,io.clk,io.scan_mode)
 	val i0_flush_path_upper_r	=rvdffe(i0_flush_path_x ,r_data_en.asBool,io.clk,io.scan_mode)
