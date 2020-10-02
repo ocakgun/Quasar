@@ -2,15 +2,14 @@ package exu
 
 import chisel3._
 import chisel3.util._
-import chisel3.util._
 import include._
 import lib._
 
 class el2_exu_alu_ctl extends Module with el2_lib {
   val io = IO(new Bundle{
                         //////////  Inputs  /////////
-   val                  clk               = Input(Clock())  // Top level clock
-   val                  rst_l             = Input(UInt(1.W))  // Reset
+  // val                  clk               = Input(Clock())  // Top level clock
+  // val                  rst_l             = Input(UInt(1.W))  // Reset
    val                  scan_mode         = Input(UInt(1.W))  // Scan control
    val                  flush_upper_x     = Input(UInt(1.W))  // Branch flush from previous cycle
    val                  flush_lower_r     = Input(UInt(1.W))  // Master flush of entire pipeline
@@ -20,15 +19,15 @@ class el2_exu_alu_ctl extends Module with el2_lib {
    val                  csr_ren_in        = Input(UInt(1.W))           // extra decode
    val                  a_in              = Input(UInt(32.W))               // A operand
    val                  b_in              = Input(UInt(32.W))               // B operand
-   val                  pc_in             = Input(UInt(32.W))              // for pc=pc+2,4 calculations
+   val                  pc_in             = Input(UInt(31.W))              // for pc=pc+2,4 calculations
    val                  pp_in             = Input(new el2_predict_pkt_t)              // Predicted branch structure
-   val                  brimm_in          = Input(UInt(13.W))           // Branch offset
+   val                  brimm_in          = Input(UInt(12.W))           // Branch offset
                         //////////  Outputs  /////////
    val                  result_ff         = Output(UInt(32.W))          // final result
    val                  flush_upper_out   = Output(UInt(1.W)) // Branch flush
    val                  flush_final_out   = Output(UInt(1.W)) // Branch flush or flush entire pipeline
-   val                  flush_path_out    = Output(UInt(32.W)) // Branch flush PC
-   val                  pc_ff             = Output(UInt(32.W)) // flopped PC
+   val                  flush_path_out    = Output(UInt(31.W)) // Branch flush PC
+   val                  pc_ff             = Output(UInt(31.W)) // flopped PC
    val                  pred_correct_out  = Output(UInt(1.W)) // NPC control
    val                  predict_p_out     = Output(new el2_predict_pkt_t)     // Predicted branch structure
   val aout = Output(UInt(33.W))
@@ -55,7 +54,7 @@ class el2_exu_alu_ctl extends Module with el2_lib {
 //   io.predict_p_out.pja        := 0.U
 //   io.predict_p_out.way        := 0.U
 //
-  io.pc_ff := RegEnable(Cat(io.pc_in(31,1),0.U(1.W)),0.U,io.enable) // any PC is run through here - doesn't have to be alu
+  io.pc_ff := RegEnable(io.pc_in,0.U,io.enable) // any PC is run through here - doesn't have to be alu
   val result = WireInit(UInt(32.W),0.U)
   io.result_ff := RegEnable(result,0.U,io.enable)
 
@@ -109,7 +108,7 @@ class el2_exu_alu_ctl extends Module with el2_lib {
 
     // for a conditional br pcout[] will be the opposite of the branch prediction
     // for jal or pcall, it will be the link address pc+2 or pc+4
-    val pcout =  Cat(rvbradder(io.pc_in,io.brimm_in),0.U(1.W))
+    val pcout =  rvbradder(Cat(io.pc_in,0.U),Cat(io.brimm_in,0.U))
 
     result       :=  MuxCase(lout,Array(
          sel_shift.asBool       ->       sout,
@@ -132,7 +131,7 @@ class el2_exu_alu_ctl extends Module with el2_lib {
     // for any_jal pred_correct==0
     io.pred_correct_out    := (io.valid_in & io.ap.predict_nt & !actual_taken & !any_jal) | (io.valid_in & io.ap.predict_t  &  actual_taken & !any_jal)
     // for any_jal adder output is the flush path
-    io.flush_path_out  := Cat(Mux(any_jal.asBool, io.aout(31,1), pcout(31,1)),0.U(1.W) )
+    io.flush_path_out  := Mux(any_jal.asBool, io.aout(31,1), pcout(31,1))
 
     // pcall and pret are included here
     val cond_mispredict   = (io.ap.predict_t  & !actual_taken) | (io.ap.predict_nt &  actual_taken.asUInt)
