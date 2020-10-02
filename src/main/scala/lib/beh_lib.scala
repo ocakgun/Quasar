@@ -1,6 +1,8 @@
 package lib
 import chisel3._
 import chisel3.util._
+
+import include._
 //import lib.beh_ib_func._
 
 class rvdff(WIDTH:Int=1,SHORT:Int=0) extends Module{
@@ -24,9 +26,10 @@ class rvsyncss(WIDTH:Int = 251,SHORT:Int = 0) extends Module{  //Done for verifi
   val io = IO(new Bundle{
     val din   = Input(UInt(WIDTH.W))
     val dout  = Output(UInt(WIDTH.W))
+    val clk   = Input(Clock())
   })
-  val sync_ff1 = RegNext(io.din,0.U)    //RegNext(io.in,init)
-  val sync_ff2 = RegNext(sync_ff1,0.U)
+  val sync_ff1 = withClock(io.clk){RegNext(io.din,0.U)}    //RegNext(io.in,init)
+  val sync_ff2 = withClock(io.clk){RegNext(sync_ff1,0.U)}
   if(SHORT == 1)
   {io.dout := io.din   }
   else
@@ -44,25 +47,25 @@ class rvlsadder extends Module{  //Done for verification and testing
     val offset  = Input(UInt(12.W))
     val dout    = Output(UInt(32.W))
   })
-  val w1 =  Cat("b0".U,io.rs1(11,0)) + Cat("b0".U,io.offset(11,0))  //w1[12] =cout  offset[11]=sign
+  val w1 =  Cat(0.U(1.W),io.rs1(11,0)) + Cat(0.U(1.W),io.offset(11,0))  //w1[12] =cout  offset[11]=sign
 
   val dout_upper = ((Fill(20, ~(io.offset(11) ^ w1(12)))) & io.rs1(31,12)) |
-    ((Fill(20, ~io.offset(11) ^ w1(12))) & (io.rs1(31,12)+1.U)) |
-    ((Fill(20, io.offset(11) ^ ~w1(12))) & (io.rs1(31,12)-1.U))
+    ((Fill(20, ~io.offset(11) & w1(12))) & (io.rs1(31,12)+1.U)) |
+    ((Fill(20, io.offset(11) & ~w1(12))) & (io.rs1(31,12)-1.U))
 
   io.dout := Cat(dout_upper,w1(11,0))
 }
 
-class rvbsadder extends Module{   //Done for verification and testing
+class rvbradder extends Module{   //Done for verification and testing
   val io = IO(new Bundle{
-    val pc     = Input(UInt(32.W)) // lsb is not using in code
-    val offset = Input(UInt(13.W)) // lsb is not using in code
-    val dout   = Output(UInt(31.W))
+    val pc     = Input(UInt(31.W))  // 31:1 => 30:0
+    val offset = Input(UInt(12.W))  // 12:1 => 11:0
+    val dout   = Output(UInt(31.W)) // 31:1 => 30:0
   })
-  val w1 =  Cat("b0".U,io.pc(12,1)) + Cat("b0".U,io.offset(12,1))  //w1[12] =cout  offset[12]=sign
-  val dout_upper = ((Fill(19, ~(io.offset(12) ^ w1(12))))&  io.pc(31,13))       |
-    ((Fill(19, ~io.offset(12) ^  w1(12))) & (io.pc(31,13)+1.U)) |
-    ((Fill(19, io.offset(12) ^  ~w1(12))) & (io.pc(31,13)-1.U))
+  val w1 =  Cat(0.U(1.W),io.pc(11,0)) + Cat(0.U(1.W),io.offset(11,0))  //w1[12] =cout  offset[12]=sign
+  val dout_upper = ((Fill(19, ~(io.offset(11) ^ w1(12))))&  io.pc(30,12))       |
+    ((Fill(19, ~io.offset(11) &   w1(12))) & (io.pc(30,12)+1.U)) |
+    ((Fill(19, io.offset(11)  &  ~w1(12))) & (io.pc(30,12)-1.U))
   io.dout := Cat(dout_upper,w1(11,0))
 }
 
@@ -73,11 +76,8 @@ class rvtwoscomp(WIDTH:Int=32) extends Module{   //Done for verification and tes
     val dout  = Output(UInt(WIDTH.W))
   })
   val temp = Wire(Vec(WIDTH-1,UInt(1.W)))
-  val i:Int = 1
   for(i <- 1 to WIDTH-1){
-    val done  = io.din(i-1,0).orR
-    temp(i-1) := Mux(done ,~io.din(i),io.din(i))
-  }
+    temp(i-1) := Mux(io.din(i-1,0).orR ,~io.din(i),io.din(i))}
   io.dout := Cat(temp.asUInt,io.din(0))
 }
 
@@ -97,7 +97,7 @@ class rvmaskandmatch(WIDTH:Int=32) extends Module{     //Done for verification a
   for(i <- 1 to WIDTH-1)
   {matchvec(i) := Mux(io.mask(i-1,0).andR & masken_or_fullmask,"b1".U,(io.mask(i) === io.data(i)).asUInt)}
   io.match_out := matchvec.asUInt.andR
-}
+}//ewrfdxgh
 
 class rvrangecheck(CCM_SADR:UInt, CCM_SIZE:Int=128) extends Module{
   val io = IO(new Bundle{
@@ -212,8 +212,8 @@ class rvecc_decode extends Module{  //Done for verification and testing
   val ecc_check = Cat((io.din.xorR ^ io.ecc_in.xorR) & ~io.sed_ded ,io.ecc_in(5)^(w5.asUInt.xorR),io.ecc_in(4)^(w4.asUInt.xorR),io.ecc_in(3)^(w3.asUInt.xorR),io.ecc_in(2)^(w2.asUInt.xorR),io.ecc_in(1)^(w1.asUInt.xorR),io.ecc_in(0)^(w0.asUInt.xorR))
 
 
-  io.single_ecc_error :=  io.en & (ecc_check =/= 0.U(7.W)) & ((io.din.xorR ^ io.ecc_in.xorR) & ~io.sed_ded)
-  io.double_ecc_error :=  io.en & (ecc_check =/= 0.U(7.W)) & ~((io.din.xorR ^ io.ecc_in.xorR) & ~io.sed_ded)
+  io.single_ecc_error :=  io.en & (ecc_check =/= 0.U(7.W)) & ecc_check(6)
+  io.double_ecc_error :=  io.en & (ecc_check =/= 0.U(7.W)) & ~ecc_check(6)
   val error_mask = Wire(Vec(39,UInt(1.W)))
 
   for(i <- 1 until 40){
@@ -223,7 +223,7 @@ class rvecc_decode extends Module{  //Done for verification and testing
   val dout_plus_parity = Mux(io.single_ecc_error.asBool, (error_mask.asUInt ^ din_plus_parity), din_plus_parity)
 
   io.dout :=  Cat(dout_plus_parity(37,32),dout_plus_parity(30,16), dout_plus_parity(14,8), dout_plus_parity(6,4), dout_plus_parity(2))
-  io.ecc_out := Cat(dout_plus_parity(38) ^ (ecc_check(6,0) === 1.U(7.W)), dout_plus_parity(31), dout_plus_parity(15), dout_plus_parity(7), dout_plus_parity(3), dout_plus_parity(1,0))
+  io.ecc_out := Cat(dout_plus_parity(38) ^ (ecc_check(6,0) === "b1000000".U(7.W)), dout_plus_parity(31), dout_plus_parity(15), dout_plus_parity(7), dout_plus_parity(3), dout_plus_parity(1,0))
 }
 
 
@@ -356,23 +356,35 @@ object rvdffe {
       RegNext(din, 0.U)
     }
   }
+  def apply(din: Bundle, en: Bool, clk: Clock, scan_mode: Bool) = {
+    val obj = Module(new rvclkhdr())
+    val l1clk = obj.io.l1clk
+    obj.io.clk := clk
+    obj.io.en := en
+    obj.io.scan_mode := scan_mode
+    withClock(l1clk) {
+      RegNext(din,0.U.asTypeOf(din.cloneType))
+    }
+  }
 }
 
 
 /////////////rvdffe //////////////////////////
 /*
-class class_rvdffe extends Module{
+class class_rvdffe extends Module with RequireAsyncReset{
   val io = IO(new Bundle {
-    val in = Input(UInt(32.W))
-    val out = Output(UInt(32.W))
+    val lsu_pkt_d = Input(new el2_load_cam_pkt_t)
+    val lsu_pkt_m = Output(new el2_load_cam_pkt_t)
     val clk  = Input(Clock())
     val en  = Input(Bool())
     val scan_mode = Input(Bool())
   })
-  io.out := rvdffe(io.in,io.en.asBool,io.clk,io.scan_mode.asBool)
+  io.lsu_pkt_m := rvdffe(io.lsu_pkt_d,io.en.asBool,io.clk,io.scan_mode.asBool)
 }
 object main extends App{
   println("Generate Verilog")
-  chisel3.Driver.execute(args, ()=> new rvrangecheck)
-}
-*/
+  chisel3.Driver.execute(args, ()=> new class_rvdffe)
+}*/
+
+
+
