@@ -2,17 +2,17 @@ package dec
 import include._
 import chisel3._
 import chisel3.util._
-import snapshot.pt1
-class el2_dec_ib_ctl extends Module{
+import lib._
+class el2_dec_ib_ctl extends Module with param{
   val io=IO(new el2_dec_ib_ctl_IO)
   io.dec_i0_icaf_f1_d         :=io.ifu_i0_icaf_f1
   io.dec_i0_dbecc_d           :=io.ifu_i0_dbecc
   io.dec_i0_icaf_d            :=io.ifu_i0_icaf
-  io.dec_i0_pc_d              :=Cat(io.ifu_i0_pc(31,1),0.U(1.W))
+  io.dec_i0_pc_d              :=io.ifu_i0_pc
   io.dec_i0_pc4_d             :=io.ifu_i0_pc4
   io.dec_i0_icaf_type_d       :=io.ifu_i0_icaf_type
   io.dec_i0_brp               :=io.i0_brp
-  io.dec_i0_bp_index          :=Cat(io.ifu_i0_bp_index(pt1.BTB_ADDR_HI,pt1.BTB_ADDR_LO),Fill(pt1.BTB_ADDR_LO,0.U(1.W)))
+  io.dec_i0_bp_index          :=io.ifu_i0_bp_index
   io.dec_i0_bp_fghr           :=io.ifu_i0_bp_fghr
   io.dec_i0_bp_btag           :=io.ifu_i0_bp_btag
 
@@ -40,11 +40,12 @@ class el2_dec_ib_ctl extends Module{
   val dreg            = io.dbg_cmd_addr(4,0)
   val dcsr            = io.dbg_cmd_addr(11,0)
 
-  val ib0_debug_in    = ((Fill(32,debug_read_gpr) & Cat(Fill(12,0.U(1.W)),dreg,"b110000000110011".U))|
-    (Fill(32,debug_write_gpr) & Cat("b00000000000000000110".U,dreg,"b0110011".U))|
-    (Fill(32,debug_read_csr)  & Cat(dcsr,"b00000010000001110011".U))|
-    (Fill(32,debug_write_csr) & Cat(dcsr,"b00000001000001110011".U)))
-
+  val ib0_debug_in    =Mux1H(Seq(
+			debug_read_gpr.asBool  	->  Cat(Fill(12,0.U(1.W)),dreg,"b110000000110011".U),
+			debug_write_gpr.asBool 	->  Cat("b00000000000000000110".U,dreg,"b0110011".U),
+			debug_read_csr.asBool	->  Cat(dcsr,"b00000010000001110011".U),
+			debug_write_csr.asBool 	->  Cat(dcsr,"b00000001000001110011".U)
+			))
 
   // machine is in halted state, pipe empty, write will always happen next cycle
   io.dec_debug_wdata_rs1_d := debug_write_gpr | debug_write_csr
@@ -57,15 +58,15 @@ class el2_dec_ib_ctl extends Module{
 
 
 }
-class el2_dec_ib_ctl_IO extends Bundle{
+class el2_dec_ib_ctl_IO extends Bundle with param{
   val dbg_cmd_valid		    =Input(UInt(1.W))  // valid dbg cmd
   val dbg_cmd_write		    =Input(UInt(1.W))  // dbg cmd is write
   val dbg_cmd_type		    =Input(UInt(2.W))  // dbg type
   val dbg_cmd_addr		    =Input(UInt(32.W)) // expand to 31:0
-  val i0_brp				      =Input(new el2_br_pkt_t) // i0 branch packet from aligner
-  val ifu_i0_bp_index       =Input(UInt((pt1.BTB_ADDR_HI+1).W)) // BP index(Changed size)
-  val ifu_i0_bp_fghr        =Input(UInt((pt1.BHT_GHR_SIZE).W)) // BP FGHR
-  val ifu_i0_bp_btag        =Input(UInt((pt1.BTB_BTAG_SIZE).W)) // BP tag
+  val i0_brp				=Input(new el2_br_pkt_t) // i0 branch packet from aligner
+  val ifu_i0_bp_index       =Input(UInt((BTB_ADDR_HI-BTB_ADDR_LO).W)) // BP index(Changed size)
+  val ifu_i0_bp_fghr        =Input(UInt((BHT_GHR_SIZE).W)) // BP FGHR
+  val ifu_i0_bp_btag        =Input(UInt((BTB_BTAG_SIZE).W)) // BP tag
   val ifu_i0_pc4            =Input(UInt(1.W))   // i0 is 4B inst else 2B
   val ifu_i0_valid          =Input(UInt(1.W))   // i0 valid from ifu
   val ifu_i0_icaf           =Input(UInt(1.W))   // i0 instruction access fault
@@ -73,23 +74,23 @@ class el2_dec_ib_ctl_IO extends Bundle{
   val ifu_i0_icaf_f1        =Input(UInt(1.W))   // i0 has access fault on second fetch group
   val ifu_i0_dbecc          =Input(UInt(1.W))   // i0 double-bit error
   val ifu_i0_instr          =Input(UInt(32.W))  // i0 instruction from the aligner
-  val ifu_i0_pc             =Input(UInt(32.W))  // i0 pc from the aligner
+  val ifu_i0_pc             =Input(UInt(31.W))  // i0 pc from the aligner
 
   val dec_ib0_valid_d       =Output(UInt(1.W))   // ib0 valid
   val dec_i0_icaf_type_d    =Output(UInt(2.W)) // i0 instruction access fault type
   val dec_i0_instr_d        =Output(UInt(32.W)) // i0 inst at decode
-  val dec_i0_pc_d           =Output(UInt(32.W)) // i0 pc at decode
+  val dec_i0_pc_d           =Output(UInt(31.W)) // i0 pc at decode
   val dec_i0_pc4_d          =Output(UInt(1.W))  // i0 is 4B inst else 2B
   val dec_i0_brp            =Output(new el2_br_pkt_t) // i0 branch packet at decode
-  val dec_i0_bp_index       =Output(UInt((pt1.BTB_ADDR_HI+1).W))   // i0 branch index
-  val dec_i0_bp_fghr        =Output(UInt(pt1.BHT_GHR_SIZE.W))   // BP FGHR
-  val dec_i0_bp_btag        =Output(UInt(pt1.BTB_BTAG_SIZE.W))  // BP tag
+  val dec_i0_bp_index       =Output(UInt((BTB_ADDR_HI-BTB_ADDR_LO).W))   // i0 branch index
+  val dec_i0_bp_fghr        =Output(UInt(BHT_GHR_SIZE.W))   // BP FGHR
+  val dec_i0_bp_btag        =Output(UInt(BTB_BTAG_SIZE.W))  // BP tag
   val dec_i0_icaf_d         =Output(UInt(1.W))  // i0 instruction access fault at decode
   val dec_i0_icaf_f1_d      =Output(UInt(1.W))  // i0 instruction access fault at decode for f1 fetch group
   val dec_i0_dbecc_d        =Output(UInt(1.W))  // i0 double-bit error at decode
   val dec_debug_wdata_rs1_d =Output(UInt(1.W))  // put debug write data onto rs1 source: machine is halted
   val dec_debug_fence_d     =Output(UInt(1.W))  // debug fence inst
-}
-//object ib_gen extends App{
-//  chisel3.Driver.emitVerilog(new el2_dec_ib_ctl)
-//}
+}/*
+object ib_gen extends App{
+  chisel3.Driver.emitVerilog(new el2_dec_ib_ctl)
+}*/
