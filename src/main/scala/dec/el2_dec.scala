@@ -1,7 +1,6 @@
 package dec
 import chisel3._
 import include._
-import snapshot.pt1
 import lib._
 
 class el2_dec_IO extends Bundle with el2_lib {
