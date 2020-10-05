@@ -1,11 +1,11 @@
-/*package dec
+package dec
 import chisel3._
 import scala.collection._
 import chisel3.util._
 import include._
 import lib._
 
-class el2_dec_decode_ctl extends Module with el2_lib {
+class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   val io = IO(new Bundle{
 
     val dec_tlu_flush_extint          = Input(Bool())
@@ -325,7 +325,7 @@ class el2_dec_decode_ctl extends Module with el2_lib {
   for(i <- 0 until  LSU_NUM_NBLOAD){
     cam_inv_reset_val(i) := cam_inv_reset   & (cam_inv_reset_tag === cam(i).tag) & cam(i).valid
     cam_data_reset_val(i) := cam_data_reset & (cam_data_reset_tag === cam(i).tag) & cam_raw(i).valid
-    cam_in(i):=0.U.asTypeOf(el2_load_cam_pkt_t)
+    cam_in(i):=0.U.asTypeOf(cam(0))
     cam(i):=cam_raw(i)
 
     when(cam_data_reset_val(i).asBool){
@@ -349,7 +349,7 @@ class el2_dec_decode_ctl extends Module with el2_lib {
       cam_in(i).valid := 0.U
     }
 
-    cam_raw(i):=withClock(io.free_clk){RegNext(cam_in(i))}
+    cam_raw(i):=withClock(io.free_clk){RegNext(cam_in(i),0.U.asTypeOf(cam(0)))}
     nonblock_load_write(i) := (load_data_tag === cam_raw(i).tag) & cam_raw(i).valid
   }
 
@@ -844,4 +844,4 @@ class el2_dec_decode_ctl extends Module with el2_lib {
 
 object dec_decode extends App{
   chisel3.Driver.emitVerilog(new el2_dec_decode_ctl)
-}*/
+}
