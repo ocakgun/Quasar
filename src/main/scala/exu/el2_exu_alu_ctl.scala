@@ -2,15 +2,14 @@ package exu
 
 import chisel3._
 import chisel3.util._
-import chisel3.util._
 import include._
 import lib._
 
 class el2_exu_alu_ctl extends Module with el2_lib {
   val io = IO(new Bundle{
                         //////////  Inputs  /////////
-   val                  clk               = Input(Clock())  // Top level clock
-   val                  rst_l             = Input(UInt(1.W))  // Reset
+  // val                  clk               = Input(Clock())  // Top level clock
+  // val                  rst_l             = Input(UInt(1.W))  // Reset
    val                  scan_mode         = Input(UInt(1.W))  // Scan control
    val                  flush_upper_x     = Input(UInt(1.W))  // Branch flush from previous cycle
    val                  flush_lower_r     = Input(UInt(1.W))  // Master flush of entire pipeline
@@ -20,59 +19,37 @@ class el2_exu_alu_ctl extends Module with el2_lib {
    val                  csr_ren_in        = Input(UInt(1.W))           // extra decode
    val                  a_in              = Input(UInt(32.W))               // A operand
    val                  b_in              = Input(UInt(32.W))               // B operand
-   val                  pc_in             = Input(UInt(32.W))              // for pc=pc+2,4 calculations
+   val                  pc_in             = Input(UInt(31.W))              // for pc=pc+2,4 calculations
    val                  pp_in             = Input(new el2_predict_pkt_t)              // Predicted branch structure
-   val                  brimm_in          = Input(UInt(13.W))           // Branch offset
+   val                  brimm_in          = Input(UInt(12.W))           // Branch offset
                         //////////  Outputs  /////////
    val                  result_ff         = Output(UInt(32.W))          // final result
    val                  flush_upper_out   = Output(UInt(1.W)) // Branch flush
    val                  flush_final_out   = Output(UInt(1.W)) // Branch flush or flush entire pipeline
-   val                  flush_path_out    = Output(UInt(32.W)) // Branch flush PC
-   val                  pc_ff             = Output(UInt(32.W)) // flopped PC
+   val                  flush_path_out    = Output(UInt(31.W)) // Branch flush PC
+   val                  pc_ff             = Output(UInt(31.W)) // flopped PC
    val                  pred_correct_out  = Output(UInt(1.W)) // NPC control
    val                  predict_p_out     = Output(new el2_predict_pkt_t)     // Predicted branch structure
-  val aout = Output(UInt(33.W))
   })
-//   io.result_ff             := 0.U
-//   io.flush_upper_out       := 0.U
-//   io.flush_final_out       := 0.U
-//   io.flush_path_out        := 0.U
-//   io.pc_ff                 := 0.U
-//   io.pred_correct_out      := 0.U
-//
-//   io.predict_p_out.misp       := 0.U
-//   io.predict_p_out.ataken     := 0.U
-//   io.predict_p_out.boffset    := 0.U
-//   io.predict_p_out.pc4        := 0.U
-//   io.predict_p_out.hist       := 0.U
-//   io.predict_p_out.toffset    := 0.U
-//   io.predict_p_out.valid      := 0.U
-//   io.predict_p_out.br_error   := 0.U
-//   io.predict_p_out.br_start_error :=0.U
-//   io.predict_p_out.prett      := 0.U
-//   io.predict_p_out.pcall      := 0.U
-//   io.predict_p_out.pret       := 0.U
-//   io.predict_p_out.pja        := 0.U
-//   io.predict_p_out.way        := 0.U
-//
-  io.pc_ff := RegEnable(Cat(io.pc_in(31,1),0.U(1.W)),0.U,io.enable) // any PC is run through here - doesn't have to be alu
+
+  io.pc_ff := RegEnable(io.pc_in,0.U,io.enable) // any PC is run through here - doesn't have to be alu
   val result = WireInit(UInt(32.W),0.U)
   io.result_ff := RegEnable(result,0.U,io.enable)
 
  val   bm = Mux( io.ap.sub.asBool, ~io.b_in, io.b_in) //H:b modified
 
- // val aout = WireInit(UInt(33.W),0.U)
-  io.aout := Mux1H(Seq(
+  val aout = WireInit(UInt(33.W),0.U)
+  aout := Mux1H(Seq(
     io.ap.sub.asBool -> (Cat(0.U(1.W),io.a_in) + Cat(0.U(1.W),~io.b_in) + 1.U),
     !io.ap.sub.asBool-> (Cat(0.U(1.W),io.a_in) + Cat(0.U(1.W), io.b_in))
   ))
-  val cout = io.aout(32)
+  val cout = aout(32)
 
-  val ov  = (~io.a_in(31) & ~bm(31) &  io.aout(31)) | ( io.a_in(31) &  bm(31) & ~io.aout(31) ) //overflow check from last bits
+  val ov  = (~io.a_in(31) & ~bm(31) &  aout(31)) | ( io.a_in(31) &  bm(31) & ~aout(31) ) //overflow check from last bits
 
   val eq                  = (io.a_in === io.b_in)
   val ne                  = ~eq
-  val neg                 =  io.aout(31)// check for the last signed bit (for neg)
+  val neg                 =  aout(31)// check for the last signed bit (for neg)
   val lt                  = (~io.ap.unsign & (neg ^ ov)) |  ( io.ap.unsign & ~cout)  //if alu packet sends unsigned and there is no cout(i.e no overflow and unsigned pkt)
   val ge                  = ~lt // if not less then
 
@@ -97,7 +74,7 @@ class el2_exu_alu_ctl extends Module with el2_lib {
     val shift_long = WireInit(UInt(63.W),0.U)
     shift_long := ( shift_extend >> shift_amount );   // 62-32 unused
 
-    val sout  = ( shift_long(31,0) & shift_mask(31,0) );
+    val sout  = ( shift_long(31,0) & shift_mask(31,0) ); //incase of sra shift_mask is 1
 
 
     val sel_shift           =  io.ap.sll  | io.ap.srl | io.ap.sra
@@ -109,14 +86,14 @@ class el2_exu_alu_ctl extends Module with el2_lib {
 
     // for a conditional br pcout[] will be the opposite of the branch prediction
     // for jal or pcall, it will be the link address pc+2 or pc+4
-    val pcout =  Cat(rvbradder(io.pc_in,io.brimm_in),0.U(1.W))
+    val pcout =  rvbradder(Cat(io.pc_in,0.U),Cat(io.brimm_in,0.U))
 
-    result       :=  MuxCase(lout,Array(
-         sel_shift.asBool       ->       sout,
-         sel_adder.asBool       ->       io.aout,
+    result       :=  MuxCase(lout(31,0),Array(
+         sel_shift.asBool       ->       sout(31,0),
+         sel_adder.asBool       ->       aout(31,0),
          sel_pc.asBool          ->       pcout,
-         io.ap.csr_write.asBool ->       csr_write_data,
-         slt_one.asBool         ->       Cat(repl(31,0.U),slt_one)))
+         io.ap.csr_write.asBool ->       csr_write_data(31,0),
+         slt_one.asBool         ->       Cat(0.U(31.W),slt_one)))
 
     // *** branch handling ***
 
@@ -132,13 +109,13 @@ class el2_exu_alu_ctl extends Module with el2_lib {
     // for any_jal pred_correct==0
     io.pred_correct_out    := (io.valid_in & io.ap.predict_nt & !actual_taken & !any_jal) | (io.valid_in & io.ap.predict_t  &  actual_taken & !any_jal)
     // for any_jal adder output is the flush path
-    io.flush_path_out  := Cat(Mux(any_jal.asBool, io.aout(31,1), pcout(31,1)),0.U(1.W) )
+    io.flush_path_out  := Mux(any_jal.asBool, aout(31,1), pcout(31,1))
 
     // pcall and pret are included here
     val cond_mispredict   = (io.ap.predict_t  & !actual_taken) | (io.ap.predict_nt &  actual_taken.asUInt)
 
     // target mispredicts on ret's
-    val target_mispredict   =  io.pp_in.pret & (io.pp_in.prett(31,1) =/= io.aout(31,1)) //predicted return target != aout
+    val target_mispredict   =  io.pp_in.pret & (io.pp_in.prett(31,1) =/= aout(31,1)) //predicted return target != aout
 
     io.flush_upper_out     :=   (io.ap.jal | cond_mispredict | target_mispredict) & io.valid_in & !io.flush_upper_x   & !io.flush_lower_r
     //there was no entire pipe flush (& previous cycle flush ofc(why check?)) therfore signAL 1 to flush instruction before X stage
