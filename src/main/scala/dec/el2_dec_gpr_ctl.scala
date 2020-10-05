@@ -5,7 +5,7 @@ import chisel3.util._
 import include._
 import lib._
 
-class el2_dec_gpr_ctl extends Module{
+class el2_dec_gpr_ctl extends Module with RequireAsyncReset{
 	val io		=IO(new el2_dec_gpr_ctl_IO)
 	val w0v		=Wire(Vec(32,UInt(1.W)))
 	val w1v		=Wire(Vec(32,UInt(1.W)))
@@ -18,6 +18,8 @@ class el2_dec_gpr_ctl extends Module{
 	w2v(0):=0.U
 	gpr_out(0):=0.U
 	gpr_in(0):=0.U
+	io.rd0:=0.U
+	io.rd1:=0.U
 	gpr_wr_en:= (w0v.reverse).reduceRight(Cat(_,_)) | (w1v.reverse).reduceRight(Cat(_,_)) | (w2v.reverse).reduceRight(Cat(_,_))
      // GPR Write logic 	
      for (j <-1 until 32){
@@ -31,9 +33,12 @@ class el2_dec_gpr_ctl extends Module{
  	  gpr_out(j):=rvdffe(gpr_in(j),gpr_wr_en(j),io.clk,io.scan_mode)
     }
       // GPR Read logic
-    val gpr_temp= for(i <-1 until 32) yield (Fill(32,io.raddr0===i.asUInt) & gpr_out(i),Fill(32,io.raddr1===i.asUInt) & gpr_out(i))	
-	io.rd0:=gpr_temp.map(_._1).reduce(_|_) 
-	io.rd1:=gpr_temp.map(_._2).reduce(_|_) 
+	io.rd0:=Mux1H((1 until 32).map(i => (io.raddr0===i.U).asBool -> gpr_out(i)))
+	io.rd1:=Mux1H((1 until 32).map(i => (io.raddr1===i.U).asBool -> gpr_out(i)))
+
+    //val gpr_temp= for(i <-1 until 32) yield (Fill(32,io.raddr0===i.asUInt) & gpr_out(i),Fill(32,io.raddr1===i.asUInt) & gpr_out(i))	
+   //	io.rd0:=gpr_temp.map(_._1).reduce(_|_) 
+   //	io.rd1:=gpr_temp.map(_._2).reduce(_|_) 
 }
 
 class el2_dec_gpr_ctl_IO extends Bundle{
