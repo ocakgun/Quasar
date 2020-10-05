@@ -325,11 +325,7 @@ class el2_dec_decode_ctl extends Module with el2_lib {
   for(i <- 0 until  LSU_NUM_NBLOAD){
     cam_inv_reset_val(i) := cam_inv_reset   & (cam_inv_reset_tag === cam(i).tag) & cam(i).valid
     cam_data_reset_val(i) := cam_data_reset & (cam_data_reset_tag === cam(i).tag) & cam_raw(i).valid
-    cam_in(i).valid:=0.U
-    cam_in(i).tag:=0.U
-    cam_in(i).wb:=0.U
-    cam_in(i).rd:=0.U
-
+    cam_in(i):=0.U.asTypeOf(el2_load_cam_pkt_t)
     cam(i):=cam_raw(i)
 
     when(cam_data_reset_val(i).asBool){
