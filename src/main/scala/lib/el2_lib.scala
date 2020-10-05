@@ -142,7 +142,7 @@ trait param {
   val LSU_BUS_PRTY           = 0x2 //.U(2.W)
   val LSU_BUS_TAG            = 0x3 //.U(4.W)
   val LSU_NUM_NBLOAD         = 0x04 //.U(5.W)
-  val LSU_NUM_NBLOAD_WIDTH   = 0x2  //.U(3.W)
+  val LSU_NUM_NBLOAD_WIDTH   = 0x3  //.U(3.W)
   val LSU_SB_BITS            = 0x10 //.U(5.W)
   val LSU_STBUF_DEPTH        = 0x4  //.U(4.W)
   val NO_ICCM_NO_ICACHE      = 0x0  //.U(1.W)
@@ -159,7 +159,6 @@ trait param {
   val SB_BUS_PRTY            = 0x2   //.U(2.W)
   val SB_BUS_TAG             = 0x1   //.U(4.W)
   val TIMER_LEGAL_EN         = 0x1   //.U(1.W)
-
 
   // Configuration Methods
   def MEM_CAL : (Int, Int, Int)=
@@ -306,14 +305,15 @@ trait el2_lib extends param{
     io.dout :=  Cat(dout_plus_parity(37,32),dout_plus_parity(30,16), dout_plus_parity(14,8), dout_plus_parity(6,4), dout_plus_parity(2))
     io.ecc_out := Cat(dout_plus_parity(38) ^ (ecc_check(6,0) === "b1000000".U), dout_plus_parity(31), dout_plus_parity(15), dout_plus_parity(7), dout_plus_parity(3), dout_plus_parity(1,0))
   }
+//rvbradder(Cat(pc, 0.U), Cat(offset, 0.U))
   def rvbradder (pc:UInt, offset:UInt) = {
-    val dout_lower = Cat(pc(12,1) +& offset(12,1), 0.U)
+    val dout_lower = pc(12,1) +& offset(12,1)
     val pc_inc = pc(31,13)+1.U
-    val pc_dec = pc(31,13)+1.U
+    val pc_dec = pc(31,13)-1.U
     val sign = offset(12)
     Cat(Mux1H(Seq((sign ^ !dout_lower(dout_lower.getWidth-1)).asBool -> pc(31,13),
-      (!sign & dout_lower(dout_lower.getWidth-1)).asBool -> (pc(31,13)+1.U),
-      (sign & !dout_lower(dout_lower.getWidth-1)).asBool -> (pc(31,13)-1.U))) , dout_lower(11,1), 0.U)
+      (!sign & dout_lower(dout_lower.getWidth-1)).asBool -> pc_inc,
+      (sign & !dout_lower(dout_lower.getWidth-1)).asBool -> pc_dec))  , dout_lower(11,0), 0.U)
   }
 
   ////rvdffe ///////////////////////////////////////////////////////////////////////
