@@ -1,4 +1,4 @@
-package dec
+/*package dec
 import chisel3._
 import scala.collection._
 import chisel3.util._
@@ -844,4 +844,4 @@ class el2_dec_decode_ctl extends Module with el2_lib {
 
 object dec_decode extends App{
   chisel3.Driver.emitVerilog(new el2_dec_decode_ctl)
-}
+}*/
