@@ -36,7 +36,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
     val dec_i0_icaf_type_d         =   Input(UInt(2.W))      // i0 instruction access fault type
     val dec_i0_dbecc_d             =   Input(Bool())            // icache/iccm double-bit error
     val dec_i0_brp                 =   Input(new el2_br_pkt_t)          // branch packet
-    val dec_i0_bp_index            =   Input(UInt((BTB_ADDR_HI-BTB_ADDR_LO).W))    // i0 branch index
+    val dec_i0_bp_index            =   Input(UInt(((BTB_ADDR_HI-BTB_ADDR_LO)+1).W))    // i0 branch index
     val dec_i0_bp_fghr             =   Input(UInt(BHT_GHR_SIZE.W))   // BP FGHR
     val dec_i0_bp_btag             =   Input(UInt(BTB_BTAG_SIZE.W))   // BP tag
     val dec_i0_pc_d                =   Input(UInt(31.W))    // pc
@@ -63,11 +63,9 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
     val dec_i0_instr_d             =   Input(UInt(32.W))    // inst at decode
     val dec_ib0_valid_d            =   Input(Bool())          // inst valid at decode
     val exu_i0_result_x            =   Input(UInt(32.W))    // from primary alu's
-    val clk                        =   Input(Clock())              // for rvdffe's
     val free_clk                   =   Input(Clock())
     val active_clk                 =   Input(Clock())              // clk except for halt / pause
     val clk_override               =   Input(Bool())              // test stuff
-    val rst_l                      =   Input(Bool())
 
     val dec_i0_rs1_en_d            =   Output(Bool())     // rs1 enable at decode
     val dec_i0_rs2_en_d            =   Output(Bool())
@@ -108,7 +106,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
     val pred_correct_npc_x         =   Output(UInt(31.W))   // npc e2 if the prediction is correct
     val dec_i0_predict_p_d         = Output(new el2_predict_pkt_t)      // i0 predict packet decode
     val i0_predict_fghr_d          = Output(UInt(BHT_GHR_SIZE.W))   // i0 predict fghr
-    val i0_predict_index_d         = Output(UInt((BHT_ADDR_HI-BHT_ADDR_LO).W))    // i0 predict index
+    val i0_predict_index_d         = Output(UInt(((BHT_ADDR_HI-BHT_ADDR_LO)+1).W))    // i0 predict index
     val i0_predict_btag_d          = Output(UInt(BTB_BTAG_SIZE.W))  // i0_predict branch tag
     val dec_data_en                =   Output(UInt(2.W))    // clock-gating logic
     val dec_ctl_en                 =   Output(UInt(2.W))
@@ -223,7 +221,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   val data_gated_cgc= Module(new rvclkhdr)
   data_gated_cgc.io.en        := data_gate_en
   data_gated_cgc.io.scan_mode :=io.scan_mode
-  data_gated_cgc.io.clk       :=io.clk
+  data_gated_cgc.io.clk       :=clock
   val data_gate_clk           =data_gated_cgc.io.l1clk
 
   // End  - Data gating }}
@@ -486,8 +484,8 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   val csr_imm_x = withClock(io.active_clk){RegNext(i0_dp.csr_imm, init=0.U)}
 
   // perform the update operation if any
-  val csrimm_x = rvdffe(i0(19,15),i0_x_data_en.asBool,io.clk,io.scan_mode)
-  val csr_rddata_x = rvdffe(io.dec_csr_rddata_d,i0_x_data_en.asBool,io.clk,io.scan_mode)
+  val csrimm_x = rvdffe(i0(19,15),i0_x_data_en.asBool,clock,io.scan_mode)
+  val csr_rddata_x = rvdffe(io.dec_csr_rddata_d,i0_x_data_en.asBool,clock,io.scan_mode)
 
   val csr_mask_x       = Mux1H(Seq(
                         csr_imm_x.asBool  ->   Cat(repl(27,0.U),csrimm_x(4,0)),
@@ -511,7 +509,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   val write_csr_data_in = Mux(pause_state,(write_csr_data - 1.U(32.W)),
     Mux(io.dec_tlu_wr_pause_r,io.dec_csr_wrdata_r,write_csr_data_x))
   val csr_data_wen = ((csr_clr_x | csr_set_x | csr_write_x) & csr_read_x) | io.dec_tlu_wr_pause_r | pause_state
-  write_csr_data := rvdffe(write_csr_data_in,csr_data_wen,io.clk,io.scan_mode)
+  write_csr_data := rvdffe(write_csr_data_in,csr_data_wen,clock,io.scan_mode)
 
   // will hold until write-back at which time the CSR will be updated while GPR is possibly written with prior CSR
   val pause_stall = pause_state
@@ -539,7 +537,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
 
   val shift_illegal      = io.dec_i0_decode_d & !i0_legal//lm: valid but not legal
   val illegal_inst_en    = shift_illegal & !illegal_lockout
-  io.dec_illegal_inst := rvdffe(i0_inst_d,illegal_inst_en,io.clk,io.scan_mode)
+  io.dec_illegal_inst := rvdffe(i0_inst_d,illegal_inst_en,clock,io.scan_mode)
   illegal_lockout_in := (shift_illegal | illegal_lockout) & !flush_final_r
   illegal_lockout := withClock(data_gate_clk){RegNext(illegal_lockout_in, 0.U)}
   val i0_div_prior_div_stall = i0_dp.div & io.dec_div_active
@@ -599,12 +597,12 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   d_t.i0trigger          :=  io.dec_i0_trigger_match_d & repl(4,io.dec_i0_decode_d)
 
 
-  x_t := rvdffe(d_t,i0_x_ctl_en.asBool,io.clk,io.scan_mode)
+  x_t := rvdffe(d_t,i0_x_ctl_en.asBool,clock,io.scan_mode)
 
   x_t_in := x_t
   x_t_in.i0trigger := x_t.i0trigger & !repl(4,io.dec_tlu_flush_lower_wb)
 
-   r_t := rvdffe(x_t_in,i0_x_ctl_en.asBool,io.clk,io.scan_mode)
+   r_t := rvdffe(x_t_in,i0_x_ctl_en.asBool,clock,io.scan_mode)
   val lsu_trigger_match_r = RegNext(io.lsu_trigger_match_m, 0.U)
   val lsu_pmu_misaligned_r = RegNext(io.lsu_pmu_misaligned_m, 0.U)
 
@@ -680,13 +678,13 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   d_d.csrwonly              :=  i0_csr_write_only_d & io.dec_i0_decode_d
   d_d.csrwaddr              :=  i0(31,20)
 
-  x_d := rvdffe(d_d, i0_x_ctl_en.asBool,io.clk,io.scan_mode)
+  x_d := rvdffe(d_d, i0_x_ctl_en.asBool,clock,io.scan_mode)
   val x_d_in = Wire(new el2_dest_pkt_t)
   x_d_in := x_d
   x_d_in.i0v         := x_d.i0v     & !io.dec_tlu_flush_lower_wb & !io.dec_tlu_flush_lower_r
   x_d_in.i0valid     := x_d.i0valid & !io.dec_tlu_flush_lower_wb & !io.dec_tlu_flush_lower_r
 
-  r_d := rvdffe(x_d_in,i0_r_ctl_en.asBool,io.clk,io.scan_mode)
+  r_d := rvdffe(x_d_in,i0_r_ctl_en.asBool,clock,io.scan_mode)
   r_d_in := r_d
   r_d_in.i0rd   :=  r_d.i0rd
 
@@ -702,7 +700,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   io.dec_i0_wen_r              :=  i0_wen_r   & !r_d_in.i0div & !i0_load_kill_wen_r  // don't write a nonblock load 1st time down the pipe
   io.dec_i0_wdata_r      :=  i0_result_corr_r
 
-  val i0_result_r_raw = rvdffe(i0_result_x,i0_r_data_en.asBool,io.clk,io.scan_mode)
+  val i0_result_r_raw = rvdffe(i0_result_x,i0_r_data_en.asBool,clock,io.scan_mode)
   if ( LOAD_TO_USE_PLUS1 == 1 ) {
         i0_result_x         := io.exu_i0_result_x
         i0_result_r         := Mux((r_d.i0v & r_d.i0load).asBool,io.lsu_result_m, i0_result_r_raw)
@@ -718,7 +716,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   val last_br_immed_d = WireInit(UInt(12.W),0.U)
   last_br_immed_d := Mux((io.i0_ap.predict_nt).asBool,Cat(repl(10,0.U),i0_ap_pc4,i0_ap_pc2),i0_br_offset)
   val last_br_immed_x  = WireInit(UInt(12.W),0.U)
-  last_br_immed_x := rvdffe(last_br_immed_d,i0_x_data_en.asBool,io.clk,io.scan_mode)
+  last_br_immed_x := rvdffe(last_br_immed_d,i0_x_data_en.asBool,clock,io.scan_mode)
 
   // divide stuff
 
@@ -751,16 +749,16 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   val i0_wb_en                   =  i0_wb_data_en
   val i0_wb1_en                  =  i0_wb1_data_en
 
-  val div_inst = rvdffe(i0_inst_d(24,7),i0_div_decode_d.asBool,io.clk,io.scan_mode)
-  val i0_inst_x = rvdffe(i0_inst_d,i0_x_data_en.asBool,io.clk,io.scan_mode)
-  val i0_inst_r = rvdffe(i0_inst_x,i0_r_data_en.asBool,io.clk,io.scan_mode)
+  val div_inst = rvdffe(i0_inst_d(24,7),i0_div_decode_d.asBool,clock,io.scan_mode)
+  val i0_inst_x = rvdffe(i0_inst_d,i0_x_data_en.asBool,clock,io.scan_mode)
+  val i0_inst_r = rvdffe(i0_inst_x,i0_r_data_en.asBool,clock,io.scan_mode)
   val i0_inst_wb_in    =  i0_inst_r
-  val i0_inst_wb = rvdffe(i0_inst_wb_in,i0_wb_en.asBool,io.clk,io.scan_mode)
-  io.dec_i0_inst_wb1 := rvdffe(i0_inst_wb,i0_wb1_en.asBool,io.clk,io.scan_mode)
-  val i0_pc_wb = rvdffe(io.dec_tlu_i0_pc_r,i0_wb_en.asBool,io.clk,io.scan_mode)
+  val i0_inst_wb = rvdffe(i0_inst_wb_in,i0_wb_en.asBool,clock,io.scan_mode)
+  io.dec_i0_inst_wb1 := rvdffe(i0_inst_wb,i0_wb1_en.asBool,clock,io.scan_mode)
+  val i0_pc_wb = rvdffe(io.dec_tlu_i0_pc_r,i0_wb_en.asBool,clock,io.scan_mode)
 
-  io.dec_i0_pc_wb1 := rvdffe(i0_pc_wb,i0_wb1_en.asBool,io.clk,io.scan_mode)
-  val dec_i0_pc_r = rvdffe(io.exu_i0_pc_x,i0_r_data_en.asBool,io.clk,io.scan_mode)
+  io.dec_i0_pc_wb1 := rvdffe(i0_pc_wb,i0_wb1_en.asBool,clock,io.scan_mode)
+  val dec_i0_pc_r = rvdffe(io.exu_i0_pc_x,i0_r_data_en.asBool,clock,io.scan_mode)
 
   io.dec_tlu_i0_pc_r      := dec_i0_pc_r
 
