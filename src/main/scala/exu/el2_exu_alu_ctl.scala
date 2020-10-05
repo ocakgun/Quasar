@@ -30,48 +30,26 @@ class el2_exu_alu_ctl extends Module with el2_lib {
    val                  pc_ff             = Output(UInt(31.W)) // flopped PC
    val                  pred_correct_out  = Output(UInt(1.W)) // NPC control
    val                  predict_p_out     = Output(new el2_predict_pkt_t)     // Predicted branch structure
-  val aout = Output(UInt(33.W))
   })
-//   io.result_ff             := 0.U
-//   io.flush_upper_out       := 0.U
-//   io.flush_final_out       := 0.U
-//   io.flush_path_out        := 0.U
-//   io.pc_ff                 := 0.U
-//   io.pred_correct_out      := 0.U
-//
-//   io.predict_p_out.misp       := 0.U
-//   io.predict_p_out.ataken     := 0.U
-//   io.predict_p_out.boffset    := 0.U
-//   io.predict_p_out.pc4        := 0.U
-//   io.predict_p_out.hist       := 0.U
-//   io.predict_p_out.toffset    := 0.U
-//   io.predict_p_out.valid      := 0.U
-//   io.predict_p_out.br_error   := 0.U
-//   io.predict_p_out.br_start_error :=0.U
-//   io.predict_p_out.prett      := 0.U
-//   io.predict_p_out.pcall      := 0.U
-//   io.predict_p_out.pret       := 0.U
-//   io.predict_p_out.pja        := 0.U
-//   io.predict_p_out.way        := 0.U
-//
+
   io.pc_ff := RegEnable(io.pc_in,0.U,io.enable) // any PC is run through here - doesn't have to be alu
   val result = WireInit(UInt(32.W),0.U)
   io.result_ff := RegEnable(result,0.U,io.enable)
 
  val   bm = Mux( io.ap.sub.asBool, ~io.b_in, io.b_in) //H:b modified
 
- // val aout = WireInit(UInt(33.W),0.U)
-  io.aout := Mux1H(Seq(
+  val aout = WireInit(UInt(33.W),0.U)
+  aout := Mux1H(Seq(
     io.ap.sub.asBool -> (Cat(0.U(1.W),io.a_in) + Cat(0.U(1.W),~io.b_in) + 1.U),
     !io.ap.sub.asBool-> (Cat(0.U(1.W),io.a_in) + Cat(0.U(1.W), io.b_in))
   ))
-  val cout = io.aout(32)
+  val cout = aout(32)
 
-  val ov  = (~io.a_in(31) & ~bm(31) &  io.aout(31)) | ( io.a_in(31) &  bm(31) & ~io.aout(31) ) //overflow check from last bits
+  val ov  = (~io.a_in(31) & ~bm(31) &  aout(31)) | ( io.a_in(31) &  bm(31) & ~aout(31) ) //overflow check from last bits
 
   val eq                  = (io.a_in === io.b_in)
   val ne                  = ~eq
-  val neg                 =  io.aout(31)// check for the last signed bit (for neg)
+  val neg                 =  aout(31)// check for the last signed bit (for neg)
   val lt                  = (~io.ap.unsign & (neg ^ ov)) |  ( io.ap.unsign & ~cout)  //if alu packet sends unsigned and there is no cout(i.e no overflow and unsigned pkt)
   val ge                  = ~lt // if not less then
 
@@ -110,12 +88,12 @@ class el2_exu_alu_ctl extends Module with el2_lib {
     // for jal or pcall, it will be the link address pc+2 or pc+4
     val pcout =  rvbradder(Cat(io.pc_in,0.U),Cat(io.brimm_in,0.U))
 
-    result       :=  MuxCase(lout,Array(
-         sel_shift.asBool       ->       sout,
-         sel_adder.asBool       ->       io.aout,
+    result       :=  MuxCase(lout(31,0),Array(
+         sel_shift.asBool       ->       sout(31,0),
+         sel_adder.asBool       ->       aout(31,0),
          sel_pc.asBool          ->       pcout,
-         io.ap.csr_write.asBool ->       csr_write_data,
-         slt_one.asBool         ->       Cat(repl(31,0.U),slt_one)))
+         io.ap.csr_write.asBool ->       csr_write_data(31,0),
+         slt_one.asBool         ->       Cat(0.U(31.W),slt_one)))
 
     // *** branch handling ***
 
@@ -131,13 +109,13 @@ class el2_exu_alu_ctl extends Module with el2_lib {
     // for any_jal pred_correct==0
     io.pred_correct_out    := (io.valid_in & io.ap.predict_nt & !actual_taken & !any_jal) | (io.valid_in & io.ap.predict_t  &  actual_taken & !any_jal)
     // for any_jal adder output is the flush path
-    io.flush_path_out  := Mux(any_jal.asBool, io.aout(31,1), pcout(31,1))
+    io.flush_path_out  := Mux(any_jal.asBool, aout(31,1), pcout(31,1))
 
     // pcall and pret are included here
     val cond_mispredict   = (io.ap.predict_t  & !actual_taken) | (io.ap.predict_nt &  actual_taken.asUInt)
 
     // target mispredicts on ret's
-    val target_mispredict   =  io.pp_in.pret & (io.pp_in.prett(31,1) =/= io.aout(31,1)) //predicted return target != aout
+    val target_mispredict   =  io.pp_in.pret & (io.pp_in.prett(31,1) =/= aout(31,1)) //predicted return target != aout
 
     io.flush_upper_out     :=   (io.ap.jal | cond_mispredict | target_mispredict) & io.valid_in & !io.flush_upper_x   & !io.flush_lower_r
     //there was no entire pipe flush (& previous cycle flush ofc(why check?)) therfore signAL 1 to flush instruction before X stage
