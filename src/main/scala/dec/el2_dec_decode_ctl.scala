@@ -362,7 +362,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   val cal_temp= for(i <-0 until LSU_NUM_NBLOAD) yield ((Fill(5,nonblock_load_write(i)) & cam(i).rd), io.dec_i0_rs1_en_d & cam(i).valid & (cam(i).rd === i0r.rs1), io.dec_i0_rs2_en_d & cam(i).valid & (cam(i).rd === i0r.rs2))
   val (waddr, ld_stall_1, ld_stall_2) = (cal_temp.map(_._1).reduce(_|_) , cal_temp.map(_._2).reduce(_|_), cal_temp.map(_._3).reduce(_|_) )
   io.dec_nonblock_load_waddr:=waddr
-  i0_nonblock_load_stall:=ld_stall_1 | ld_stall_2
+  i0_nonblock_load_stall:=ld_stall_1 | ld_stall_2 | i0_nonblock_boundary_stall
   //i0_nonblock_load_stall:=ld_stall_2
 
   // end non block load cam logic
@@ -376,8 +376,8 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   // the classes must be mutually exclusive with one another
   import el2_inst_pkt_t._
  // val i0_itype=Wire(el2_inst_pkt_t(4))
-  d_t.pmu_i0_itype  := MuxCase(NULL ,Array(
-    i0_dp.mul      -> MUL,
+  d_t.pmu_i0_itype  :=Fill(4,i0_legal_decode_d) & MuxCase(NULL ,Array(
+    i0_dp.mul       -> MUL,
     i0_dp.load     -> LOAD,
     i0_dp.store      -> STORE,
     i0_dp.pm_alu    -> ALU,
@@ -600,7 +600,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   x_t := rvdffe(d_t,i0_x_ctl_en.asBool,clock,io.scan_mode)
 
   x_t_in := x_t
-  x_t_in.i0trigger := x_t.i0trigger & !repl(4,io.dec_tlu_flush_lower_wb)
+  x_t_in.i0trigger := x_t.i0trigger & ~(repl(4,io.dec_tlu_flush_lower_wb))
 
    r_t := rvdffe(x_t_in,i0_x_ctl_en.asBool,clock,io.scan_mode)
   val lsu_trigger_match_r = RegNext(io.lsu_trigger_match_m, 0.U)
@@ -651,8 +651,8 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   i0_d_c.load               :=  i0_dp.load & i0_legal_decode_d
   i0_d_c.alu                :=  i0_dp.alu  & i0_legal_decode_d
 
-  val i0_x_c = RegEnable(i0_d_c, i0_x_ctl_en.asBool)
-  val i0_r_c = RegEnable(i0_x_c, i0_r_ctl_en.asBool)
+  val i0_x_c = withClock(io.active_clk){RegEnable(i0_d_c, i0_x_ctl_en.asBool)}
+  val i0_r_c = withClock(io.active_clk){RegEnable(i0_x_c, i0_r_ctl_en.asBool)}
   i0_pipe_en := Cat(io.dec_i0_decode_d,withClock(io.active_clk){RegNext(i0_pipe_en(3,1), init=0.U)})
 
   i0_x_ctl_en               := (i0_pipe_en(3,2).orR | io.clk_override)
@@ -693,7 +693,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   r_d_in.i0load      :=  r_d.i0load   & !io.dec_tlu_flush_lower_wb
   r_d_in.i0store     :=  r_d.i0store  & !io.dec_tlu_flush_lower_wb
 
-  wbd := RegEnable(r_d_in,i0_wb_ctl_en.asBool)
+  wbd := rvdffe(r_d_in,i0_wb_ctl_en.asBool,clock,io.scan_mode)
 
   io.dec_i0_waddr_r       :=  r_d_in.i0rd
   i0_wen_r              :=  r_d_in.i0v & !io.dec_tlu_i0_kill_writeb_r
@@ -775,28 +775,11 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   val i0_rs2_depend_i0_x  = io.dec_i0_rs2_en_d & x_d.i0v & (x_d.i0rd === i0r.rs2)
   val i0_rs2_depend_i0_r  = io.dec_i0_rs2_en_d & r_d.i0v & (r_d.i0rd === i0r.rs2)
   // order the producers as follows:  , i0_x, i0_r, i0_wb
-  //val rs1_order = (i0_rs1_class_d, i0_rs1_depth_d)
-  //val rs2_order = (i0_rs2_class_d, i0_rs2_depth_d)
-  i0_rs1_class_d := Mux1H(Seq(
-                        i0_rs1_depend_i0_x.asBool -> i0_x_c,
-                        i0_rs1_depend_i0_r.asBool -> i0_r_c,
-                        (!i0_rs1_depend_i0_r && !i0_rs1_depend_i0_r).asBool -> 0.U.asTypeOf(i0_rs1_class_d)))
-  i0_rs1_depth_d := Mux1H(Seq(
-                        i0_rs1_depend_i0_x.asBool -> 1.U(2.W),
-                        i0_rs1_depend_i0_r.asBool -> 2.U(2.W),
-                        (!i0_rs1_depend_i0_r && !i0_rs1_depend_i0_r).asBool -> 0.U))
-  i0_rs2_class_d := Mux1H(Seq(
-                        i0_rs2_depend_i0_x.asBool -> i0_x_c,
-                        i0_rs2_depend_i0_r.asBool -> i0_r_c,
-                        (!i0_rs2_depend_i0_r && !i0_rs2_depend_i0_r).asBool -> 0.U.asTypeOf(i0_rs2_class_d)))
-  i0_rs2_depth_d := Mux1H(Seq(
-                        i0_rs2_depend_i0_x.asBool -> 1.U(2.W),
-                        i0_rs2_depend_i0_r.asBool -> 2.U(2.W),
-                        (!i0_rs2_depend_i0_r && !i0_rs2_depend_i0_r).asBool -> 0.U))
-  /*(i0_rs1_class_d, i0_rs1_depth_d) := Mux((i0_rs1_depend_i0_x ).asBool, (i0_x_c, 1.U(2.W)),
-                                          Mux((i0_rs1_depend_i0_r ).asBool,(i0_r_c, 2.U(2.W)),0))
-   (i0_rs2_class_d, i0_rs2_depth_d) := Mux((i0_rs2_depend_i0_x ).asBool,(i0_x_c, 1.U(2.W)),
-                                          Mux((i0_rs2_depend_i0_r ).asBool,(i0_r_c, 2.U(2.W)),0))*/
+  i0_rs1_class_d := Mux(i0_rs1_depend_i0_x.asBool,i0_x_c,Mux(i0_rs1_depend_i0_r.asBool, i0_r_c, 0.U.asTypeOf(i0_rs1_class_d)))
+  i0_rs1_depth_d := Mux(i0_rs1_depend_i0_x.asBool,1.U(2.W),Mux(i0_rs1_depend_i0_r.asBool, 2.U(2.W), 0.U))
+  i0_rs2_class_d := Mux(i0_rs2_depend_i0_x.asBool,i0_x_c,Mux(i0_rs2_depend_i0_r.asBool, i0_r_c, 0.U.asTypeOf(i0_rs2_class_d)))
+  i0_rs2_depth_d := Mux(i0_rs2_depend_i0_x.asBool,1.U(2.W),Mux(i0_rs2_depend_i0_r.asBool, 2.U(2.W), 0.U))
+
   // stores will bypass load data in the lsu pipe
   if (LOAD_TO_USE_PLUS1 == 1) {
         i0_load_block_d  := (i0_rs1_class_d.load & i0_rs1_depth_d) | (i0_rs2_class_d.load & i0_rs2_depth_d(0) & !i0_dp.store)
@@ -827,14 +810,14 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
      io.dec_i0_rs1_bypass_data_d := Mux1H(Seq(
                             i0_rs1bypass(1).asBool -> io.lsu_result_m,
                             i0_rs1bypass(0).asBool -> i0_result_r,
-                            (!i0_rs2bypass(1) & !i0_rs2bypass(0) & i0_rs1_nonblock_load_bypass_en_d).asBool -> io.lsu_nonblock_load_data,
+                            (!i0_rs1bypass(1) & !i0_rs1bypass(0) & i0_rs1_nonblock_load_bypass_en_d).asBool -> io.lsu_nonblock_load_data,
      ))
      io.dec_i0_rs2_bypass_data_d := Mux1H(Seq(
                              i0_rs2bypass(1).asBool -> io.lsu_result_m,
                              i0_rs2bypass(0).asBool -> i0_result_r,
                              (!i0_rs2bypass(1) & !i0_rs2bypass(0) & i0_rs2_nonblock_load_bypass_en_d).asBool -> io.lsu_nonblock_load_data,
       ))
-  io.dec_lsu_valid_raw_d := ((io.dec_ib0_valid_d & (i0_dp_raw.load | i0_dp_raw.store) & io.dma_dccm_stall_any & !i0_block_raw_d) | io.dec_extint_stall)
+  io.dec_lsu_valid_raw_d := ((io.dec_ib0_valid_d & (i0_dp_raw.load | i0_dp_raw.store) & !io.dma_dccm_stall_any & !i0_block_raw_d) | io.dec_extint_stall)
   io.dec_lsu_offset_d := Mux1H(Seq(
     (!io.dec_extint_stall & i0_dp.lsu & i0_dp.load).asBool  ->     i0(31,20),
     (!io.dec_extint_stall & i0_dp.lsu & i0_dp.store).asBool ->     Cat(i0(31,25),i0(11,7))))

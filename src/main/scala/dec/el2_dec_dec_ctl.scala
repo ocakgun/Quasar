@@ -46,7 +46,7 @@ class el2_dec_dec_ctl extends Module with el2_lib{
   io.out.sll := pattern(List(-25,-14,-13,12,-6,4,-2))
   io.out.sra := pattern(List(30,-13,12,-6,4,-2))
   io.out.srl := pattern(List(-30,-25,14,-13,12,-6,4,-2))
-  io.out.slt := pattern(List(-25,-14,13,12,-6,4,-2)) | pattern(List(-14,13,-5,4,-2))
+  io.out.slt := pattern(List(-25,-14,13,-6,4,-2)) | pattern(List(-14,13,-5,4,-2))
   io.out.unsign := pattern(List(-14,13,12,-5,-2)) | pattern(List(13,6,-4,-2)) |
     pattern(List(14,-5,-4)) | pattern(List(-25,-14,13,12,-6,-2)) |
     pattern(List(25,14,12,-6,5,-2))
