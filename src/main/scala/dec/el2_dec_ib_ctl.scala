@@ -64,7 +64,7 @@ class el2_dec_ib_ctl_IO extends Bundle with param{
   val dbg_cmd_type		    =Input(UInt(2.W))  // dbg type
   val dbg_cmd_addr		    =Input(UInt(32.W)) // expand to 31:0
   val i0_brp				=Input(new el2_br_pkt_t) // i0 branch packet from aligner
-  val ifu_i0_bp_index       =Input(UInt((BTB_ADDR_HI-BTB_ADDR_LO).W)) // BP index(Changed size)
+  val ifu_i0_bp_index       =Input(UInt(((BTB_ADDR_HI-BTB_ADDR_LO)+1).W)) // BP index(Changed size)
   val ifu_i0_bp_fghr        =Input(UInt((BHT_GHR_SIZE).W)) // BP FGHR
   val ifu_i0_bp_btag        =Input(UInt((BTB_BTAG_SIZE).W)) // BP tag
   val ifu_i0_pc4            =Input(UInt(1.W))   // i0 is 4B inst else 2B
@@ -82,7 +82,7 @@ class el2_dec_ib_ctl_IO extends Bundle with param{
   val dec_i0_pc_d           =Output(UInt(31.W)) // i0 pc at decode
   val dec_i0_pc4_d          =Output(UInt(1.W))  // i0 is 4B inst else 2B
   val dec_i0_brp            =Output(new el2_br_pkt_t) // i0 branch packet at decode
-  val dec_i0_bp_index       =Output(UInt((BTB_ADDR_HI-BTB_ADDR_LO).W))   // i0 branch index
+  val dec_i0_bp_index       =Output(UInt(((BTB_ADDR_HI-BTB_ADDR_LO)+1).W))   // i0 branch index
   val dec_i0_bp_fghr        =Output(UInt(BHT_GHR_SIZE.W))   // BP FGHR
   val dec_i0_bp_btag        =Output(UInt(BTB_BTAG_SIZE.W))  // BP tag
   val dec_i0_icaf_d         =Output(UInt(1.W))  // i0 instruction access fault at decode
