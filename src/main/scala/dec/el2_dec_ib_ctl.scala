@@ -90,7 +90,7 @@ class el2_dec_ib_ctl_IO extends Bundle with param{
   val dec_i0_dbecc_d        =Output(UInt(1.W))  // i0 double-bit error at decode
   val dec_debug_wdata_rs1_d =Output(UInt(1.W))  // put debug write data onto rs1 source: machine is halted
   val dec_debug_fence_d     =Output(UInt(1.W))  // debug fence inst
-}/*
+}
 object ib_gen extends App{
   chisel3.Driver.emitVerilog(new el2_dec_ib_ctl)
-}*/
+}
