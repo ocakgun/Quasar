@@ -144,7 +144,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   val i0_rs1_depth_d = WireInit(UInt(2.W),0.U)
   val i0_rs2_depth_d = WireInit(UInt(2.W),0.U)
   val cam_wen=WireInit(UInt(LSU_NUM_NBLOAD.W), 0.U)
-  val cam = Wire(Vec(4,new el2_load_cam_pkt_t))
+  val cam = Wire(Vec(LSU_NUM_NBLOAD,new el2_load_cam_pkt_t))
   val cam_write=WireInit(UInt(1.W), 0.U)
   val cam_inv_reset_val=Wire(Vec(LSU_NUM_NBLOAD,UInt(1.W)))
   val cam_data_reset_val=Wire(Vec(LSU_NUM_NBLOAD,UInt(1.W)))
