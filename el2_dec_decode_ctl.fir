@@ -27,7 +27,7 @@ circuit el2_dec_decode_ctl :
   module el2_dec_dec_ctl : 
     input clock : Clock
     input reset : Reset
-    output io : {flip ins : UInt<32>, out : {alu : UInt<1>, rs1 : UInt<1>, rs2 : UInt<1>, imm12 : UInt<1>, rd : UInt<1>, shimm5 : UInt<1>, imm20 : UInt<1>, pc : UInt<1>, load : UInt<1>, store : UInt<1>, lsu : UInt<1>, add : UInt<1>, sub : UInt<1>, land : UInt<1>, lor : UInt<1>, lxor : UInt<1>, sll : UInt<1>, sra : UInt<1>, srl : UInt<1>, slt : UInt<1>, unsign : UInt<1>, condbr : UInt<1>, beq : UInt<1>, bne : UInt<1>, bge : UInt<1>, blt : UInt<1>, jal : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, csr_read : UInt<1>, csr_clr : UInt<1>, csr_set : UInt<1>, csr_write : UInt<1>, csr_imm : UInt<1>, presync : UInt<1>, postsync : UInt<1>, ebreak : UInt<1>, ecall : UInt<1>, mret : UInt<1>, mul : UInt<1>, rs1_sign : UInt<1>, rs2_sign : UInt<1>, low : UInt<1>, div : UInt<1>, rem : UInt<1>, fence : UInt<1>, fence_i : UInt<1>, pm_alu : UInt<1>, legal : UInt<1>}}
+    output io : {flip ins : UInt<32>, out : {alu : UInt<1>, rs2 : UInt<1>, rs1 : UInt<1>, imm12 : UInt<1>, rd : UInt<1>, shimm5 : UInt<1>, imm20 : UInt<1>, pc : UInt<1>, load : UInt<1>, store : UInt<1>, lsu : UInt<1>, add : UInt<1>, sub : UInt<1>, land : UInt<1>, lor : UInt<1>, lxor : UInt<1>, sll : UInt<1>, sra : UInt<1>, srl : UInt<1>, slt : UInt<1>, unsign : UInt<1>, condbr : UInt<1>, beq : UInt<1>, bne : UInt<1>, bge : UInt<1>, blt : UInt<1>, jal : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, csr_read : UInt<1>, csr_clr : UInt<1>, csr_set : UInt<1>, csr_write : UInt<1>, csr_imm : UInt<1>, presync : UInt<1>, postsync : UInt<1>, ebreak : UInt<1>, ecall : UInt<1>, mret : UInt<1>, mul : UInt<1>, rs1_sign : UInt<1>, rs2_sign : UInt<1>, low : UInt<1>, div : UInt<1>, rem : UInt<1>, fence : UInt<1>, fence_i : UInt<1>, pm_alu : UInt<1>, legal : UInt<1>}}
     
     node _T = bits(io.ins, 2, 2) @[el2_dec_dec_ctl.scala 20:23]
     node _T_1 = bits(io.ins, 6, 6) @[el2_dec_dec_ctl.scala 20:35]
@@ -2578,8 +2578,8 @@ circuit el2_dec_decode_ctl :
     wire nonblock_load_write : UInt<1>[4] @[el2_dec_decode_ctl.scala 151:31]
     wire cam_raw : {valid : UInt<1>, wb : UInt<1>, tag : UInt<3>, rd : UInt<5>}[4] @[el2_dec_decode_ctl.scala 152:20]
     wire cam_in : {valid : UInt<1>, wb : UInt<1>, tag : UInt<3>, rd : UInt<5>}[4] @[el2_dec_decode_ctl.scala 153:20]
-    wire i0_dp : {alu : UInt<1>, rs1 : UInt<1>, rs2 : UInt<1>, imm12 : UInt<1>, rd : UInt<1>, shimm5 : UInt<1>, imm20 : UInt<1>, pc : UInt<1>, load : UInt<1>, store : UInt<1>, lsu : UInt<1>, add : UInt<1>, sub : UInt<1>, land : UInt<1>, lor : UInt<1>, lxor : UInt<1>, sll : UInt<1>, sra : UInt<1>, srl : UInt<1>, slt : UInt<1>, unsign : UInt<1>, condbr : UInt<1>, beq : UInt<1>, bne : UInt<1>, bge : UInt<1>, blt : UInt<1>, jal : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, csr_read : UInt<1>, csr_clr : UInt<1>, csr_set : UInt<1>, csr_write : UInt<1>, csr_imm : UInt<1>, presync : UInt<1>, postsync : UInt<1>, ebreak : UInt<1>, ecall : UInt<1>, mret : UInt<1>, mul : UInt<1>, rs1_sign : UInt<1>, rs2_sign : UInt<1>, low : UInt<1>, div : UInt<1>, rem : UInt<1>, fence : UInt<1>, fence_i : UInt<1>, pm_alu : UInt<1>, legal : UInt<1>} @[el2_dec_decode_ctl.scala 155:18]
-    wire i0_dp_raw : {alu : UInt<1>, rs1 : UInt<1>, rs2 : UInt<1>, imm12 : UInt<1>, rd : UInt<1>, shimm5 : UInt<1>, imm20 : UInt<1>, pc : UInt<1>, load : UInt<1>, store : UInt<1>, lsu : UInt<1>, add : UInt<1>, sub : UInt<1>, land : UInt<1>, lor : UInt<1>, lxor : UInt<1>, sll : UInt<1>, sra : UInt<1>, srl : UInt<1>, slt : UInt<1>, unsign : UInt<1>, condbr : UInt<1>, beq : UInt<1>, bne : UInt<1>, bge : UInt<1>, blt : UInt<1>, jal : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, csr_read : UInt<1>, csr_clr : UInt<1>, csr_set : UInt<1>, csr_write : UInt<1>, csr_imm : UInt<1>, presync : UInt<1>, postsync : UInt<1>, ebreak : UInt<1>, ecall : UInt<1>, mret : UInt<1>, mul : UInt<1>, rs1_sign : UInt<1>, rs2_sign : UInt<1>, low : UInt<1>, div : UInt<1>, rem : UInt<1>, fence : UInt<1>, fence_i : UInt<1>, pm_alu : UInt<1>, legal : UInt<1>} @[el2_dec_decode_ctl.scala 156:22]
+    wire i0_dp : {alu : UInt<1>, rs2 : UInt<1>, rs1 : UInt<1>, imm12 : UInt<1>, rd : UInt<1>, shimm5 : UInt<1>, imm20 : UInt<1>, pc : UInt<1>, load : UInt<1>, store : UInt<1>, lsu : UInt<1>, add : UInt<1>, sub : UInt<1>, land : UInt<1>, lor : UInt<1>, lxor : UInt<1>, sll : UInt<1>, sra : UInt<1>, srl : UInt<1>, slt : UInt<1>, unsign : UInt<1>, condbr : UInt<1>, beq : UInt<1>, bne : UInt<1>, bge : UInt<1>, blt : UInt<1>, jal : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, csr_read : UInt<1>, csr_clr : UInt<1>, csr_set : UInt<1>, csr_write : UInt<1>, csr_imm : UInt<1>, presync : UInt<1>, postsync : UInt<1>, ebreak : UInt<1>, ecall : UInt<1>, mret : UInt<1>, mul : UInt<1>, rs1_sign : UInt<1>, rs2_sign : UInt<1>, low : UInt<1>, div : UInt<1>, rem : UInt<1>, fence : UInt<1>, fence_i : UInt<1>, pm_alu : UInt<1>, legal : UInt<1>} @[el2_dec_decode_ctl.scala 155:18]
+    wire i0_dp_raw : {alu : UInt<1>, rs2 : UInt<1>, rs1 : UInt<1>, imm12 : UInt<1>, rd : UInt<1>, shimm5 : UInt<1>, imm20 : UInt<1>, pc : UInt<1>, load : UInt<1>, store : UInt<1>, lsu : UInt<1>, add : UInt<1>, sub : UInt<1>, land : UInt<1>, lor : UInt<1>, lxor : UInt<1>, sll : UInt<1>, sra : UInt<1>, srl : UInt<1>, slt : UInt<1>, unsign : UInt<1>, condbr : UInt<1>, beq : UInt<1>, bne : UInt<1>, bge : UInt<1>, blt : UInt<1>, jal : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, csr_read : UInt<1>, csr_clr : UInt<1>, csr_set : UInt<1>, csr_write : UInt<1>, csr_imm : UInt<1>, presync : UInt<1>, postsync : UInt<1>, ebreak : UInt<1>, ecall : UInt<1>, mret : UInt<1>, mul : UInt<1>, rs1_sign : UInt<1>, rs2_sign : UInt<1>, low : UInt<1>, div : UInt<1>, rem : UInt<1>, fence : UInt<1>, fence_i : UInt<1>, pm_alu : UInt<1>, legal : UInt<1>} @[el2_dec_decode_ctl.scala 156:22]
     wire i0_rs1bypass : UInt<3>
     i0_rs1bypass <= UInt<1>("h00")
     wire i0_rs2bypass : UInt<3>
@@ -2799,13 +2799,13 @@ circuit el2_dec_decode_ctl :
     i0_dp.shimm5 <= i0_dp_raw.shimm5 @[el2_dec_decode_ctl.scala 262:9]
     i0_dp.rd <= i0_dp_raw.rd @[el2_dec_decode_ctl.scala 262:9]
     i0_dp.imm12 <= i0_dp_raw.imm12 @[el2_dec_decode_ctl.scala 262:9]
-    i0_dp.rs2 <= i0_dp_raw.rs2 @[el2_dec_decode_ctl.scala 262:9]
     i0_dp.rs1 <= i0_dp_raw.rs1 @[el2_dec_decode_ctl.scala 262:9]
+    i0_dp.rs2 <= i0_dp_raw.rs2 @[el2_dec_decode_ctl.scala 262:9]
     i0_dp.alu <= i0_dp_raw.alu @[el2_dec_decode_ctl.scala 262:9]
     node _T_40 = or(i0_br_error_all, i0_icaf_d) @[el2_dec_decode_ctl.scala 263:25]
     node _T_41 = bits(_T_40, 0, 0) @[el2_dec_decode_ctl.scala 263:43]
     when _T_41 : @[el2_dec_decode_ctl.scala 263:50]
-      wire _T_42 : {alu : UInt<1>, rs1 : UInt<1>, rs2 : UInt<1>, imm12 : UInt<1>, rd : UInt<1>, shimm5 : UInt<1>, imm20 : UInt<1>, pc : UInt<1>, load : UInt<1>, store : UInt<1>, lsu : UInt<1>, add : UInt<1>, sub : UInt<1>, land : UInt<1>, lor : UInt<1>, lxor : UInt<1>, sll : UInt<1>, sra : UInt<1>, srl : UInt<1>, slt : UInt<1>, unsign : UInt<1>, condbr : UInt<1>, beq : UInt<1>, bne : UInt<1>, bge : UInt<1>, blt : UInt<1>, jal : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, csr_read : UInt<1>, csr_clr : UInt<1>, csr_set : UInt<1>, csr_write : UInt<1>, csr_imm : UInt<1>, presync : UInt<1>, postsync : UInt<1>, ebreak : UInt<1>, ecall : UInt<1>, mret : UInt<1>, mul : UInt<1>, rs1_sign : UInt<1>, rs2_sign : UInt<1>, low : UInt<1>, div : UInt<1>, rem : UInt<1>, fence : UInt<1>, fence_i : UInt<1>, pm_alu : UInt<1>, legal : UInt<1>} @[el2_dec_decode_ctl.scala 264:35]
+      wire _T_42 : {alu : UInt<1>, rs2 : UInt<1>, rs1 : UInt<1>, imm12 : UInt<1>, rd : UInt<1>, shimm5 : UInt<1>, imm20 : UInt<1>, pc : UInt<1>, load : UInt<1>, store : UInt<1>, lsu : UInt<1>, add : UInt<1>, sub : UInt<1>, land : UInt<1>, lor : UInt<1>, lxor : UInt<1>, sll : UInt<1>, sra : UInt<1>, srl : UInt<1>, slt : UInt<1>, unsign : UInt<1>, condbr : UInt<1>, beq : UInt<1>, bne : UInt<1>, bge : UInt<1>, blt : UInt<1>, jal : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, csr_read : UInt<1>, csr_clr : UInt<1>, csr_set : UInt<1>, csr_write : UInt<1>, csr_imm : UInt<1>, presync : UInt<1>, postsync : UInt<1>, ebreak : UInt<1>, ecall : UInt<1>, mret : UInt<1>, mul : UInt<1>, rs1_sign : UInt<1>, rs2_sign : UInt<1>, low : UInt<1>, div : UInt<1>, rem : UInt<1>, fence : UInt<1>, fence_i : UInt<1>, pm_alu : UInt<1>, legal : UInt<1>} @[el2_dec_decode_ctl.scala 264:35]
       _T_42.legal <= UInt<1>("h00") @[el2_dec_decode_ctl.scala 264:35]
       _T_42.pm_alu <= UInt<1>("h00") @[el2_dec_decode_ctl.scala 264:35]
       _T_42.fence_i <= UInt<1>("h00") @[el2_dec_decode_ctl.scala 264:35]
@@ -2853,8 +2853,8 @@ circuit el2_dec_decode_ctl :
       _T_42.shimm5 <= UInt<1>("h00") @[el2_dec_decode_ctl.scala 264:35]
       _T_42.rd <= UInt<1>("h00") @[el2_dec_decode_ctl.scala 264:35]
       _T_42.imm12 <= UInt<1>("h00") @[el2_dec_decode_ctl.scala 264:35]
-      _T_42.rs2 <= UInt<1>("h00") @[el2_dec_decode_ctl.scala 264:35]
       _T_42.rs1 <= UInt<1>("h00") @[el2_dec_decode_ctl.scala 264:35]
+      _T_42.rs2 <= UInt<1>("h00") @[el2_dec_decode_ctl.scala 264:35]
       _T_42.alu <= UInt<1>("h00") @[el2_dec_decode_ctl.scala 264:35]
       i0_dp.legal <= _T_42.legal @[el2_dec_decode_ctl.scala 264:20]
       i0_dp.pm_alu <= _T_42.pm_alu @[el2_dec_decode_ctl.scala 264:20]
@@ -2903,8 +2903,8 @@ circuit el2_dec_decode_ctl :
       i0_dp.shimm5 <= _T_42.shimm5 @[el2_dec_decode_ctl.scala 264:20]
       i0_dp.rd <= _T_42.rd @[el2_dec_decode_ctl.scala 264:20]
       i0_dp.imm12 <= _T_42.imm12 @[el2_dec_decode_ctl.scala 264:20]
-      i0_dp.rs2 <= _T_42.rs2 @[el2_dec_decode_ctl.scala 264:20]
       i0_dp.rs1 <= _T_42.rs1 @[el2_dec_decode_ctl.scala 264:20]
+      i0_dp.rs2 <= _T_42.rs2 @[el2_dec_decode_ctl.scala 264:20]
       i0_dp.alu <= _T_42.alu @[el2_dec_decode_ctl.scala 264:20]
       i0_dp.alu <= UInt<1>("h01") @[el2_dec_decode_ctl.scala 265:20]
       i0_dp.rs1 <= UInt<1>("h01") @[el2_dec_decode_ctl.scala 266:20]
@@ -3456,8 +3456,8 @@ circuit el2_dec_decode_ctl :
     i0_dp_raw.shimm5 <= i0_dec.io.out.shimm5 @[el2_dec_decode_ctl.scala 398:14]
     i0_dp_raw.rd <= i0_dec.io.out.rd @[el2_dec_decode_ctl.scala 398:14]
     i0_dp_raw.imm12 <= i0_dec.io.out.imm12 @[el2_dec_decode_ctl.scala 398:14]
-    i0_dp_raw.rs2 <= i0_dec.io.out.rs2 @[el2_dec_decode_ctl.scala 398:14]
     i0_dp_raw.rs1 <= i0_dec.io.out.rs1 @[el2_dec_decode_ctl.scala 398:14]
+    i0_dp_raw.rs2 <= i0_dec.io.out.rs2 @[el2_dec_decode_ctl.scala 398:14]
     i0_dp_raw.alu <= i0_dec.io.out.alu @[el2_dec_decode_ctl.scala 398:14]
     reg _T_278 : UInt<1>, io.active_clk with : (reset => (reset, UInt<1>("h00"))) @[el2_dec_decode_ctl.scala 400:45]
     _T_278 <= io.lsu_idle_any @[el2_dec_decode_ctl.scala 400:45]

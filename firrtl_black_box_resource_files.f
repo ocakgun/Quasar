@@ -1,1 +1,1 @@
-/home/dell/IdeaProjects/SweRV-Chislified/TEC_RV_ICG.v
+C:\Users\HP\Desktop\SweRV Project GIT\SweRV-Chislified\TEC_RV_ICG.v

@@ -22,8 +22,8 @@ endmodule
 module el2_dec_dec_ctl(
   input  [31:0] io_ins,
   output        io_out_alu,
-  output        io_out_rs1,
   output        io_out_rs2,
+  output        io_out_rs1,
   output        io_out_imm12,
   output        io_out_rd,
   output        io_out_shimm5,
@@ -672,8 +672,8 @@ module el2_dec_dec_ctl(
   wire  _T_1963 = _T_1962 & io_ins[1]; // @[el2_dec_dec_ctl.scala 17:17]
   wire  _T_1964 = _T_1963 & io_ins[0]; // @[el2_dec_dec_ctl.scala 17:17]
   assign io_out_alu = _T_7 | _T_11; // @[el2_dec_dec_ctl.scala 20:14]
-  assign io_out_rs1 = _T_101 | _T_106; // @[el2_dec_dec_ctl.scala 21:14]
   assign io_out_rs2 = _T_114 | _T_121; // @[el2_dec_dec_ctl.scala 27:14]
+  assign io_out_rs1 = _T_101 | _T_106; // @[el2_dec_dec_ctl.scala 21:14]
   assign io_out_imm12 = _T_149 | _T_159; // @[el2_dec_dec_ctl.scala 28:16]
   assign io_out_rd = _T_169 | io_ins[4]; // @[el2_dec_dec_ctl.scala 30:13]
   assign io_out_shimm5 = _T_182 & _T_18; // @[el2_dec_dec_ctl.scala 31:17]
@@ -1016,8 +1016,8 @@ module el2_dec_decode_ctl(
   wire  data_gated_cgc_io_scan_mode; // @[el2_dec_decode_ctl.scala 221:29]
   wire [31:0] i0_dec_io_ins; // @[el2_dec_decode_ctl.scala 396:24]
   wire  i0_dec_io_out_alu; // @[el2_dec_decode_ctl.scala 396:24]
-  wire  i0_dec_io_out_rs1; // @[el2_dec_decode_ctl.scala 396:24]
   wire  i0_dec_io_out_rs2; // @[el2_dec_decode_ctl.scala 396:24]
+  wire  i0_dec_io_out_rs1; // @[el2_dec_decode_ctl.scala 396:24]
   wire  i0_dec_io_out_imm12; // @[el2_dec_decode_ctl.scala 396:24]
   wire  i0_dec_io_out_rd; // @[el2_dec_decode_ctl.scala 396:24]
   wire  i0_dec_io_out_shimm5; // @[el2_dec_decode_ctl.scala 396:24]
@@ -1330,10 +1330,10 @@ module el2_dec_decode_ctl(
   wire  i0_dp_raw_rd = i0_dec_io_out_rd; // @[el2_dec_decode_ctl.scala 156:22 el2_dec_decode_ctl.scala 398:14]
   wire  i0_dp_rd = _T_40 ? 1'h0 : i0_dp_raw_rd; // @[el2_dec_decode_ctl.scala 263:50]
   wire  i0_dp_imm12 = _T_40 ? 1'h0 : i0_dp_raw_imm12; // @[el2_dec_decode_ctl.scala 263:50]
-  wire  i0_dp_raw_rs2 = i0_dec_io_out_rs2; // @[el2_dec_decode_ctl.scala 156:22 el2_dec_decode_ctl.scala 398:14]
-  wire  i0_dp_rs2 = _T_40 | i0_dp_raw_rs2; // @[el2_dec_decode_ctl.scala 263:50]
   wire  i0_dp_raw_rs1 = i0_dec_io_out_rs1; // @[el2_dec_decode_ctl.scala 156:22 el2_dec_decode_ctl.scala 398:14]
   wire  i0_dp_rs1 = _T_40 | i0_dp_raw_rs1; // @[el2_dec_decode_ctl.scala 263:50]
+  wire  i0_dp_raw_rs2 = i0_dec_io_out_rs2; // @[el2_dec_decode_ctl.scala 156:22 el2_dec_decode_ctl.scala 398:14]
+  wire  i0_dp_rs2 = _T_40 | i0_dp_raw_rs2; // @[el2_dec_decode_ctl.scala 263:50]
   wire  i0_dp_raw_alu = i0_dec_io_out_alu; // @[el2_dec_decode_ctl.scala 156:22 el2_dec_decode_ctl.scala 398:14]
   wire  i0_dp_alu = _T_40 | i0_dp_raw_alu; // @[el2_dec_decode_ctl.scala 263:50]
   wire  i0_pcall = i0_dp_jal & i0_pcall_case; // @[el2_dec_decode_ctl.scala 416:38]
@@ -1880,8 +1880,8 @@ module el2_dec_decode_ctl(
   el2_dec_dec_ctl i0_dec ( // @[el2_dec_decode_ctl.scala 396:24]
     .io_ins(i0_dec_io_ins),
     .io_out_alu(i0_dec_io_out_alu),
-    .io_out_rs1(i0_dec_io_out_rs1),
     .io_out_rs2(i0_dec_io_out_rs2),
+    .io_out_rs1(i0_dec_io_out_rs1),
     .io_out_imm12(i0_dec_io_out_imm12),
     .io_out_rd(i0_dec_io_out_rd),
     .io_out_shimm5(i0_dec_io_out_shimm5),
