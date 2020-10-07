@@ -1,4 +1,4 @@
-package dec
+/*package dec
 import chisel3._
 import include._
 import lib._
@@ -704,4 +704,4 @@ class el2_dec extends Module with param{
 }
 object dec_main extends App {
    chisel3.Driver execute(args, () => new el2_dec())
-}
+}*/
