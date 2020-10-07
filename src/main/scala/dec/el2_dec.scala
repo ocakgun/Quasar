@@ -1,10 +1,10 @@
-/*package dec
+package dec
 import chisel3._
 import include._
 import lib._
 
 class el2_dec_IO extends Bundle with el2_lib {
-  val clk                   = Input(Clock())
+  //val clk                   = Input(Clock())
   val free_clk              = Input(Clock())
   val active_clk            = Input(Clock())
 
@@ -15,7 +15,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_i0_decode_d       = Output(Bool())
   val dec_pause_state_cg    = Output(Bool())          // to top for active state clock gating
 
-  val rst_l                 = Input(Bool())           // reset, active low
+ // val rst_l                 = Input(Bool())           // reset, active low
   val rst_vec               = Input(UInt(32.W))       // [31:1] reset vector, from core pins
 
   val nmi_int               = Input(Bool())           // NMI pin
@@ -267,7 +267,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 
 }
 
-class el2_dec extends Module with param{
+class el2_dec extends Module with param with RequireAsyncReset{
   val io = IO(new el2_dec_IO)
   io.dec_i0_pc_d := 0.U
 
@@ -354,6 +354,7 @@ class el2_dec extends Module with param{
   val gpr = Module(new el2_dec_gpr_ctl)
   val tlu = Module(new el2_dec_tlu_ctl)
   val dec_trigger = Module(new el2_dec_trigger)
+
   //instbuff.io <> io // error "Connection between left (el2_dec_ib_ctl_IO(IO io in el2_dec_ib_ctl)) and source (el2_dec_IO("
   //--------------------------------------------------------------------------//
 
@@ -392,6 +393,16 @@ class el2_dec extends Module with param{
   decode.io.dec_debug_fence_d        :=instbuff.io.dec_debug_fence_d
   //--------------------------------------------------------------------------//
 
+  //connections for dec_trigger
+  //dec_trigger.io <> io
+  //inputs
+  dec_trigger.io.dec_i0_pc_d := instbuff.io.dec_i0_pc_d
+  dec_trigger.io.trigger_pkt_any := tlu.io.trigger_pkt_any
+  //output
+  val dec_i0_trigger_match_d = dec_trigger.io.dec_i0_trigger_match_d
+  dontTouch(dec_i0_trigger_match_d)
+  //--------------------------------------------------------------------------//
+
 //connections for el2_dec_decode
   // decode.io <> io
   //inputs
@@ -406,7 +417,7 @@ class el2_dec extends Module with param{
   decode.io.lsu_nonblock_load_data_error       :=  io.lsu_nonblock_load_data_error
   decode.io.lsu_nonblock_load_data_tag         :=  io.lsu_nonblock_load_data_tag
   decode.io.lsu_nonblock_load_data             :=  io.lsu_nonblock_load_data
-  decode.io.dec_i0_trigger_match_d             :=  dec_trigger.io.dec_i0_trigger_match_d
+  decode.io.dec_i0_trigger_match_d             :=  dec_i0_trigger_match_d
   decode.io.dec_tlu_wr_pause_r                 :=  tlu.io.dec_tlu_wr_pause_r
   decode.io.dec_tlu_pipelining_disable         :=  tlu.io.dec_tlu_pipelining_disable
   decode.io.lsu_trigger_match_m                :=  io.lsu_trigger_match_m
@@ -447,11 +458,11 @@ class el2_dec extends Module with param{
   decode.io.dec_i0_instr_d                     :=  instbuff.io.dec_i0_instr_d
   decode.io.dec_ib0_valid_d                    :=  instbuff.io.dec_ib0_valid_d
   decode.io.exu_i0_result_x                    :=  io.exu_i0_result_x
-  decode.io.clk                                :=  io.clk
+  //decode.io.clk                                :=  io.clk
   decode.io.free_clk                           :=  io.free_clk
   decode.io.active_clk                         :=  io.active_clk
   decode.io.clk_override                       :=  tlu.io.dec_tlu_dec_clk_override
-  decode.io.rst_l                              :=  io.rst_l
+ // decode.io.rst_l                              :=  io.rst_l
   decode.io.scan_mode                          :=  io.scan_mode
   //outputs
   io.dec_extint_stall                  :=   decode.io.dec_extint_stall
@@ -526,21 +537,23 @@ class el2_dec extends Module with param{
   gpr.io.wen2         := io.exu_div_wren
   gpr.io.waddr2       := decode.io.div_waddr_wb
   gpr.io.wd2          := io.exu_div_result
-  gpr.io.clk          := io.clk
-  gpr.io.rst_l        := io.rst_l
+  //gpr.io.clk          := io.clk
+  //gpr.io.rst_l        := io.rst_l
   gpr.io.scan_mode    := io.scan_mode
   // outputs
   io.gpr_i0_rs1_d := gpr.io.rd0
   io.gpr_i0_rs2_d := gpr.io.rd1
   //--------------------------------------------------------------------------//
 
+
+
 //connection for dec_tlu
   // tlu.io <> io
   //inputs
-  tlu.io.clk                                :=  io.clk
+  //tlu.io.clk                                :=  io.clk
   tlu.io.active_clk                         :=  io.active_clk
   tlu.io.free_clk                           :=  io.free_clk
-  tlu.io.rst_l                              :=  io.rst_l
+ // tlu.io.rst_l                              :=  io.rst_l
   tlu.io.scan_mode                          :=  io.scan_mode
   tlu.io.rst_vec                            :=  io.rst_vec
   tlu.io.nmi_int                            :=  io.nmi_int
@@ -690,18 +703,11 @@ class el2_dec extends Module with param{
 
   //--------------------------------------------------------------------------//
 
-//connections for dec_trigger
-  //dec_trigger.io <> io
-  //inputs
-  dec_trigger.io.dec_i0_pc_d := instbuff.io.dec_i0_pc_d
-  dec_trigger.io.trigger_pkt_any := tlu.io.trigger_pkt_any
-  //output
-  decode.io.dec_i0_trigger_match_d := dec_trigger.io.dec_i0_trigger_match_d
-  //--------------------------------------------------------------------------//
+
 
   // debug command read data
   io.dec_dbg_rddata := decode.io.dec_i0_wdata_r
 }
 object dec_main extends App {
    chisel3.Driver execute(args, () => new el2_dec())
-}*/
+}

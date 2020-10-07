@@ -1,5 +1,7 @@
+[0m[[0m[0mdebug[0m] [0m[0mAcquiring lock on file /home/dell/IdeaProjects/SweRV-Chislified/project/target/.sbt-compilation-infos/swerv-chislified-compile/.sbt-idea-lock ...[0m
 [0m[[0m[33mwarn[0m] [0m[0mthere was one deprecation warning (since 3.2.2)[0m
 [0m[[0m[33mwarn[0m] [0m[0mthere was one deprecation warning (since 3.2.4)[0m
 [0m[[0m[33mwarn[0m] [0m[0mthere were two deprecation warnings in total; re-run with -deprecation for details[0m
-[0m[[0m[33mwarn[0m] [0m[0mthere were 72 feature warnings; re-run with -feature for details[0m
+[0m[[0m[33mwarn[0m] [0m[0mthere were 98 feature warnings; re-run with -feature for details[0m
 [0m[[0m[33mwarn[0m] [0m[0mfour warnings found[0m
+[0m[[0m[0mdebug[0m] [0m[0mReleasing lock on file /home/dell/IdeaProjects/SweRV-Chislified/project/target/.sbt-compilation-infos/swerv-chislified-compile/.sbt-idea-lock.[0m

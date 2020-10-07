@@ -30,7 +30,7 @@ class el2_dec_gpr_ctl extends Module with RequireAsyncReset{
 		}
       // GPR Write Enables for power savings     
     for (j <-1 until 32){
- 	  gpr_out(j):=rvdffe(gpr_in(j),gpr_wr_en(j),io.clk,io.scan_mode)
+ 	  gpr_out(j):=rvdffe(gpr_in(j),gpr_wr_en(j),clock,io.scan_mode)
     }
       // GPR Read logic
 	io.rd0:=Mux1H((1 until 32).map(i => (io.raddr0===i.U).asBool -> gpr_out(i)))
@@ -53,8 +53,8 @@ class el2_dec_gpr_ctl_IO extends Bundle{
 	val   	wen2=Input(UInt(1.W))         // write enable
 	val  	waddr2=Input(UInt(5.W))       // write address
 	val 	wd2=Input(UInt(32.W))          // write data
-	val     clk=Input(Clock())
-	val     rst_l=Input(Bool())
+	//val     clk=Input(Clock())
+	//val     rst_l=Input(Bool())
 	val 	rd0=Output(UInt(32.W))         // read data
 	val 	rd1=Output(UInt(32.W))
 	val     scan_mode=Input(Bool()) 

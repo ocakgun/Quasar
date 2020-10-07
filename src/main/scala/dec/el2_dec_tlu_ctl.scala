@@ -6,10 +6,10 @@ import include._
 
 class el2_dec_tlu_ctl extends Module with el2_lib {
   val io = IO(new Bundle{
-    val clk         = Input(Clock())
+    //val clk         = Input(Clock())
     val active_clk  = Input(Clock())
     val free_clk    = Input(Clock())
-    val rst_l       = Input(Bool())
+    //val rst_l       = Input(Bool())
     val scan_mode   = Input(Bool())
 
     val        rst_vec         = Input(UInt(32.W))    // reset vector, from core pins
