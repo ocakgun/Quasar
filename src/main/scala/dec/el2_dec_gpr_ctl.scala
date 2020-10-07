@@ -35,10 +35,6 @@ class el2_dec_gpr_ctl extends Module with RequireAsyncReset{
       // GPR Read logic
 	io.rd0:=Mux1H((1 until 32).map(i => (io.raddr0===i.U).asBool -> gpr_out(i)))
 	io.rd1:=Mux1H((1 until 32).map(i => (io.raddr1===i.U).asBool -> gpr_out(i)))
-
-    //val gpr_temp= for(i <-1 until 32) yield (Fill(32,io.raddr0===i.asUInt) & gpr_out(i),Fill(32,io.raddr1===i.asUInt) & gpr_out(i))	
-   //	io.rd0:=gpr_temp.map(_._1).reduce(_|_) 
-   //	io.rd1:=gpr_temp.map(_._2).reduce(_|_) 
 }
 
 class el2_dec_gpr_ctl_IO extends Bundle{
@@ -53,8 +49,6 @@ class el2_dec_gpr_ctl_IO extends Bundle{
 	val   	wen2=Input(UInt(1.W))         // write enable
 	val  	waddr2=Input(UInt(5.W))       // write address
 	val 	wd2=Input(UInt(32.W))          // write data
-	//val     clk=Input(Clock())
-	//val     rst_l=Input(Bool())
 	val 	rd0=Output(UInt(32.W))         // read data
 	val 	rd1=Output(UInt(32.W))
 	val     scan_mode=Input(Bool()) 
