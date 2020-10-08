@@ -138,7 +138,7 @@ object pt{
   val LSU_BUS_PRTY           = "h2".U(2.W)
   val LSU_BUS_TAG            = "h3".U(4.W)
   val LSU_NUM_NBLOAD         = "h04".U(5.W)
-  val LSU_NUM_NBLOAD_WIDTH   = "h2".U(2.W)
+  val LSU_NUM_NBLOAD_WIDTH   = "h2".U(3.W)
   val LSU_SB_BITS            = "h10".U(5.W)
   val LSU_STBUF_DEPTH        = "h4".U(4.W)
   val NO_ICCM_NO_ICACHE      = "h0".U(1.W)
