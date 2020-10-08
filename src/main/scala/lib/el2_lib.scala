@@ -142,7 +142,7 @@ trait param {
   val LSU_BUS_PRTY           = 0x2 //.U(2.W)
   val LSU_BUS_TAG            = 0x3 //.U(4.W)
   val LSU_NUM_NBLOAD         = 0x04 //.U(5.W)
-  val LSU_NUM_NBLOAD_WIDTH   = 0x3  //.U(3.W)
+  val LSU_NUM_NBLOAD_WIDTH   = 0x2  //.U(3.W)
   val LSU_SB_BITS            = 0x10 //.U(5.W)
   val LSU_STBUF_DEPTH        = 0x4  //.U(4.W)
   val NO_ICCM_NO_ICACHE      = 0x0  //.U(1.W)
