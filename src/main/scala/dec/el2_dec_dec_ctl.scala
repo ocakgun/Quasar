@@ -63,8 +63,8 @@ class el2_dec_dec_ctl extends Module with el2_lib{
     pattern(List(8,6,4)) | pattern(List(9,6,4)) | pattern(List(10,6,4)) |
     pattern(List(11,6,4))
   io.out.csr_clr := pattern(List(15,13,12,6,4)) | pattern(List(16,13,12,6,4)) |
-    pattern(List(17,13,12,6,4)) | pattern(List(18,-12,6,4)) |
-    pattern(List(19,-12,6,4))
+    pattern(List(17,13,12,6,4)) | pattern(List(18,13,12,6,4)) |
+    pattern(List(19,13,12,6,4))
   io.out.csr_write := pattern(List(-13,12,6,4))
   io.out.csr_imm := pattern(List(14,-13,6,4)) | pattern(List(15,14,6,4)) |
     pattern(List(16,14,6,4)) | pattern(List(17,14,6,4)) |

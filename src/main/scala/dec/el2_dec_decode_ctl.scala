@@ -375,22 +375,21 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
 
   // the classes must be mutually exclusive with one another
   import el2_inst_pkt_t._
- // val i0_itype=Wire(el2_inst_pkt_t(4))
-  d_t.pmu_i0_itype  :=Fill(4,i0_legal_decode_d) & MuxCase(NULL ,Array(
-    i0_dp.mul       -> MUL,
-    i0_dp.load     -> LOAD,
-    i0_dp.store      -> STORE,
-    i0_dp.pm_alu    -> ALU,
-    ( csr_read & !csr_write).asBool    -> CSRREAD,
-    (!csr_read &  csr_write).asBool  -> CSRWRITE,
-    ( csr_read &  csr_write).asBool  -> CSRRW,
-    i0_dp.ebreak     -> EBREAK,
-    i0_dp.ecall     -> ECALL,
-    i0_dp.fence     -> FENCE,
-    i0_dp.fence_i    -> FENCEI,
-    i0_dp.mret      -> MRET,
+	d_t.pmu_i0_itype  :=Fill(4,i0_legal_decode_d) & MuxCase(NULL ,Array(
+    i0_dp.jal     -> JAL,
     i0_dp.condbr     -> CONDBR,
-    i0_dp.jal     -> JAL))
+    i0_dp.mret      -> MRET,
+    i0_dp.fence_i    -> FENCEI,
+    i0_dp.fence     -> FENCE,
+    i0_dp.ecall     -> ECALL,
+    i0_dp.ebreak     -> EBREAK,
+    ( csr_read &  csr_write).asBool  -> CSRRW,
+    (!csr_read &  csr_write).asBool  -> CSRWRITE,
+    ( csr_read & !csr_write).asBool    -> CSRREAD,
+    i0_dp.pm_alu    -> ALU,
+    i0_dp.store      -> STORE,
+    i0_dp.load     -> LOAD,
+    i0_dp.mul       -> MUL))
   // end pmu
 
     val  i0_dec =Module(new el2_dec_dec_ctl)
