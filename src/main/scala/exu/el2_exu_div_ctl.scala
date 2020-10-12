@@ -1,10 +1,12 @@
 package exu
 
 import chisel3._
+import chisel3.experimental.chiselName
 import chisel3.util._
 import include._
 import lib._
 
+@chiselName
 class el2_exu_div_ctl extends Module with RequireAsyncReset with el2_lib {
   val io = IO(new Bundle{
     val scan_mode          = Input(Bool())
@@ -15,7 +17,8 @@ class el2_exu_div_ctl extends Module with RequireAsyncReset with el2_lib {
 
     val out                = Output(UInt(32.W))
     val finish_dly         = Output(UInt(1.W))
- //   val test               = Output(UInt(4.W))
+ //   val out_s              = Output(UInt(33.W))
+ //   val test               = Output(UInt(6.W))
   })
   val exu_div_clk          = Wire(Clock())
   val run_state            = WireInit(0.U(1.W))
@@ -34,16 +37,21 @@ class el2_exu_div_ctl extends Module with RequireAsyncReset with el2_lib {
   val sign_ff              = WireInit(0.U(1.W))
   val rem_ff               = WireInit(0.U(1.W))
   val add                  = WireInit(0.U(1.W))
-  val a_eff                = WireInit(0.U(32.W))
+  val a_eff                = WireInit(0.U(33.W))
   val a_eff_shift          = WireInit(0.U(56.W))
   val rem_correct          = WireInit(0.U(1.W))
   val valid_ff_x           = WireInit(0.U(1.W))
   val finish_ff            = WireInit(0.U(1.W))
   val smallnum_case_ff     = WireInit(0.U(1.W))
   val smallnum_ff          = WireInit(0.U(4.W))
+  val count_in             = WireInit(0.U(6.W))
+  val dividend_eff         = WireInit(0.U(32.W))
+  val a_shift              = WireInit(0.U(33.W))
 
   io.out := 0.U
   io.finish_dly := 0.U
+
+
   val valid_x = valid_ff_x & !io.cancel
 
   // START - short circuit logic for small numbers {{
@@ -65,7 +73,7 @@ class el2_exu_div_ctl extends Module with RequireAsyncReset with el2_lib {
 
                  pat(List(2),List(-3, -2))& !m_ff(0) | pat(List(1),List(-3, -2, -1))    | pat(List(3),List(-3, -1))& !m_ff(0) |
                  pat(List(3, -2),List(-3, -2, 1, 0)) | pat(List(-3, 2, 1),List(-3, -2)) | pat(List(3, 2),List(-3))& !m_ff(0)  |
-                 pat(List(3, 2),List(-3, 2, -1))     | pat(List(3, 1, -3),List(-1))     | pat(List(3, 2, 1),List(-3, 2)),
+                 pat(List(3, 2),List(-3, 2, -1))     | pat(List(3, 1),List(-3,-1))     | pat(List(3, 2, 1),List(-3, 2)),
 
                  pat(List(2, 1, 0),List(-3, -1))        | pat(List(3, -2, 0),List(-3, 1, 0))    | pat(List(2),List(-3, -1))& !m_ff(0)     |
                  pat(List(1),List(-3, -2))& !m_ff(0)    | pat(List(0),List(-3, -2, -1))         | pat(List(-3, 2, -1),List(-3, -2, 1, 0)) |
@@ -90,53 +98,53 @@ class el2_exu_div_ctl extends Module with RequireAsyncReset with el2_lib {
 
   val a_cls = Cat(
     Mux1H(Seq (
-   !short_dividend(32).asBool -> (short_dividend(31,24) =/= Fill(8,0.U)),
-    short_dividend(32).asBool -> (short_dividend(31,23) =/= Fill(9,1.U))
-  )),
+      !short_dividend(32).asBool -> (short_dividend(31,24) =/= Fill(8,0.U)),
+      short_dividend(32).asBool -> (short_dividend(31,23) =/= Fill(9,1.U))
+    )),
     Mux1H(Seq (
-    !short_dividend(32).asBool -> (short_dividend(23,16) =/= Fill(8,0.U)),
-     short_dividend(32).asBool -> (short_dividend(22,15) =/= Fill(8,1.U))
-  )),
-   Mux1H(Seq (
-    !short_dividend(32).asBool -> (short_dividend(15,8) =/= Fill(8,0.U)),
-     short_dividend(32).asBool -> (short_dividend(14,7) =/= Fill(8,1.U))
-  ))
+      !short_dividend(32).asBool -> (short_dividend(23,16) =/= Fill(8,0.U)),
+      short_dividend(32).asBool -> (short_dividend(22,15) =/= Fill(8,1.U))
+    )),
+    Mux1H(Seq (
+      !short_dividend(32).asBool -> (short_dividend(15,8) =/= Fill(8,0.U)),
+      short_dividend(32).asBool -> (short_dividend(14,7) =/= Fill(8,1.U))
+    ))
   )
   val b_cls = Cat(
     Mux1H(Seq (
-    !m_ff(32).asBool -> (m_ff(31,24) =/= Fill(8,0.U)),
-     m_ff(32).asBool -> (m_ff(31,24) =/= Fill(8,1.U))
-  )),
-   Mux1H(Seq (
-    !m_ff(32).asBool -> (m_ff(23,16) =/= Fill(8,0.U)),
-     m_ff(32).asBool -> (m_ff(23,16) =/= Fill(8,1.U))
-  )),
-   Mux1H(Seq (
-    !m_ff(32).asBool -> (m_ff(15,8) =/= Fill(8,0.U)),
-     m_ff(32).asBool -> (m_ff(15,8) =/= Fill(8,1.U))
-  ))
+      !m_ff(32).asBool -> (m_ff(31,24) =/= Fill(8,0.U)),
+      m_ff(32).asBool -> (m_ff(31,24) =/= Fill(8,1.U))
+    )),
+    Mux1H(Seq (
+      !m_ff(32).asBool -> (m_ff(23,16) =/= Fill(8,0.U)),
+      m_ff(32).asBool -> (m_ff(23,16) =/= Fill(8,1.U))
+    )),
+    Mux1H(Seq (
+      !m_ff(32).asBool -> (m_ff(15,8) =/= Fill(8,0.U)),
+      m_ff(32).asBool -> (m_ff(15,8) =/= Fill(8,1.U))
+    ))
   )
   val shortq_raw = Cat(
-                   ( (a_cls(2,1) === "b01".U )  & (b_cls(2)   === "b1".U   ) ) |  // Shift by 32
-                   ( (a_cls(2,0) === "b001".U ) & (b_cls(2)   === "b1".U   ) ) |
-                   ( (a_cls(2,0) === "b000".U ) & (b_cls(2)   === "b1".U   ) ) |
-                   ( (a_cls(2,0) === "b001".U ) & (b_cls(2,1) === "b01".U  ) ) |
-                   ( (a_cls(2,0) === "b000".U ) & (b_cls(2,1) === "b01".U  ) ) |
-                   ( (a_cls(2,0) === "b000".U ) & (b_cls(2,0) === "b001".U ) ) ,
+    ( (a_cls(2,1) === "b01".U )  & (b_cls(2)   === "b1".U   ) ) |  // Shift by 32
+      ( (a_cls(2,0) === "b001".U ) & (b_cls(2)   === "b1".U   ) ) |
+      ( (a_cls(2,0) === "b000".U ) & (b_cls(2)   === "b1".U   ) ) |
+      ( (a_cls(2,0) === "b001".U ) & (b_cls(2,1) === "b01".U  ) ) |
+      ( (a_cls(2,0) === "b000".U ) & (b_cls(2,1) === "b01".U  ) ) |
+      ( (a_cls(2,0) === "b000".U ) & (b_cls(2,0) === "b001".U ) ) ,
 
-                   ( (a_cls(2)   === "b1".U   ) & (b_cls(2)   === "b1".U   ) ) |  // Shift by 24
-                   ( (a_cls(2,1) === "b01".U  ) & (b_cls(2,1) === "b01".U  ) ) |
-                   ( (a_cls(2,0) === "b001".U ) & (b_cls(2,0) === "b001".U ) ) |
-                   ( (a_cls(2,0) === "b000".U ) & (b_cls(2,0) === "b000".U ) ) ,
+      ( (a_cls(2)   === "b1".U   ) & (b_cls(2)   === "b1".U   ) ) |  // Shift by 24
+      ( (a_cls(2,1) === "b01".U  ) & (b_cls(2,1) === "b01".U  ) ) |
+      ( (a_cls(2,0) === "b001".U ) & (b_cls(2,0) === "b001".U ) ) |
+      ( (a_cls(2,0) === "b000".U ) & (b_cls(2,0) === "b000".U ) ) ,
 
-                   ( (a_cls(2)   === "b1".U   ) & (b_cls(2,1) === "b01".U  ) ) |  // Shift by 16
-                   ( (a_cls(2,1) === "b01".U  ) & (b_cls(2,0) === "b001".U ) ) |
-                   ( (a_cls(2,0) === "b001".U ) & (b_cls(2,0) === "b000".U ) ) ,
+      ( (a_cls(2)   === "b1".U   ) & (b_cls(2,1) === "b01".U  ) ) |  // Shift by 16
+      ( (a_cls(2,1) === "b01".U  ) & (b_cls(2,0) === "b001".U ) ) |
+      ( (a_cls(2,0) === "b001".U ) & (b_cls(2,0) === "b000".U ) ) ,
 
-                   ( (a_cls(2)   === "b1".U   ) & (b_cls(2,0) === "b001".U ) ) |  // Shift by 8
-                   ( (a_cls(2,1) === "b01".U  ) & (b_cls(2,0) === "b000".U ) )
+      ( (a_cls(2)   === "b1".U   ) & (b_cls(2,0) === "b001".U ) ) |  // Shift by 8
+      ( (a_cls(2,1) === "b01".U  ) & (b_cls(2,0) === "b000".U ) )
 
-)
+  )
   val shortq_enable =  valid_ff_x & (m_ff(31,0) =/= 0.U(32.W)) & (shortq_raw =/= 0.U(4.W))
   val shortq_shift = Fill(4,shortq_enable) & shortq_raw
 
@@ -154,18 +162,21 @@ class el2_exu_div_ctl extends Module with RequireAsyncReset with el2_lib {
   val finish     = smallnum_case | Mux(!rem_ff ,count === 32.U(6.W) ,count === 33.U(6.W))
   val div_clken  = io.dp.valid | run_state | finish | finish_ff
   val run_in     = (io.dp.valid | run_state) & !finish & !io.cancel
-  val count_in   = Cat(Fill(6,run_state & !finish) & !io.cancel & !shortq_enable) & (count + Cat(0.U,shortq_shift_ff) + (1.U)(6.W))
+  count_in   := Fill(6,(run_state & !finish & !io.cancel & !shortq_enable)) & (count + Cat(0.U,shortq_shift_ff) + (1.U)(6.W))
+  //io.test := count_in
 
   io.finish_dly  :=  finish_ff & !io.cancel
   val sign_eff   = !io.dp.unsign & (io.divisor =/= 0.U(32.W))
-  val dividend_eff = Mux((sign_ff & dividend_neg_ff).asBool,rvtwoscomp(q_ff(31,0)),q_ff)
 
   q_in := Mux1H(Seq(
-    (!run_state).asBool -> Cat(0.U(1.W),io.dividend(31,0)) ,
-    (run_state & valid_ff_x | shortq_enable_ff).asBool -> (Cat(dividend_eff(31,0),!a_in(32)) << shortq_shift_ff ) ,
+    (!run_state).asBool -> Cat(0.U(1.W),io.dividend) ,
+    (run_state & valid_ff_x | shortq_enable_ff).asBool -> (Cat(dividend_eff(31,0),!a_in(32)) << shortq_shift_ff) ,
     (run_state & !(valid_ff_x | shortq_enable_ff)).asBool -> Cat(q_ff(31,0),!a_in(32))
-          ))
+  ))
   val qff_enable   =  io.dp.valid | (run_state & !shortq_enable)
+  dividend_eff := Mux((sign_ff & dividend_neg_ff).asBool,rvtwoscomp(q_ff(31,0)),q_ff(31,0))
+
+
   m_eff := Mux(add.asBool , m_ff, ~m_ff )
   a_eff_shift := Cat(0.U(24.W), dividend_eff) << shortq_shift_ff
   a_eff := Mux1H(Seq(
@@ -174,7 +185,7 @@ class el2_exu_div_ctl extends Module with RequireAsyncReset with el2_lib {
     (!rem_correct &  shortq_enable_ff).asBool -> Cat(0.U(9.W),a_eff_shift(55,32))
   ))
   val aff_enable  =  io.dp.valid | (run_state & !shortq_enable & (count =/= 33.U(6.W))) | rem_correct
-  val a_shift = Fill(33,run_state) & a_eff
+  a_shift := Fill(33,run_state) & a_eff
   a_in := Fill(33,run_state) & (a_shift + m_eff + Cat(0.U(32.W),!add))
   val m_already_comp          = divisor_neg_ff & sign_ff
   // if m already complemented, then invert operation add->sub, sub->add
