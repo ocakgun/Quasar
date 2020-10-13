@@ -1,1 +1,1 @@
-C:\Users\HP\Desktop\SweRV Project GIT\SweRV-Chislified\TEC_RV_ICG.v
+/home/zohaib/Documents/SweRV-Chislified/TEC_RV_ICG.v

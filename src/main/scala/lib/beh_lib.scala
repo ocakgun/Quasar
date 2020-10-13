@@ -1,8 +1,9 @@
 package lib
 import chisel3._
 import chisel3.util._
-
+import firrtl.ir.BundleType
 import include._
+import org.graalvm.compiler.code.DataSection.Data
 //import lib.beh_ib_func._
 
 class rvdff(WIDTH:Int=1,SHORT:Int=0) extends Module{
@@ -368,6 +369,9 @@ object rvdffe {
   }
 }
 
+object rvsyncss {
+ def apply(din:UInt,clk:Clock) =withClock(clk){RegNext(withClock(clk){RegNext(din,0.U)},0.U)}
+}
 
 /////////////rvdffe //////////////////////////
 /*
@@ -385,6 +389,3 @@ object main extends App{
   println("Generate Verilog")
   chisel3.Driver.execute(args, ()=> new class_rvdffe)
 }*/
-
-
-
