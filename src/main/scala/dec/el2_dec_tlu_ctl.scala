@@ -2735,6 +2735,137 @@ class el2_dec_decode_csr_read extends Module{
  						pattern(List(11,-10,9,8,-6,-5,4))
 }
 
+
+class el2_dec_timer_ctl extends Module{
+	val io=IO(new el2_dec_timer_ctl_IO)
+	val MITCTL_ENABLE=0
+	val MITCTL_ENABLE_HALTED=1
+	val MITCTL_ENABLE_PAUSED=2
+ 
+ 	val mitctl1=Wire(UInt(4.W))
+ 	val mitctl0=Wire(UInt(3.W))
+ 	val mitb1  =Wire(UInt(32.W))
+ 	val mitb0  =Wire(UInt(32.W))
+ 	val mitcnt1=Wire(UInt(32.W))
+ 	val mitcnt0=Wire(UInt(32.W))
+ 
+ 	val mit0_match_ns=(mitcnt0 >= mitb0).asUInt
+ 	val mit1_match_ns=(mitcnt1 >= mitb1).asUInt
+
+	io.dec_timer_t0_pulse := mit0_match_ns
+   	io.dec_timer_t1_pulse := mit1_match_ns
+   // ----------------------------------------------------------------------
+   // MITCNT0 (RW)
+   // [31:0] : Internal Timer Counter 0
+
+	val MITCNT0 =0x7d2.U(12.W)
+
+	val wr_mitcnt0_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r === MITCNT0)
+
+	val mitcnt0_inc_ok = mitctl0(MITCTL_ENABLE) & (~io.dec_pause_state | mitctl0(MITCTL_ENABLE_PAUSED)) & (~io.dec_tlu_pmu_fw_halted | mitctl0(MITCTL_ENABLE_HALTED)) & ~io.internal_dbg_halt_timers
+   	val mitcnt0_inc = mitcnt0 + 1.U(32.W)
+	val mitcnt0_ns  =Mux(mit0_match_ns.asBool, 0.U, Mux(wr_mitcnt0_r.asBool, io.dec_csr_wrdata_r, mitcnt0_inc))
+	mitcnt0		:=rvdffe(mitcnt0_ns,(wr_mitcnt0_r | mitcnt0_inc_ok | mit0_match_ns).asBool,clock,io.scan_mode)
+
+   // ----------------------------------------------------------------------
+   // MITCNT1 (RW)
+   // [31:0] : Internal Timer Counter 0
+
+	val MITCNT1=0x7d5.U(12.W)
+   	val wr_mitcnt1_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r === MITCNT1).asUInt
+
+   	val mitcnt1_inc_ok = mitctl1(MITCTL_ENABLE) & (~io.dec_pause_state | mitctl1(MITCTL_ENABLE_PAUSED)) & (~io.dec_tlu_pmu_fw_halted | mitctl1(MITCTL_ENABLE_HALTED)) & ~io.internal_dbg_halt_timers
+
+   // only inc MITCNT1 if not cascaded with 0, or if 0 overflows
+   	val mitcnt1_inc = mitcnt1 + Cat(Fill(31,0.U(1.W)),(~mitctl1(3) | mit0_match_ns))
+   	val mitcnt1_ns  = Mux(mit1_match_ns.asBool, 0.U, Mux(wr_mitcnt1_r.asBool, io.dec_csr_wrdata_r,mitcnt1_inc))
+	 mitcnt1	:= rvdffe(mitcnt1_ns,(wr_mitcnt1_r | mitcnt1_inc_ok | mit1_match_ns).asBool,clock,io.scan_mode)
+
+   // ----------------------------------------------------------------------
+   // MITB0 (RW)
+   // [31:0] : Internal Timer Bound 0
+	val  MITB0 =0x7d3.U(12.W)
+
+	val wr_mitb0_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r === MITB0)
+	val mitb0_b	   = rvdffe((~io.dec_csr_wrdata_r),wr_mitb0_r.asBool,clock,io.scan_mode)
+	mitb0	  := ~mitb0_b
+
+   // ----------------------------------------------------------------------
+   // MITB1 (RW)
+   // [31:0] : Internal Timer Bound 1
+
+  	val MITB1 =0x7d6.U(12.W)
+	val wr_mitb1_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r=== MITB1)
+	val mitb1_b=rvdffe((~io.dec_csr_wrdata_r),wr_mitb1_r.asBool,clock,io.scan_mode)
+	mitb1 := ~mitb1_b
+
+   // ----------------------------------------------------------------------
+   // MITCTL0 (RW) Internal Timer Ctl 0
+   // [31:3] : Reserved, reads 0x0
+   // [2]    : Enable while PAUSEd
+   // [1]    : Enable while HALTed
+   // [0]    : Enable (resets to 0x1)
+
+	val MITCTL0 =0x7d4.U(12.W)
+
+	val wr_mitctl0_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r === MITCTL0)
+	val mitctl0_ns	 = Mux(wr_mitctl0_r.asBool, io.dec_csr_wrdata_r(2,0), mitctl0(2,0))
+
+	val mitctl0_0_b_ns = ~mitctl0_ns(0)
+	val mitctl0_0_b    = withClock(io.free_clk){RegNext(mitctl0_0_b_ns,0.U)}
+	mitctl0	 	      :=Cat(withClock(io.free_clk){RegNext(mitctl0_ns(2,1),0.U)},~mitctl0_0_b)
+
+   // ----------------------------------------------------------------------
+   // MITCTL1 (RW) Internal Timer Ctl 1
+   // [31:4] : Reserved, reads 0x0
+   // [3]    : Cascade
+   // [2]    : Enable while PAUSEd
+   // [1]    : Enable while HALTed
+   // [0]    : Enable (resets to 0x1)
+	val MITCTL1 =0x7d7.U(12.W)
+	val wr_mitctl1_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r=== MITCTL1)
+   	val mitctl1_ns	 = Mux(wr_mitctl1_r.asBool,io.dec_csr_wrdata_r(3,0), mitctl1(3,0))
+	val mitctl1_0_b_ns= ~mitctl1_ns(0)
+	val mitctl1_0_b=withClock(io.free_clk){RegNext(mitctl1_0_b_ns,0.U)}
+	mitctl1:=Cat(withClock(io.free_clk){RegNext(mitctl1_ns(3,1),0.U)},~mitctl1_0_b)
+
+   	io.dec_timer_read_d 	:= io.csr_mitcnt1 | io.csr_mitcnt0 | io.csr_mitb1 | io.csr_mitb0 | io.csr_mitctl0 | io.csr_mitctl1
+   	io.dec_timer_rddata_d 	:=Mux1H(Seq(
+   		io.csr_mitcnt1.asBool 	-> mitcnt1,
+   		io.csr_mitb0.asBool		-> mitb0,
+   		io.csr_mitb1.asBool		-> mitb1,
+   		io.csr_mitctl0.asBool 	-> Cat(Fill(29,0.U(1.W)),mitctl0),
+   		io.csr_mitctl1.asBool 	-> Cat(Fill(28,0.U(1.W)),mitctl1)  	
+   	))
+}
+
+
+class el2_dec_timer_ctl_IO extends Bundle{
+	val free_clk				=Input(Clock())
+   	val scan_mode				=Input(Bool())
+	val dec_csr_wen_r_mod		=Input(UInt(1.W))     // csr write enable at wb
+	val dec_csr_rdaddr_d		=Input(UInt(12.W))    // read address for csr
+	val dec_csr_wraddr_r		=Input(UInt(12.W))    // write address for csr
+	val dec_csr_wrdata_r		=Input(UInt(32.W))    // csr write data at wb
+
+	val csr_mitctl0				=Input(UInt(1.W))
+	val csr_mitctl1				=Input(UInt(1.W))
+	val csr_mitb0				=Input(UInt(1.W))
+	val csr_mitb1				=Input(UInt(1.W))
+	val csr_mitcnt0				=Input(UInt(1.W))
+	val csr_mitcnt1				=Input(UInt(1.W))
+
+
+	val dec_pause_state			=Input(UInt(1.W)) 	// Paused
+	val dec_tlu_pmu_fw_halted	=Input(UInt(1.W))	// pmu/fw halted
+	val internal_dbg_halt_timers=Input(UInt(1.W)) 	// debug halted
+
+	val dec_timer_rddata_d		=Output(UInt(32.W)) // timer CSR read data
+	val dec_timer_read_d		=Output(UInt(1.W)) 	// timer CSR address match
+	val dec_timer_t0_pulse		=Output(UInt(1.W)) 	// timer0 int
+	val dec_timer_t1_pulse		=Output(UInt(1.W)) 	// timer1 int
+}
+
 object tlu_gen extends App{
 println(chisel3.Driver.emitVerilog(new el2_dec_tlu_ctl))
 }
