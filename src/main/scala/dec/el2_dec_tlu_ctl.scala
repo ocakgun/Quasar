@@ -1544,7 +1544,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  // gate MIE if we are single stepping and DCSR[STEPIE] is off
  io.mstatus_mie_ns := io.mstatus(MSTATUS_MIE) & (~io.dcsr_single_step_running_f | io.dcsr(DCSR_STEPIE))
  io.mstatus := withClock(io.free_clk) {
-   RegNext(mstatus_ns)
+   RegNext(mstatus_ns,0.U)
  }
 
  // ----------------------------------------------------------------------
@@ -1571,7 +1571,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
 
  val mip_ns = Cat(ce_int, io.dec_timer_t0_pulse, io.dec_timer_t1_pulse, io.mexintpend, io.timer_int_sync, io.soft_int_sync)
  io.mip := withClock(io.free_clk) {
-   RegNext(mip_ns)
+   RegNext(mip_ns,0.U)
  }
 
  // ----------------------------------------------------------------------
@@ -1586,7 +1586,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val wr_mie_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MIE)
  io.mie_ns := Mux(wr_mie_r.asBool, Cat(io.dec_csr_wrdata_r(30, 28), io.dec_csr_wrdata_r(11), io.dec_csr_wrdata_r(7), io.dec_csr_wrdata_r(3)), mie)
  mie := withClock(io.csr_wr_clk) {
-   RegNext(io.mie_ns)
+   RegNext(io.mie_ns,0.U)
  }
 
  // ----------------------------------------------------------------------
@@ -1605,7 +1605,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val mcyclel_ns = Mux(wr_mcyclel_r.asBool, io.dec_csr_wrdata_r, mcyclel_inc)
  val mcyclel_cout = mcyclel_inc(32).asBool
  mcyclel := rvdffe(mcyclel_ns, (wr_mcyclel_r | mcyclel_cout_in.asUInt).asBool, clock, io.scan_mode)
- val mcyclel_cout_f = withClock(io.free_clk) {RegNext((mcyclel_cout & !wr_mcycleh_r))}
+ val mcyclel_cout_f = withClock(io.free_clk) {RegNext((mcyclel_cout & !wr_mcycleh_r),0.U)}
  // ----------------------------------------------------------------------
  // MCYCLEH (RW)
  // [63:32] : Higher Cycle count
@@ -1640,8 +1640,8 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
 
  val minstretl_ns = Mux(wr_minstretl_r.asBool, io.dec_csr_wrdata_r , minstretl_inc)
  minstretl := rvdffe(minstretl_ns,minstret_enable.asBool,clock,io.scan_mode)
- val minstret_enable_f = withClock(io.free_clk){RegNext(minstret_enable)}
- val minstretl_cout_f  = withClock(io.free_clk){RegNext((minstretl_cout & ~wr_minstreth_r))}
+ val minstret_enable_f = withClock(io.free_clk){RegNext(minstret_enable,0.U)}
+ val minstretl_cout_f  = withClock(io.free_clk){RegNext((minstretl_cout & ~wr_minstreth_r),0.U)}
 
  val minstretl_read = minstretl
  // ----------------------------------------------------------------------
@@ -1663,7 +1663,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  // mscratch (RW)
  // [31:0] : Scratch register
 
- val wr_mscratch_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === mscratch)
+ val wr_mscratch_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MSCRATCH)
 
  mscratch := rvdffe(io.dec_csr_wrdata_r,wr_mscratch_r.asBool,clock,io.scan_mode)
 
@@ -1703,7 +1703,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  (wr_mepc_r & !io.exc_or_int_valid_r).asBool                                     -> io.dec_csr_wrdata_r(31,1),
  (!wr_mepc_r & !io.exc_or_int_valid_r).asBool                                    -> io.mepc) )
 
- io.mepc := withClock(io.e4e5_int_clk){RegNext(mepc_ns)}
+ io.mepc := withClock(io.e4e5_int_clk){RegNext(mepc_ns,0.U)}
 
 
  // ----------------------------------------------------------------------
@@ -1752,7 +1752,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
                        (wr_mscause_r & !io.exc_or_int_valid_r).asBool           -> io.dec_csr_wrdata_r(3,0),
                        (!wr_mscause_r & !io.exc_or_int_valid_r).asBool          -> mscause))
 
- mscause := withClock(io.e4e5_int_clk){RegNext(mscause_ns)}
+ mscause := withClock(io.e4e5_int_clk){RegNext(mscause_ns,0.U)}
 
  // ----------------------------------------------------------------------
  // MTVAL (RW)
@@ -1775,7 +1775,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
    (wr_mtval_r & ~io.interrupt_valid_r.asUInt).asBool             -> io.dec_csr_wrdata_r,
    (~io.take_nmi & ~wr_mtval_r & ~mtval_capture_pc_r & ~mtval_capture_inst_r & ~mtval_clear_r & ~mtval_capture_lsu_r).asBool -> mtval ))
 
- mtval :=  withClock(io.e4e5_int_clk){RegNext(mtval_ns)}
+ mtval :=  withClock(io.e4e5_int_clk){RegNext(mtval_ns,0.U)}
 
  // ----------------------------------------------------------------------
  // MCGC (RW) Clock gating control
@@ -1923,8 +1923,8 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val fw_halted_ns = (io.fw_halt_req | fw_halted) & ~set_mie_pmu_fw_halt
  mpmc_b_ns := Mux(wr_mpmc_r.asBool, ~io.dec_csr_wrdata_r(1), ~mpmc)
 
- mpmc_b := withClock(io.csr_wr_clk){RegNext(mpmc_b_ns)}
- fw_halted := withClock(io.free_clk){RegNext(fw_halted_ns)}
+ mpmc_b := withClock(io.csr_wr_clk){RegNext(mpmc_b_ns,0.U)}
+ fw_halted := withClock(io.free_clk){RegNext(fw_halted_ns,0.U)}
 
  mpmc := ~mpmc_b
 
@@ -1986,7 +1986,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
 
  val mfdht_ns = Mux(wr_mfdht_r.asBool, io.dec_csr_wrdata_r(5,0) , mfdht)
 
- mfdht := withClock(io.active_clk){RegNext(mfdht_ns)}
+ mfdht := withClock(io.active_clk){RegNext(mfdht_ns,0.U)}
 
  // ----------------------------------------------------------------------
  // MFDHS(RW)
@@ -2000,12 +2000,12 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val mfdhs_ns = Mux(wr_mfdhs_r.asBool,  io.dec_csr_wrdata_r(1,0) ,
                  Mux((io.dbg_tlu_halted & ~io.dbg_tlu_halted_f).asBool,  Cat(~io.lsu_idle_any_f, ~io.ifu_miss_state_idle_f) , mfdhs))
 
- mfdhs := withClock(io.active_clk){RegEnable(mfdhs_ns,(wr_mfdhs_r | io.dbg_tlu_halted).asBool)}
+ mfdhs := withClock(io.active_clk){RegEnable(mfdhs_ns,0.U,(wr_mfdhs_r | io.dbg_tlu_halted).asBool)}
 
  val force_halt_ctr = Mux(io.debug_halt_req_f.asBool,  (force_halt_ctr_f + 1.U(32.W)) ,
                        Mux(io.dbg_tlu_halted_f.asBool, 0.U(32.W) , force_halt_ctr_f))
 
- force_halt_ctr_f := withClock(io.active_clk){RegEnable(force_halt_ctr,mfdht(0))}
+ force_halt_ctr_f := withClock(io.active_clk){RegEnable(force_halt_ctr,0.U,mfdht(0))}
 
  io.force_halt := mfdht(0) & (force_halt_ctr_f & ("hffffffff".U(32.W) << mfdht(5,1))).orR
 
@@ -2042,7 +2042,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val wr_meicurpl_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MEICURPL)
  val meicurpl_ns = Mux(wr_meicurpl_r.asBool, io.dec_csr_wrdata_r(3,0) , meicurpl)
 
- meicurpl := withClock(io.csr_wr_clk){RegNext(meicurpl_ns)}
+ meicurpl := withClock(io.csr_wr_clk){RegNext(meicurpl_ns,0.U)}
  // PIC needs this reg
  io.dec_tlu_meicurpl := meicurpl
 
@@ -2059,7 +2059,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val meicidpl_ns = Mux(wr_meicpct_r.asBool, io.pic_pl,
                    Mux(wr_meicidpl_r.asBool, io.dec_csr_wrdata_r(3,0) , meicidpl))
 
- meicidpl := withClock(io.free_clk){RegNext(meicidpl_ns)}
+ meicidpl := withClock(io.free_clk){RegNext(meicidpl_ns,0.U)}
 
  // ----------------------------------------------------------------------
  // MEICPCT (Capture CLAIMID in MEIHAP and PL in MEICIDPL
@@ -2078,7 +2078,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val wr_meipt_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MEIPT)
  val meipt_ns = Mux(wr_meipt_r.asBool, io.dec_csr_wrdata_r(3,0), meipt)
 
- meipt := withClock(io.active_clk){RegNext(meipt_ns)}
+ meipt := withClock(io.active_clk){RegNext(meipt_ns,0.U)}
  // to PIC
  io.dec_tlu_meipt := meipt
 
@@ -2206,7 +2206,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
 
  val dicad1_ns = Mux(wr_dicad1_r.asBool, io.dec_csr_wrdata_r, io.ifu_ic_debug_rd_data(70,64))
 
- dicad1_raw := withClock(io.active_clk){RegEnable(dicad1_ns,(wr_dicad1_r | io.ifu_ic_debug_rd_data_valid).asBool)}
+ dicad1_raw := withClock(io.active_clk){RegEnable(dicad1_ns,0.U,(wr_dicad1_r | io.ifu_ic_debug_rd_data_valid).asBool)}
  dicad1 := Cat(0.U(25.W), dicad1_raw)
 
  }
@@ -2221,7 +2221,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
 
  val dicad1_ns = Mux(wr_dicad1_r.asBool, io.dec_csr_wrdata_r(3,0), io.ifu_ic_debug_rd_data(67,64))
 
- dicad1_raw :=withClock(io.active_clk){RegEnable(dicad1_ns,(wr_dicad1_r | io.ifu_ic_debug_rd_data_valid).asBool)}
+ dicad1_raw :=withClock(io.active_clk){RegEnable(dicad1_ns,0.U,(wr_dicad1_r | io.ifu_ic_debug_rd_data_valid).asBool)}
  dicad1 := Cat(0.U(28.W), dicad1_raw)
  }
 
@@ -2237,8 +2237,8 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val icache_rd_valid = io.allow_dbg_halt_csr_write & io.dec_csr_any_unq_d & io.dec_i0_decode_d & ~io.dec_csr_wen_unq_d & (io.dec_csr_rdaddr_d(11,0) === DICAGO)
  val icache_wr_valid = io.allow_dbg_halt_csr_write & io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === DICAGO)
 
- val icache_rd_valid_f = withClock(io.active_clk){RegNext(icache_rd_valid)}
- val icache_wr_valid_f = withClock(io.active_clk){RegNext(icache_wr_valid)}
+ val icache_rd_valid_f = withClock(io.active_clk){RegNext(icache_rd_valid,0.U)}
+ val icache_wr_valid_f = withClock(io.active_clk){RegNext(icache_wr_valid,0.U)}
 
  io.dec_tlu_ic_diag_pkt.icache_rd_valid := icache_rd_valid_f
  io.dec_tlu_ic_diag_pkt.icache_wr_valid := icache_wr_valid_f
@@ -2252,7 +2252,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val wr_mtsel_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MTSEL)
  val mtsel_ns = Mux(wr_mtsel_r.asBool, io.dec_csr_wrdata_r(1,0), mtsel)
 
- mtsel := withClock(io.csr_wr_clk){RegNext(mtsel_ns)}
+ mtsel := withClock(io.csr_wr_clk){RegNext(mtsel_ns,0.U)}
  // ----------------------------------------------------------------------
  // MTDATA1 (R/W)
  // [31:0] : Trigger Data 1
@@ -2300,7 +2300,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val wr_mtdata1_t_r = VecInit.tabulate(4)(i =>  io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MTDATA1) & (mtsel === 0.U(2.W)) & (~io.mtdata1_t(i)(MTDATA1_DMODE) | io.dbg_tlu_halted_f))
  val mtdata1_t_ns = VecInit.tabulate(4)(i => Mux(wr_mtdata1_t_r(i).asBool, tdata_wrdata_r, Cat(io.mtdata1_t(i)(9), io.update_hit_bit_r(i) | io.mtdata1_t(i)(8), io.mtdata1_t(i)(7,0))))
 
-for(i <- 0 until 4) { io.mtdata1_t(i) := withClock(io.active_clk){RegNext(mtdata1_t_ns(i))}}
+for(i <- 0 until 4) { io.mtdata1_t(i) := withClock(io.active_clk){RegNext(mtdata1_t_ns(i),0.U)}}
 
 
 val mtdata1_tsel_out = Mux1H((0 until 4).map(i => (mtsel === i.U(2.W)) -> Cat(2.U(4.W), io.mtdata1_t(i)(9), "b011111".U(6.W), io.mtdata1_t(i)(8,7), 0.U(6.W), io.mtdata1_t(i)(6,5), 0.U(3.W), io.mtdata1_t(i)(4,3), 0.U(3.W), io.mtdata1_t(i)(2,0))))
@@ -2410,11 +2410,11 @@ for(i <- 0 until 4) {io.trigger_pkt_any(i).tdata2 := mtdata2_t(i)}
                    (mhpme_vec(i) === MHPME_DMA_WRITE_DCCM  ).asBool -> io.dma_pmu_dccm_write   ))))
  }
  
- mhpmc_inc_r_d1(0) := withClock(io.free_clk){RegNext(mhpmc_inc_r(0))}
- mhpmc_inc_r_d1(1) := withClock(io.free_clk){RegNext(mhpmc_inc_r(1))}
- mhpmc_inc_r_d1(2) := withClock(io.free_clk){RegNext(mhpmc_inc_r(2))}
- mhpmc_inc_r_d1(3) := withClock(io.free_clk){RegNext(mhpmc_inc_r(3))}
- val perfcnt_halted_d1 = withClock(io.free_clk){RegNext(perfcnt_halted)}
+ mhpmc_inc_r_d1(0) := withClock(io.free_clk){RegNext(mhpmc_inc_r(0),0.U)}
+ mhpmc_inc_r_d1(1) := withClock(io.free_clk){RegNext(mhpmc_inc_r(1),0.U)}
+ mhpmc_inc_r_d1(2) := withClock(io.free_clk){RegNext(mhpmc_inc_r(2),0.U)}
+ mhpmc_inc_r_d1(3) := withClock(io.free_clk){RegNext(mhpmc_inc_r(3),0.U)}
+ val perfcnt_halted_d1 = withClock(io.free_clk){RegNext(perfcnt_halted,0.U)}
 
 
  perfcnt_halted := ((io.dec_tlu_dbg_halted & io.dcsr(DCSR_STOPC)) | io.dec_tlu_pmu_fw_halted)
@@ -2509,27 +2509,27 @@ for(i <- 0 until 4) {io.trigger_pkt_any(i).tdata2 := mtdata2_t(i)}
 
  val wr_mhpme3_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MHPME3)
 
- mhpme3 := withClock(io.active_clk){RegEnable(event_saturate_r,wr_mhpme3_r.asBool)}
+ mhpme3 := withClock(io.active_clk){RegEnable(event_saturate_r,0.U,wr_mhpme3_r.asBool)}
  // ----------------------------------------------------------------------
  // MHPME4(RW)
  // [9:0] : Hardware Performance Monitor Event 4
 
  val wr_mhpme4_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MHPME4)
- mhpme4 := withClock(io.active_clk){RegEnable(event_saturate_r,wr_mhpme4_r.asBool)}
+ mhpme4 := withClock(io.active_clk){RegEnable(event_saturate_r,0.U,wr_mhpme4_r.asBool)}
 
  // ----------------------------------------------------------------------
  // MHPME5(RW)
  // [9:0] : Hardware Performance Monitor Event 5
 
  val wr_mhpme5_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MHPME5)
- mhpme5 := withClock(io.active_clk){RegEnable(event_saturate_r,wr_mhpme5_r.asBool)}
+ mhpme5 := withClock(io.active_clk){RegEnable(event_saturate_r,0.U,wr_mhpme5_r.asBool)}
 
  // ----------------------------------------------------------------------
  // MHPME6(RW)
  // [9:0] : Hardware Performance Monitor Event 6
 
  val wr_mhpme6_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MHPME6)
- mhpme6 := withClock(io.active_clk){RegEnable(event_saturate_r,wr_mhpme6_r.asBool)}
+ mhpme6 := withClock(io.active_clk){RegEnable(event_saturate_r,0.U,wr_mhpme6_r.asBool)}
  //----------------------------------------------------------------------
  // Performance Monitor Counters section ends
  //----------------------------------------------------------------------
@@ -2550,9 +2550,9 @@ for(i <- 0 until 4) {io.trigger_pkt_any(i).tdata2 := mtdata2_t(i)}
  val temp_ncount0 =  WireInit(UInt(1.W),mcountinhibit(0))
  val temp_ncount1 =  WireInit(UInt(1.W),mcountinhibit(1))
  val temp_ncount6_2 = WireInit(UInt(5.W),mcountinhibit(6,2))
- temp_ncount6_2 := withClock(io.active_clk){RegEnable(io.dec_csr_wrdata_r(6,2),wr_mcountinhibit_r.asBool)}
+ temp_ncount6_2 := withClock(io.active_clk){RegEnable(io.dec_csr_wrdata_r(6,2),0.U,wr_mcountinhibit_r.asBool)}
 
- temp_ncount0 := withClock(io.active_clk){RegEnable(io.dec_csr_wrdata_r(0),wr_mcountinhibit_r.asBool)}
+ temp_ncount0 := withClock(io.active_clk){RegEnable(io.dec_csr_wrdata_r(0),0.U,wr_mcountinhibit_r.asBool)}
  mcountinhibit := Cat(temp_ncount6_2, 0.U(1.W),temp_ncount0)
  //--------------------------------------------------------------------------------
  // trace
@@ -2563,10 +2563,10 @@ for(i <- 0 until 4) {io.trigger_pkt_any(i).tdata2 := mtdata2_t(i)}
  val trace_tclk = rvclkhdr(clock, (io.i0_valid_wb | io.exc_or_int_valid_r_d1 | io.interrupt_valid_r_d1 | io.dec_tlu_i0_valid_wb1 |
    io.dec_tlu_i0_exc_valid_wb1 | io.dec_tlu_int_valid_wb1 | io.clk_override).asBool, io.scan_mode)
 
- io.dec_tlu_i0_valid_wb1     := withClock(trace_tclk){RegNext(io.i0_valid_wb)}
- io.dec_tlu_i0_exc_valid_wb1 := withClock(trace_tclk){RegNext((io.i0_exception_valid_r_d1 | io.lsu_i0_exc_r_d1 | (io.trigger_hit_r_d1 & ~io.trigger_hit_dmode_r_d1)))}
- io.dec_tlu_exc_cause_wb1    := withClock(trace_tclk){RegNext(io.exc_cause_wb)}
- io.dec_tlu_int_valid_wb1    := withClock(trace_tclk){RegNext(io.interrupt_valid_r_d1)}
+ io.dec_tlu_i0_valid_wb1     := withClock(trace_tclk){RegNext(io.i0_valid_wb,0.U)}
+ io.dec_tlu_i0_exc_valid_wb1 := withClock(trace_tclk){RegNext((io.i0_exception_valid_r_d1 | io.lsu_i0_exc_r_d1 | (io.trigger_hit_r_d1 & ~io.trigger_hit_dmode_r_d1)),0.U)}
+ io.dec_tlu_exc_cause_wb1    := withClock(trace_tclk){RegNext(io.exc_cause_wb,0.U)}
+ io.dec_tlu_int_valid_wb1    := withClock(trace_tclk){RegNext(io.interrupt_valid_r_d1,0.U)}
 
  io.dec_tlu_mtval_wb1  := mtval
 
@@ -2831,6 +2831,7 @@ class el2_dec_timer_ctl extends Module{
 
    	io.dec_timer_read_d 	:= io.csr_mitcnt1 | io.csr_mitcnt0 | io.csr_mitb1 | io.csr_mitb0 | io.csr_mitctl0 | io.csr_mitctl1
    	io.dec_timer_rddata_d 	:=Mux1H(Seq(
+         io.csr_mitcnt0.asBool   -> mitcnt0(31,0),
    		io.csr_mitcnt1.asBool 	-> mitcnt1,
    		io.csr_mitb0.asBool		-> mitb0,
    		io.csr_mitb1.asBool		-> mitb1,

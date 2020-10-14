@@ -119,16 +119,18 @@ module el2_dec_timer_ctl(
   wire  _T_70 = _T_69 | io_csr_mitb1; // @[el2_dec_tlu_ctl.scala 2832:68]
   wire  _T_71 = _T_70 | io_csr_mitb0; // @[el2_dec_tlu_ctl.scala 2832:83]
   wire  _T_72 = _T_71 | io_csr_mitctl0; // @[el2_dec_tlu_ctl.scala 2832:98]
-  wire [31:0] _T_79 = {29'h0,_T_57,_T_58}; // @[Cat.scala 29:58]
-  wire [31:0] _T_82 = {28'h0,_T_66,_T_67}; // @[Cat.scala 29:58]
-  wire [31:0] _T_83 = io_csr_mitcnt1 ? mitcnt1 : 32'h0; // @[Mux.scala 27:72]
-  wire [31:0] _T_84 = io_csr_mitb0 ? mitb0 : 32'h0; // @[Mux.scala 27:72]
-  wire [31:0] _T_85 = io_csr_mitb1 ? mitb1 : 32'h0; // @[Mux.scala 27:72]
-  wire [31:0] _T_86 = io_csr_mitctl0 ? _T_79 : 32'h0; // @[Mux.scala 27:72]
-  wire [31:0] _T_87 = io_csr_mitctl1 ? _T_82 : 32'h0; // @[Mux.scala 27:72]
-  wire [31:0] _T_88 = _T_83 | _T_84; // @[Mux.scala 27:72]
-  wire [31:0] _T_89 = _T_88 | _T_85; // @[Mux.scala 27:72]
-  wire [31:0] _T_90 = _T_89 | _T_86; // @[Mux.scala 27:72]
+  wire [31:0] _T_81 = {29'h0,_T_57,_T_58}; // @[Cat.scala 29:58]
+  wire [31:0] _T_84 = {28'h0,_T_66,_T_67}; // @[Cat.scala 29:58]
+  wire [31:0] _T_85 = io_csr_mitcnt0 ? mitcnt0 : 32'h0; // @[Mux.scala 27:72]
+  wire [31:0] _T_86 = io_csr_mitcnt1 ? mitcnt1 : 32'h0; // @[Mux.scala 27:72]
+  wire [31:0] _T_87 = io_csr_mitb0 ? mitb0 : 32'h0; // @[Mux.scala 27:72]
+  wire [31:0] _T_88 = io_csr_mitb1 ? mitb1 : 32'h0; // @[Mux.scala 27:72]
+  wire [31:0] _T_89 = io_csr_mitctl0 ? _T_81 : 32'h0; // @[Mux.scala 27:72]
+  wire [31:0] _T_90 = io_csr_mitctl1 ? _T_84 : 32'h0; // @[Mux.scala 27:72]
+  wire [31:0] _T_91 = _T_85 | _T_86; // @[Mux.scala 27:72]
+  wire [31:0] _T_92 = _T_91 | _T_87; // @[Mux.scala 27:72]
+  wire [31:0] _T_93 = _T_92 | _T_88; // @[Mux.scala 27:72]
+  wire [31:0] _T_94 = _T_93 | _T_89; // @[Mux.scala 27:72]
   rvclkhdr rvclkhdr ( // @[beh_lib.scala 351:21]
     .io_l1clk(rvclkhdr_io_l1clk),
     .io_clk(rvclkhdr_io_clk),
@@ -153,7 +155,7 @@ module el2_dec_timer_ctl(
     .io_en(rvclkhdr_3_io_en),
     .io_scan_mode(rvclkhdr_3_io_scan_mode)
   );
-  assign io_dec_timer_rddata_d = _T_90 | _T_87; // @[el2_dec_tlu_ctl.scala 2833:33]
+  assign io_dec_timer_rddata_d = _T_94 | _T_90; // @[el2_dec_tlu_ctl.scala 2833:33]
   assign io_dec_timer_read_d = _T_72 | io_csr_mitctl1; // @[el2_dec_tlu_ctl.scala 2832:33]
   assign io_dec_timer_t0_pulse = mitcnt0 >= mitb0; // @[el2_dec_tlu_ctl.scala 2755:31]
   assign io_dec_timer_t1_pulse = mitcnt1 >= mitb1; // @[el2_dec_tlu_ctl.scala 2756:31]
@@ -884,8 +886,8 @@ module csr_tlu(
   wire  _T_83 = io_dec_tlu_dbg_halted & io_dcsr[10]; // @[el2_dec_tlu_ctl.scala 1600:71]
   wire  _T_84 = kill_ebreak_count_r | _T_83; // @[el2_dec_tlu_ctl.scala 1600:46]
   wire  _T_85 = _T_84 | io_dec_tlu_pmu_fw_halted; // @[el2_dec_tlu_ctl.scala 1600:94]
-  reg [4:0] temp_ncount6_2; // @[Reg.scala 15:16]
-  reg  temp_ncount0; // @[Reg.scala 15:16]
+  reg [4:0] temp_ncount6_2; // @[Reg.scala 27:20]
+  reg  temp_ncount0; // @[Reg.scala 27:20]
   wire [6:0] mcountinhibit = {temp_ncount6_2,1'h0,temp_ncount0}; // @[Cat.scala 29:58]
   wire  _T_87 = _T_85 | mcountinhibit[0]; // @[el2_dec_tlu_ctl.scala 1600:121]
   wire  mcyclel_cout_in = ~_T_87; // @[el2_dec_tlu_ctl.scala 1600:24]
@@ -924,9 +926,8 @@ module csr_tlu(
   wire [31:0] _T_129 = {31'h0,minstretl_cout_f}; // @[Cat.scala 29:58]
   reg [31:0] minstreth; // @[beh_lib.scala 357:14]
   wire [31:0] minstreth_inc = minstreth + _T_129; // @[el2_dec_tlu_ctl.scala 1655:29]
+  wire  _T_137 = io_dec_csr_wraddr_r == 12'h340; // @[el2_dec_tlu_ctl.scala 1666:72]
   reg [31:0] mscratch; // @[beh_lib.scala 357:14]
-  wire [31:0] _GEN_13 = {{20'd0}, io_dec_csr_wraddr_r}; // @[el2_dec_tlu_ctl.scala 1666:72]
-  wire  _T_137 = _GEN_13 == mscratch; // @[el2_dec_tlu_ctl.scala 1666:72]
   wire  _T_140 = ~io_dec_tlu_dbg_halted; // @[el2_dec_tlu_ctl.scala 1677:22]
   wire  _T_141 = ~io_tlu_flush_lower_r_d1; // @[el2_dec_tlu_ctl.scala 1677:47]
   wire  _T_142 = _T_140 & _T_141; // @[el2_dec_tlu_ctl.scala 1677:45]
@@ -943,12 +944,12 @@ module csr_tlu(
   wire [31:0] _T_155 = _T_150 ? io_rst_vec : 32'h0; // @[Mux.scala 27:72]
   wire [30:0] _T_156 = sel_flush_npc_r ? io_tlu_flush_path_r_d1 : 31'h0; // @[Mux.scala 27:72]
   wire [30:0] _T_157 = sel_hold_npc_r ? io_npc_r_d1 : 31'h0; // @[Mux.scala 27:72]
-  wire [31:0] _GEN_14 = {{1'd0}, _T_154}; // @[Mux.scala 27:72]
-  wire [31:0] _T_158 = _GEN_14 | _T_155; // @[Mux.scala 27:72]
-  wire [31:0] _GEN_15 = {{1'd0}, _T_156}; // @[Mux.scala 27:72]
-  wire [31:0] _T_159 = _T_158 | _GEN_15; // @[Mux.scala 27:72]
-  wire [31:0] _GEN_16 = {{1'd0}, _T_157}; // @[Mux.scala 27:72]
-  wire [31:0] _T_160 = _T_159 | _GEN_16; // @[Mux.scala 27:72]
+  wire [31:0] _GEN_13 = {{1'd0}, _T_154}; // @[Mux.scala 27:72]
+  wire [31:0] _T_158 = _GEN_13 | _T_155; // @[Mux.scala 27:72]
+  wire [31:0] _GEN_14 = {{1'd0}, _T_156}; // @[Mux.scala 27:72]
+  wire [31:0] _T_159 = _T_158 | _GEN_14; // @[Mux.scala 27:72]
+  wire [31:0] _GEN_15 = {{1'd0}, _T_157}; // @[Mux.scala 27:72]
+  wire [31:0] _T_160 = _T_159 | _GEN_15; // @[Mux.scala 27:72]
   wire  _T_162 = sel_exu_npc_r | sel_flush_npc_r; // @[el2_dec_tlu_ctl.scala 1687:48]
   reg [30:0] _T_165; // @[beh_lib.scala 357:14]
   wire  pc0_valid_r = _T_140 & io_dec_tlu_i0_valid_r; // @[el2_dec_tlu_ctl.scala 1690:44]
@@ -1008,10 +1009,10 @@ module csr_tlu(
   wire [1:0] _T_245 = io_ebreak_r ? 2'h2 : 2'h0; // @[Mux.scala 27:72]
   wire [3:0] _T_246 = io_inst_acc_r ? ifu_mscause : 4'h0; // @[Mux.scala 27:72]
   wire  _T_247 = _T_243 | io_i0_trigger_hit_r; // @[Mux.scala 27:72]
-  wire [1:0] _GEN_17 = {{1'd0}, _T_247}; // @[Mux.scala 27:72]
-  wire [1:0] _T_248 = _GEN_17 | _T_245; // @[Mux.scala 27:72]
-  wire [3:0] _GEN_18 = {{2'd0}, _T_248}; // @[Mux.scala 27:72]
-  wire [3:0] mscause_type = _GEN_18 | _T_246; // @[Mux.scala 27:72]
+  wire [1:0] _GEN_16 = {{1'd0}, _T_247}; // @[Mux.scala 27:72]
+  wire [1:0] _T_248 = _GEN_16 | _T_245; // @[Mux.scala 27:72]
+  wire [3:0] _GEN_17 = {{2'd0}, _T_248}; // @[Mux.scala 27:72]
+  wire [3:0] mscause_type = _GEN_17 | _T_246; // @[Mux.scala 27:72]
   wire  _T_252 = wr_mscause_r & _T_15; // @[el2_dec_tlu_ctl.scala 1752:38]
   wire  _T_255 = ~wr_mscause_r; // @[el2_dec_tlu_ctl.scala 1753:25]
   wire  _T_257 = _T_255 & _T_15; // @[el2_dec_tlu_ctl.scala 1753:39]
@@ -1137,8 +1138,8 @@ module csr_tlu(
   wire  _T_517 = io_dec_csr_wraddr_r == 12'h7f0; // @[el2_dec_tlu_ctl.scala 1940:70]
   wire  wr_micect_r = io_dec_csr_wen_r_mod & _T_517; // @[el2_dec_tlu_ctl.scala 1940:41]
   wire [26:0] _T_518 = {26'h0,io_ic_perr_r_d1}; // @[Cat.scala 29:58]
-  wire [31:0] _GEN_19 = {{5'd0}, _T_518}; // @[el2_dec_tlu_ctl.scala 1941:23]
-  wire [31:0] _T_520 = micect + _GEN_19; // @[el2_dec_tlu_ctl.scala 1941:23]
+  wire [31:0] _GEN_18 = {{5'd0}, _T_518}; // @[el2_dec_tlu_ctl.scala 1941:23]
+  wire [31:0] _T_520 = micect + _GEN_18; // @[el2_dec_tlu_ctl.scala 1941:23]
   wire [31:0] _T_523 = {csr_sat,io_dec_csr_wrdata_r[26:0]}; // @[Cat.scala 29:58]
   wire [26:0] micect_inc = _T_520[26:0]; // @[el2_dec_tlu_ctl.scala 1941:13]
   wire [31:0] _T_525 = {micect[31:27],micect_inc}; // @[Cat.scala 29:58]
@@ -1164,13 +1165,13 @@ module csr_tlu(
   wire  _T_589 = ~io_lsu_idle_any_f; // @[el2_dec_tlu_ctl.scala 2001:78]
   wire  _T_590 = ~io_ifu_miss_state_idle_f; // @[el2_dec_tlu_ctl.scala 2001:98]
   wire [1:0] _T_591 = {_T_589,_T_590}; // @[Cat.scala 29:58]
-  reg [1:0] mfdhs; // @[Reg.scala 15:16]
-  wire  _T_593 = wr_mfdhs_r | io_dbg_tlu_halted; // @[el2_dec_tlu_ctl.scala 2003:67]
-  reg [31:0] force_halt_ctr_f; // @[Reg.scala 15:16]
+  reg [1:0] mfdhs; // @[Reg.scala 27:20]
+  wire  _T_593 = wr_mfdhs_r | io_dbg_tlu_halted; // @[el2_dec_tlu_ctl.scala 2003:71]
+  reg [31:0] force_halt_ctr_f; // @[Reg.scala 27:20]
   wire [31:0] _T_598 = force_halt_ctr_f + 32'h1; // @[el2_dec_tlu_ctl.scala 2005:74]
   wire [62:0] _T_605 = 63'hffffffff << mfdht[5:1]; // @[el2_dec_tlu_ctl.scala 2010:71]
-  wire [62:0] _GEN_20 = {{31'd0}, force_halt_ctr_f}; // @[el2_dec_tlu_ctl.scala 2010:48]
-  wire [62:0] _T_606 = _GEN_20 & _T_605; // @[el2_dec_tlu_ctl.scala 2010:48]
+  wire [62:0] _GEN_19 = {{31'd0}, force_halt_ctr_f}; // @[el2_dec_tlu_ctl.scala 2010:48]
+  wire [62:0] _T_606 = _GEN_19 & _T_605; // @[el2_dec_tlu_ctl.scala 2010:48]
   wire  _T_607 = |_T_606; // @[el2_dec_tlu_ctl.scala 2010:87]
   wire  _T_610 = io_dec_csr_wraddr_r == 12'hbc8; // @[el2_dec_tlu_ctl.scala 2018:69]
   reg [21:0] meivt; // @[beh_lib.scala 357:14]
@@ -1250,8 +1251,8 @@ module csr_tlu(
   reg [31:0] dicad0h; // @[beh_lib.scala 357:14]
   wire  _T_750 = io_dec_csr_wraddr_r == 12'h7ca; // @[el2_dec_tlu_ctl.scala 2205:100]
   wire  _T_751 = _T_662 & _T_750; // @[el2_dec_tlu_ctl.scala 2205:71]
-  wire  _T_755 = _T_751 | io_ifu_ic_debug_rd_data_valid; // @[el2_dec_tlu_ctl.scala 2209:74]
-  reg [31:0] _T_757; // @[Reg.scala 15:16]
+  wire  _T_755 = _T_751 | io_ifu_ic_debug_rd_data_valid; // @[el2_dec_tlu_ctl.scala 2209:78]
+  reg [31:0] _T_757; // @[Reg.scala 27:20]
   wire [31:0] dicad1 = {25'h0,_T_757[6:0]}; // @[Cat.scala 29:58]
   wire [38:0] _T_762 = {dicad1[6:0],dicad0h}; // @[Cat.scala 29:58]
   wire  _T_764 = io_allow_dbg_halt_csr_write & io_dec_csr_any_unq_d; // @[el2_dec_tlu_ctl.scala 2237:52]
@@ -1332,7 +1333,7 @@ module csr_tlu(
   wire [3:0] _T_1022 = io_tlu_i0_commit_cmt ? 4'hf : 4'h0; // @[Bitwise.scala 72:12]
   wire [3:0] pmu_i0_itype_qual = io_dec_tlu_packet_r_pmu_i0_itype & _T_1022; // @[el2_dec_tlu_ctl.scala 2345:59]
   wire  _T_1024 = ~mcountinhibit[3]; // @[el2_dec_tlu_ctl.scala 2351:24]
-  reg [9:0] mhpme3; // @[Reg.scala 15:16]
+  reg [9:0] mhpme3; // @[Reg.scala 27:20]
   wire  _T_1025 = mhpme3 == 10'h1; // @[el2_dec_tlu_ctl.scala 2352:34]
   wire  _T_1027 = mhpme3 == 10'h2; // @[el2_dec_tlu_ctl.scala 2353:34]
   wire  _T_1029 = mhpme3 == 10'h3; // @[el2_dec_tlu_ctl.scala 2354:34]
@@ -1419,8 +1420,8 @@ module csr_tlu(
   wire  _T_1164 = ~io_mstatus[0]; // @[el2_dec_tlu_ctl.scala 2400:73]
   wire  _T_1165 = mhpme3 == 10'h32; // @[el2_dec_tlu_ctl.scala 2401:34]
   wire [5:0] _T_1172 = io_mip & mie; // @[el2_dec_tlu_ctl.scala 2401:113]
-  wire [5:0] _GEN_21 = {{5'd0}, _T_1164}; // @[el2_dec_tlu_ctl.scala 2401:98]
-  wire [5:0] _T_1173 = _GEN_21 & _T_1172; // @[el2_dec_tlu_ctl.scala 2401:98]
+  wire [5:0] _GEN_20 = {{5'd0}, _T_1164}; // @[el2_dec_tlu_ctl.scala 2401:98]
+  wire [5:0] _T_1173 = _GEN_20 & _T_1172; // @[el2_dec_tlu_ctl.scala 2401:98]
   wire  _T_1174 = mhpme3 == 10'h36; // @[el2_dec_tlu_ctl.scala 2402:34]
   wire  _T_1176 = pmu_i0_itype_qual == 4'hf; // @[el2_dec_tlu_ctl.scala 2402:91]
   wire  _T_1177 = mhpme3 == 10'h37; // @[el2_dec_tlu_ctl.scala 2403:34]
@@ -1532,28 +1533,28 @@ module csr_tlu(
   wire  _T_1292 = _T_1291 | _T_1237; // @[Mux.scala 27:72]
   wire  _T_1293 = _T_1292 | _T_1238; // @[Mux.scala 27:72]
   wire  _T_1294 = _T_1293 | _T_1239; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_22 = {{5'd0}, _T_1294}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1295 = _GEN_22 | _T_1240; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_23 = {{5'd0}, _T_1241}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1296 = _T_1295 | _GEN_23; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_24 = {{5'd0}, _T_1242}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1297 = _T_1296 | _GEN_24; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_25 = {{5'd0}, _T_1243}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1298 = _T_1297 | _GEN_25; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_26 = {{5'd0}, _T_1244}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1299 = _T_1298 | _GEN_26; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_27 = {{5'd0}, _T_1245}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1300 = _T_1299 | _GEN_27; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_28 = {{5'd0}, _T_1246}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1301 = _T_1300 | _GEN_28; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_29 = {{5'd0}, _T_1247}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1302 = _T_1301 | _GEN_29; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_30 = {{5'd0}, _T_1248}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1303 = _T_1302 | _GEN_30; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_31 = {{5'd0}, _T_1024}; // @[el2_dec_tlu_ctl.scala 2351:44]
-  wire [5:0] _T_1305 = _GEN_31 & _T_1303; // @[el2_dec_tlu_ctl.scala 2351:44]
+  wire [5:0] _GEN_21 = {{5'd0}, _T_1294}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1295 = _GEN_21 | _T_1240; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_22 = {{5'd0}, _T_1241}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1296 = _T_1295 | _GEN_22; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_23 = {{5'd0}, _T_1242}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1297 = _T_1296 | _GEN_23; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_24 = {{5'd0}, _T_1243}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1298 = _T_1297 | _GEN_24; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_25 = {{5'd0}, _T_1244}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1299 = _T_1298 | _GEN_25; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_26 = {{5'd0}, _T_1245}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1300 = _T_1299 | _GEN_26; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_27 = {{5'd0}, _T_1246}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1301 = _T_1300 | _GEN_27; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_28 = {{5'd0}, _T_1247}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1302 = _T_1301 | _GEN_28; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_29 = {{5'd0}, _T_1248}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1303 = _T_1302 | _GEN_29; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_30 = {{5'd0}, _T_1024}; // @[el2_dec_tlu_ctl.scala 2351:44]
+  wire [5:0] _T_1305 = _GEN_30 & _T_1303; // @[el2_dec_tlu_ctl.scala 2351:44]
   wire  _T_1307 = ~mcountinhibit[4]; // @[el2_dec_tlu_ctl.scala 2351:24]
-  reg [9:0] mhpme4; // @[Reg.scala 15:16]
+  reg [9:0] mhpme4; // @[Reg.scala 27:20]
   wire  _T_1308 = mhpme4 == 10'h1; // @[el2_dec_tlu_ctl.scala 2352:34]
   wire  _T_1310 = mhpme4 == 10'h2; // @[el2_dec_tlu_ctl.scala 2353:34]
   wire  _T_1312 = mhpme4 == 10'h3; // @[el2_dec_tlu_ctl.scala 2354:34]
@@ -1714,28 +1715,28 @@ module csr_tlu(
   wire  _T_1575 = _T_1574 | _T_1520; // @[Mux.scala 27:72]
   wire  _T_1576 = _T_1575 | _T_1521; // @[Mux.scala 27:72]
   wire  _T_1577 = _T_1576 | _T_1522; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_33 = {{5'd0}, _T_1577}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1578 = _GEN_33 | _T_1523; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_34 = {{5'd0}, _T_1524}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1579 = _T_1578 | _GEN_34; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_35 = {{5'd0}, _T_1525}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1580 = _T_1579 | _GEN_35; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_36 = {{5'd0}, _T_1526}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1581 = _T_1580 | _GEN_36; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_37 = {{5'd0}, _T_1527}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1582 = _T_1581 | _GEN_37; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_38 = {{5'd0}, _T_1528}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1583 = _T_1582 | _GEN_38; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_39 = {{5'd0}, _T_1529}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1584 = _T_1583 | _GEN_39; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_40 = {{5'd0}, _T_1530}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1585 = _T_1584 | _GEN_40; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_41 = {{5'd0}, _T_1531}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1586 = _T_1585 | _GEN_41; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_42 = {{5'd0}, _T_1307}; // @[el2_dec_tlu_ctl.scala 2351:44]
-  wire [5:0] _T_1588 = _GEN_42 & _T_1586; // @[el2_dec_tlu_ctl.scala 2351:44]
+  wire [5:0] _GEN_32 = {{5'd0}, _T_1577}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1578 = _GEN_32 | _T_1523; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_33 = {{5'd0}, _T_1524}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1579 = _T_1578 | _GEN_33; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_34 = {{5'd0}, _T_1525}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1580 = _T_1579 | _GEN_34; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_35 = {{5'd0}, _T_1526}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1581 = _T_1580 | _GEN_35; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_36 = {{5'd0}, _T_1527}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1582 = _T_1581 | _GEN_36; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_37 = {{5'd0}, _T_1528}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1583 = _T_1582 | _GEN_37; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_38 = {{5'd0}, _T_1529}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1584 = _T_1583 | _GEN_38; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_39 = {{5'd0}, _T_1530}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1585 = _T_1584 | _GEN_39; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_40 = {{5'd0}, _T_1531}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1586 = _T_1585 | _GEN_40; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_41 = {{5'd0}, _T_1307}; // @[el2_dec_tlu_ctl.scala 2351:44]
+  wire [5:0] _T_1588 = _GEN_41 & _T_1586; // @[el2_dec_tlu_ctl.scala 2351:44]
   wire  _T_1590 = ~mcountinhibit[5]; // @[el2_dec_tlu_ctl.scala 2351:24]
-  reg [9:0] mhpme5; // @[Reg.scala 15:16]
+  reg [9:0] mhpme5; // @[Reg.scala 27:20]
   wire  _T_1591 = mhpme5 == 10'h1; // @[el2_dec_tlu_ctl.scala 2352:34]
   wire  _T_1593 = mhpme5 == 10'h2; // @[el2_dec_tlu_ctl.scala 2353:34]
   wire  _T_1595 = mhpme5 == 10'h3; // @[el2_dec_tlu_ctl.scala 2354:34]
@@ -1896,28 +1897,28 @@ module csr_tlu(
   wire  _T_1858 = _T_1857 | _T_1803; // @[Mux.scala 27:72]
   wire  _T_1859 = _T_1858 | _T_1804; // @[Mux.scala 27:72]
   wire  _T_1860 = _T_1859 | _T_1805; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_44 = {{5'd0}, _T_1860}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1861 = _GEN_44 | _T_1806; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_45 = {{5'd0}, _T_1807}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1862 = _T_1861 | _GEN_45; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_46 = {{5'd0}, _T_1808}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1863 = _T_1862 | _GEN_46; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_47 = {{5'd0}, _T_1809}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1864 = _T_1863 | _GEN_47; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_48 = {{5'd0}, _T_1810}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1865 = _T_1864 | _GEN_48; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_49 = {{5'd0}, _T_1811}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1866 = _T_1865 | _GEN_49; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_50 = {{5'd0}, _T_1812}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1867 = _T_1866 | _GEN_50; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_51 = {{5'd0}, _T_1813}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1868 = _T_1867 | _GEN_51; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_52 = {{5'd0}, _T_1814}; // @[Mux.scala 27:72]
-  wire [5:0] _T_1869 = _T_1868 | _GEN_52; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_53 = {{5'd0}, _T_1590}; // @[el2_dec_tlu_ctl.scala 2351:44]
-  wire [5:0] _T_1871 = _GEN_53 & _T_1869; // @[el2_dec_tlu_ctl.scala 2351:44]
+  wire [5:0] _GEN_43 = {{5'd0}, _T_1860}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1861 = _GEN_43 | _T_1806; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_44 = {{5'd0}, _T_1807}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1862 = _T_1861 | _GEN_44; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_45 = {{5'd0}, _T_1808}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1863 = _T_1862 | _GEN_45; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_46 = {{5'd0}, _T_1809}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1864 = _T_1863 | _GEN_46; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_47 = {{5'd0}, _T_1810}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1865 = _T_1864 | _GEN_47; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_48 = {{5'd0}, _T_1811}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1866 = _T_1865 | _GEN_48; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_49 = {{5'd0}, _T_1812}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1867 = _T_1866 | _GEN_49; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_50 = {{5'd0}, _T_1813}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1868 = _T_1867 | _GEN_50; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_51 = {{5'd0}, _T_1814}; // @[Mux.scala 27:72]
+  wire [5:0] _T_1869 = _T_1868 | _GEN_51; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_52 = {{5'd0}, _T_1590}; // @[el2_dec_tlu_ctl.scala 2351:44]
+  wire [5:0] _T_1871 = _GEN_52 & _T_1869; // @[el2_dec_tlu_ctl.scala 2351:44]
   wire  _T_1873 = ~mcountinhibit[6]; // @[el2_dec_tlu_ctl.scala 2351:24]
-  reg [9:0] mhpme6; // @[Reg.scala 15:16]
+  reg [9:0] mhpme6; // @[Reg.scala 27:20]
   wire  _T_1874 = mhpme6 == 10'h1; // @[el2_dec_tlu_ctl.scala 2352:34]
   wire  _T_1876 = mhpme6 == 10'h2; // @[el2_dec_tlu_ctl.scala 2353:34]
   wire  _T_1878 = mhpme6 == 10'h3; // @[el2_dec_tlu_ctl.scala 2354:34]
@@ -2078,26 +2079,26 @@ module csr_tlu(
   wire  _T_2141 = _T_2140 | _T_2086; // @[Mux.scala 27:72]
   wire  _T_2142 = _T_2141 | _T_2087; // @[Mux.scala 27:72]
   wire  _T_2143 = _T_2142 | _T_2088; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_55 = {{5'd0}, _T_2143}; // @[Mux.scala 27:72]
-  wire [5:0] _T_2144 = _GEN_55 | _T_2089; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_56 = {{5'd0}, _T_2090}; // @[Mux.scala 27:72]
-  wire [5:0] _T_2145 = _T_2144 | _GEN_56; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_57 = {{5'd0}, _T_2091}; // @[Mux.scala 27:72]
-  wire [5:0] _T_2146 = _T_2145 | _GEN_57; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_58 = {{5'd0}, _T_2092}; // @[Mux.scala 27:72]
-  wire [5:0] _T_2147 = _T_2146 | _GEN_58; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_59 = {{5'd0}, _T_2093}; // @[Mux.scala 27:72]
-  wire [5:0] _T_2148 = _T_2147 | _GEN_59; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_60 = {{5'd0}, _T_2094}; // @[Mux.scala 27:72]
-  wire [5:0] _T_2149 = _T_2148 | _GEN_60; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_61 = {{5'd0}, _T_2095}; // @[Mux.scala 27:72]
-  wire [5:0] _T_2150 = _T_2149 | _GEN_61; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_62 = {{5'd0}, _T_2096}; // @[Mux.scala 27:72]
-  wire [5:0] _T_2151 = _T_2150 | _GEN_62; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_63 = {{5'd0}, _T_2097}; // @[Mux.scala 27:72]
-  wire [5:0] _T_2152 = _T_2151 | _GEN_63; // @[Mux.scala 27:72]
-  wire [5:0] _GEN_64 = {{5'd0}, _T_1873}; // @[el2_dec_tlu_ctl.scala 2351:44]
-  wire [5:0] _T_2154 = _GEN_64 & _T_2152; // @[el2_dec_tlu_ctl.scala 2351:44]
+  wire [5:0] _GEN_54 = {{5'd0}, _T_2143}; // @[Mux.scala 27:72]
+  wire [5:0] _T_2144 = _GEN_54 | _T_2089; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_55 = {{5'd0}, _T_2090}; // @[Mux.scala 27:72]
+  wire [5:0] _T_2145 = _T_2144 | _GEN_55; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_56 = {{5'd0}, _T_2091}; // @[Mux.scala 27:72]
+  wire [5:0] _T_2146 = _T_2145 | _GEN_56; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_57 = {{5'd0}, _T_2092}; // @[Mux.scala 27:72]
+  wire [5:0] _T_2147 = _T_2146 | _GEN_57; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_58 = {{5'd0}, _T_2093}; // @[Mux.scala 27:72]
+  wire [5:0] _T_2148 = _T_2147 | _GEN_58; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_59 = {{5'd0}, _T_2094}; // @[Mux.scala 27:72]
+  wire [5:0] _T_2149 = _T_2148 | _GEN_59; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_60 = {{5'd0}, _T_2095}; // @[Mux.scala 27:72]
+  wire [5:0] _T_2150 = _T_2149 | _GEN_60; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_61 = {{5'd0}, _T_2096}; // @[Mux.scala 27:72]
+  wire [5:0] _T_2151 = _T_2150 | _GEN_61; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_62 = {{5'd0}, _T_2097}; // @[Mux.scala 27:72]
+  wire [5:0] _T_2152 = _T_2151 | _GEN_62; // @[Mux.scala 27:72]
+  wire [5:0] _GEN_63 = {{5'd0}, _T_1873}; // @[el2_dec_tlu_ctl.scala 2351:44]
+  wire [5:0] _T_2154 = _GEN_63 & _T_2152; // @[el2_dec_tlu_ctl.scala 2351:44]
   reg  mhpmc_inc_r_d1_0; // @[el2_dec_tlu_ctl.scala 2413:53]
   reg  mhpmc_inc_r_d1_1; // @[el2_dec_tlu_ctl.scala 2414:53]
   reg  mhpmc_inc_r_d1_2; // @[el2_dec_tlu_ctl.scala 2415:53]
@@ -2913,6 +2914,12 @@ initial begin
   _T_2332 = _RAND_73[0:0];
 `endif // RANDOMIZE_REG_INIT
   if (reset) begin
+    mpmc_b = 1'h0;
+  end
+  if (reset) begin
+    _T_54 = 2'h0;
+  end
+  if (reset) begin
     _T_60 = 31'h0;
   end
   if (reset) begin
@@ -2925,13 +2932,34 @@ initial begin
     micect = 32'h0;
   end
   if (reset) begin
+    _T_66 = 6'h0;
+  end
+  if (reset) begin
+    mie = 6'h0;
+  end
+  if (reset) begin
+    temp_ncount6_2 = 5'h0;
+  end
+  if (reset) begin
+    temp_ncount0 = 1'h0;
+  end
+  if (reset) begin
     _T_95 = 33'h0;
+  end
+  if (reset) begin
+    mcyclel_cout_f = 1'h0;
   end
   if (reset) begin
     mcycleh = 32'h0;
   end
   if (reset) begin
     _T_122 = 33'h0;
+  end
+  if (reset) begin
+    minstret_enable_f = 1'h0;
+  end
+  if (reset) begin
+    minstretl_cout_f = 1'h0;
   end
   if (reset) begin
     minstreth = 32'h0;
@@ -2946,7 +2974,16 @@ initial begin
     pc_r_d1 = 31'h0;
   end
   if (reset) begin
+    _T_194 = 31'h0;
+  end
+  if (reset) begin
     mcause = 32'h0;
+  end
+  if (reset) begin
+    mscause = 4'h0;
+  end
+  if (reset) begin
+    mtval = 32'h0;
   end
   if (reset) begin
     mcgc = 9'h0;
@@ -2961,10 +2998,28 @@ initial begin
     mdseac = 32'h0;
   end
   if (reset) begin
+    mfdht = 6'h0;
+  end
+  if (reset) begin
+    mfdhs = 2'h0;
+  end
+  if (reset) begin
+    force_halt_ctr_f = 32'h0;
+  end
+  if (reset) begin
     meivt = 22'h0;
   end
   if (reset) begin
     meihap = 8'h0;
+  end
+  if (reset) begin
+    meicurpl = 4'h0;
+  end
+  if (reset) begin
+    meicidpl = 4'h0;
+  end
+  if (reset) begin
+    meipt = 4'h0;
   end
   if (reset) begin
     _T_700 = 16'h0;
@@ -2982,6 +3037,30 @@ initial begin
     dicad0h = 32'h0;
   end
   if (reset) begin
+    _T_757 = 32'h0;
+  end
+  if (reset) begin
+    icache_rd_valid_f = 1'h0;
+  end
+  if (reset) begin
+    icache_wr_valid_f = 1'h0;
+  end
+  if (reset) begin
+    mtsel = 2'h0;
+  end
+  if (reset) begin
+    _T_871 = 10'h0;
+  end
+  if (reset) begin
+    _T_872 = 10'h0;
+  end
+  if (reset) begin
+    _T_873 = 10'h0;
+  end
+  if (reset) begin
+    _T_874 = 10'h0;
+  end
+  if (reset) begin
     mtdata2_t_0 = 32'h0;
   end
   if (reset) begin
@@ -2992,6 +3071,33 @@ initial begin
   end
   if (reset) begin
     mtdata2_t_3 = 32'h0;
+  end
+  if (reset) begin
+    mhpme3 = 10'h0;
+  end
+  if (reset) begin
+    mhpme4 = 10'h0;
+  end
+  if (reset) begin
+    mhpme5 = 10'h0;
+  end
+  if (reset) begin
+    mhpme6 = 10'h0;
+  end
+  if (reset) begin
+    mhpmc_inc_r_d1_0 = 1'h0;
+  end
+  if (reset) begin
+    mhpmc_inc_r_d1_1 = 1'h0;
+  end
+  if (reset) begin
+    mhpmc_inc_r_d1_2 = 1'h0;
+  end
+  if (reset) begin
+    mhpmc_inc_r_d1_3 = 1'h0;
+  end
+  if (reset) begin
+    perfcnt_halted_d1 = 1'h0;
   end
   if (reset) begin
     mhpmc3h = 32'h0;
@@ -3017,138 +3123,39 @@ initial begin
   if (reset) begin
     mhpmc6 = 32'h0;
   end
+  if (reset) begin
+    _T_2325 = 1'h0;
+  end
+  if (reset) begin
+    _T_2330 = 1'h0;
+  end
+  if (reset) begin
+    _T_2331 = 5'h0;
+  end
+  if (reset) begin
+    _T_2332 = 1'h0;
+  end
   `endif // RANDOMIZE
 end // initial
 `ifdef FIRRTL_AFTER_INITIAL
 `FIRRTL_AFTER_INITIAL
 `endif
 `endif // SYNTHESIS
-  always @(posedge io_csr_wr_clk) begin
-    if (wr_mpmc_r) begin
+  always @(posedge io_csr_wr_clk or posedge reset) begin
+    if (reset) begin
+      mpmc_b <= 1'h0;
+    end else if (wr_mpmc_r) begin
       mpmc_b <= _T_507;
     end else begin
       mpmc_b <= _T_508;
     end
-    mie <= io_mie_ns;
-    if (wr_meicurpl_r) begin
-      meicurpl <= io_dec_csr_wrdata_r[3:0];
-    end
-    if (wr_mtsel_r) begin
-      mtsel <= io_dec_csr_wrdata_r[1:0];
-    end
   end
-  always @(posedge io_free_clk) begin
-    _T_54 <= _T_46 | _T_42;
-    _T_66 <= {_T_65,_T_63};
-    mcyclel_cout_f <= mcyclel_cout & _T_96;
-    minstret_enable_f <= i0_valid_no_ebreak_ecall_r | wr_minstretl_r;
-    minstretl_cout_f <= minstretl_cout & _T_123;
-    if (wr_meicpct_r) begin
-      meicidpl <= io_pic_pl;
-    end else if (wr_meicidpl_r) begin
-      meicidpl <= io_dec_csr_wrdata_r[3:0];
-    end
-    mhpmc_inc_r_d1_0 <= _T_1305[0];
-    mhpmc_inc_r_d1_1 <= _T_1588[0];
-    mhpmc_inc_r_d1_2 <= _T_1871[0];
-    mhpmc_inc_r_d1_3 <= _T_2154[0];
-    perfcnt_halted_d1 <= _T_83 | io_dec_tlu_pmu_fw_halted;
-  end
-  always @(posedge io_active_clk) begin
-    if (wr_mcountinhibit_r) begin
-      temp_ncount6_2 <= io_dec_csr_wrdata_r[6:2];
-    end
-    if (wr_mcountinhibit_r) begin
-      temp_ncount0 <= io_dec_csr_wrdata_r[0];
-    end
-    if (wr_mfdht_r) begin
-      mfdht <= io_dec_csr_wrdata_r[5:0];
-    end
-    if (_T_593) begin
-      if (wr_mfdhs_r) begin
-        mfdhs <= io_dec_csr_wrdata_r[1:0];
-      end else if (_T_587) begin
-        mfdhs <= _T_591;
-      end
-    end
-    if (mfdht[0]) begin
-      if (io_debug_halt_req_f) begin
-        force_halt_ctr_f <= _T_598;
-      end else if (io_dbg_tlu_halted_f) begin
-        force_halt_ctr_f <= 32'h0;
-      end
-    end
-    if (wr_meipt_r) begin
-      meipt <= io_dec_csr_wrdata_r[3:0];
-    end
-    if (_T_755) begin
-      if (_T_751) begin
-        _T_757 <= io_dec_csr_wrdata_r;
-      end else begin
-        _T_757 <= {{25'd0}, io_ifu_ic_debug_rd_data[70:64]};
-      end
-    end
-    icache_rd_valid_f <= _T_767 & _T_769;
-    icache_wr_valid_f <= _T_662 & _T_772;
-    if (wr_mtdata1_t_r_0) begin
-      _T_871 <= tdata_wrdata_r;
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      _T_54 <= 2'h0;
     end else begin
-      _T_871 <= _T_842;
+      _T_54 <= _T_46 | _T_42;
     end
-    if (wr_mtdata1_t_r_1) begin
-      _T_872 <= tdata_wrdata_r;
-    end else begin
-      _T_872 <= _T_851;
-    end
-    if (wr_mtdata1_t_r_2) begin
-      _T_873 <= tdata_wrdata_r;
-    end else begin
-      _T_873 <= _T_860;
-    end
-    if (wr_mtdata1_t_r_3) begin
-      _T_874 <= tdata_wrdata_r;
-    end else begin
-      _T_874 <= _T_869;
-    end
-    if (wr_mhpme3_r) begin
-      if (_T_2287) begin
-        mhpme3 <= 10'h204;
-      end else begin
-        mhpme3 <= io_dec_csr_wrdata_r[9:0];
-      end
-    end
-    if (wr_mhpme4_r) begin
-      if (_T_2287) begin
-        mhpme4 <= 10'h204;
-      end else begin
-        mhpme4 <= io_dec_csr_wrdata_r[9:0];
-      end
-    end
-    if (wr_mhpme5_r) begin
-      if (_T_2287) begin
-        mhpme5 <= 10'h204;
-      end else begin
-        mhpme5 <= io_dec_csr_wrdata_r[9:0];
-      end
-    end
-    if (wr_mhpme6_r) begin
-      if (_T_2287) begin
-        mhpme6 <= 10'h204;
-      end else begin
-        mhpme6 <= io_dec_csr_wrdata_r[9:0];
-      end
-    end
-  end
-  always @(posedge io_e4e5_int_clk) begin
-    _T_194 <= _T_192 | _T_190;
-    mscause <= _T_262 | _T_261;
-    mtval <= _T_319 | _T_315;
-  end
-  always @(posedge rvclkhdr_34_io_l1clk) begin
-    _T_2325 <= io_i0_valid_wb;
-    _T_2330 <= _T_2326 | _T_2328;
-    _T_2331 <= io_exc_cause_wb;
-    _T_2332 <= io_interrupt_valid_r_d1;
   end
   always @(posedge rvclkhdr_io_l1clk or posedge reset) begin
     if (reset) begin
@@ -3184,6 +3191,34 @@ end // initial
       micect <= _T_525;
     end
   end
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      _T_66 <= 6'h0;
+    end else begin
+      _T_66 <= {_T_65,_T_63};
+    end
+  end
+  always @(posedge io_csr_wr_clk or posedge reset) begin
+    if (reset) begin
+      mie <= 6'h0;
+    end else begin
+      mie <= io_mie_ns;
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      temp_ncount6_2 <= 5'h0;
+    end else if (wr_mcountinhibit_r) begin
+      temp_ncount6_2 <= io_dec_csr_wrdata_r[6:2];
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      temp_ncount0 <= 1'h0;
+    end else if (wr_mcountinhibit_r) begin
+      temp_ncount0 <= io_dec_csr_wrdata_r[0];
+    end
+  end
   always @(posedge rvclkhdr_1_io_l1clk or posedge reset) begin
     if (reset) begin
       _T_95 <= 33'h0;
@@ -3191,6 +3226,13 @@ end // initial
       _T_95 <= {{1'd0}, io_dec_csr_wrdata_r};
     end else begin
       _T_95 <= mcyclel_inc;
+    end
+  end
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      mcyclel_cout_f <= 1'h0;
+    end else begin
+      mcyclel_cout_f <= mcyclel_cout & _T_96;
     end
   end
   always @(posedge rvclkhdr_2_io_l1clk or posedge reset) begin
@@ -3209,6 +3251,20 @@ end // initial
       _T_122 <= {{1'd0}, io_dec_csr_wrdata_r};
     end else begin
       _T_122 <= minstretl_inc;
+    end
+  end
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      minstret_enable_f <= 1'h0;
+    end else begin
+      minstret_enable_f <= i0_valid_no_ebreak_ecall_r | wr_minstretl_r;
+    end
+  end
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      minstretl_cout_f <= 1'h0;
+    end else begin
+      minstretl_cout_f <= minstretl_cout & _T_123;
     end
   end
   always @(posedge rvclkhdr_4_io_l1clk or posedge reset) begin
@@ -3243,9 +3299,30 @@ end // initial
   end
   always @(posedge io_e4e5_int_clk or posedge reset) begin
     if (reset) begin
+      _T_194 <= 31'h0;
+    end else begin
+      _T_194 <= _T_192 | _T_190;
+    end
+  end
+  always @(posedge io_e4e5_int_clk or posedge reset) begin
+    if (reset) begin
       mcause <= 32'h0;
     end else begin
       mcause <= _T_232 | _T_228;
+    end
+  end
+  always @(posedge io_e4e5_int_clk or posedge reset) begin
+    if (reset) begin
+      mscause <= 4'h0;
+    end else begin
+      mscause <= _T_262 | _T_261;
+    end
+  end
+  always @(posedge io_e4e5_int_clk or posedge reset) begin
+    if (reset) begin
+      mtval <= 32'h0;
+    end else begin
+      mtval <= _T_319 | _T_315;
     end
   end
   always @(posedge rvclkhdr_8_io_l1clk or posedge reset) begin
@@ -3276,6 +3353,35 @@ end // initial
       mdseac <= io_lsu_imprecise_error_addr_any;
     end
   end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      mfdht <= 6'h0;
+    end else if (wr_mfdht_r) begin
+      mfdht <= io_dec_csr_wrdata_r[5:0];
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      mfdhs <= 2'h0;
+    end else if (_T_593) begin
+      if (wr_mfdhs_r) begin
+        mfdhs <= io_dec_csr_wrdata_r[1:0];
+      end else if (_T_587) begin
+        mfdhs <= _T_591;
+      end
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      force_halt_ctr_f <= 32'h0;
+    end else if (mfdht[0]) begin
+      if (io_debug_halt_req_f) begin
+        force_halt_ctr_f <= _T_598;
+      end else if (io_dbg_tlu_halted_f) begin
+        force_halt_ctr_f <= 32'h0;
+      end
+    end
+  end
   always @(posedge rvclkhdr_15_io_l1clk or posedge reset) begin
     if (reset) begin
       meivt <= 22'h0;
@@ -3288,6 +3394,29 @@ end // initial
       meihap <= 8'h0;
     end else begin
       meihap <= io_pic_claimid;
+    end
+  end
+  always @(posedge io_csr_wr_clk or posedge reset) begin
+    if (reset) begin
+      meicurpl <= 4'h0;
+    end else if (wr_meicurpl_r) begin
+      meicurpl <= io_dec_csr_wrdata_r[3:0];
+    end
+  end
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      meicidpl <= 4'h0;
+    end else if (wr_meicpct_r) begin
+      meicidpl <= io_pic_pl;
+    end else if (wr_meicidpl_r) begin
+      meicidpl <= io_dec_csr_wrdata_r[3:0];
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      meipt <= 4'h0;
+    end else if (wr_meipt_r) begin
+      meipt <= io_dec_csr_wrdata_r[3:0];
     end
   end
   always @(posedge rvclkhdr_17_io_l1clk or posedge reset) begin
@@ -3333,6 +3462,74 @@ end // initial
       dicad0h <= io_ifu_ic_debug_rd_data[63:32];
     end
   end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      _T_757 <= 32'h0;
+    end else if (_T_755) begin
+      if (_T_751) begin
+        _T_757 <= io_dec_csr_wrdata_r;
+      end else begin
+        _T_757 <= {{25'd0}, io_ifu_ic_debug_rd_data[70:64]};
+      end
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      icache_rd_valid_f <= 1'h0;
+    end else begin
+      icache_rd_valid_f <= _T_767 & _T_769;
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      icache_wr_valid_f <= 1'h0;
+    end else begin
+      icache_wr_valid_f <= _T_662 & _T_772;
+    end
+  end
+  always @(posedge io_csr_wr_clk or posedge reset) begin
+    if (reset) begin
+      mtsel <= 2'h0;
+    end else if (wr_mtsel_r) begin
+      mtsel <= io_dec_csr_wrdata_r[1:0];
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      _T_871 <= 10'h0;
+    end else if (wr_mtdata1_t_r_0) begin
+      _T_871 <= tdata_wrdata_r;
+    end else begin
+      _T_871 <= _T_842;
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      _T_872 <= 10'h0;
+    end else if (wr_mtdata1_t_r_1) begin
+      _T_872 <= tdata_wrdata_r;
+    end else begin
+      _T_872 <= _T_851;
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      _T_873 <= 10'h0;
+    end else if (wr_mtdata1_t_r_2) begin
+      _T_873 <= tdata_wrdata_r;
+    end else begin
+      _T_873 <= _T_860;
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      _T_874 <= 10'h0;
+    end else if (wr_mtdata1_t_r_3) begin
+      _T_874 <= tdata_wrdata_r;
+    end else begin
+      _T_874 <= _T_869;
+    end
+  end
   always @(posedge rvclkhdr_22_io_l1clk or posedge reset) begin
     if (reset) begin
       mtdata2_t_0 <= 32'h0;
@@ -3359,6 +3556,85 @@ end // initial
       mtdata2_t_3 <= 32'h0;
     end else begin
       mtdata2_t_3 <= io_dec_csr_wrdata_r;
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      mhpme3 <= 10'h0;
+    end else if (wr_mhpme3_r) begin
+      if (_T_2287) begin
+        mhpme3 <= 10'h204;
+      end else begin
+        mhpme3 <= io_dec_csr_wrdata_r[9:0];
+      end
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      mhpme4 <= 10'h0;
+    end else if (wr_mhpme4_r) begin
+      if (_T_2287) begin
+        mhpme4 <= 10'h204;
+      end else begin
+        mhpme4 <= io_dec_csr_wrdata_r[9:0];
+      end
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      mhpme5 <= 10'h0;
+    end else if (wr_mhpme5_r) begin
+      if (_T_2287) begin
+        mhpme5 <= 10'h204;
+      end else begin
+        mhpme5 <= io_dec_csr_wrdata_r[9:0];
+      end
+    end
+  end
+  always @(posedge io_active_clk or posedge reset) begin
+    if (reset) begin
+      mhpme6 <= 10'h0;
+    end else if (wr_mhpme6_r) begin
+      if (_T_2287) begin
+        mhpme6 <= 10'h204;
+      end else begin
+        mhpme6 <= io_dec_csr_wrdata_r[9:0];
+      end
+    end
+  end
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      mhpmc_inc_r_d1_0 <= 1'h0;
+    end else begin
+      mhpmc_inc_r_d1_0 <= _T_1305[0];
+    end
+  end
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      mhpmc_inc_r_d1_1 <= 1'h0;
+    end else begin
+      mhpmc_inc_r_d1_1 <= _T_1588[0];
+    end
+  end
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      mhpmc_inc_r_d1_2 <= 1'h0;
+    end else begin
+      mhpmc_inc_r_d1_2 <= _T_1871[0];
+    end
+  end
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      mhpmc_inc_r_d1_3 <= 1'h0;
+    end else begin
+      mhpmc_inc_r_d1_3 <= _T_2154[0];
+    end
+  end
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      perfcnt_halted_d1 <= 1'h0;
+    end else begin
+      perfcnt_halted_d1 <= _T_83 | io_dec_tlu_pmu_fw_halted;
     end
   end
   always @(posedge rvclkhdr_27_io_l1clk or posedge reset) begin
@@ -3431,6 +3707,34 @@ end // initial
       mhpmc6 <= io_dec_csr_wrdata_r;
     end else begin
       mhpmc6 <= mhpmc6_incr[31:0];
+    end
+  end
+  always @(posedge rvclkhdr_34_io_l1clk or posedge reset) begin
+    if (reset) begin
+      _T_2325 <= 1'h0;
+    end else begin
+      _T_2325 <= io_i0_valid_wb;
+    end
+  end
+  always @(posedge rvclkhdr_34_io_l1clk or posedge reset) begin
+    if (reset) begin
+      _T_2330 <= 1'h0;
+    end else begin
+      _T_2330 <= _T_2326 | _T_2328;
+    end
+  end
+  always @(posedge rvclkhdr_34_io_l1clk or posedge reset) begin
+    if (reset) begin
+      _T_2331 <= 5'h0;
+    end else begin
+      _T_2331 <= io_exc_cause_wb;
+    end
+  end
+  always @(posedge rvclkhdr_34_io_l1clk or posedge reset) begin
+    if (reset) begin
+      _T_2332 <= 1'h0;
+    end else begin
+      _T_2332 <= io_interrupt_valid_r_d1;
     end
   end
 endmodule
