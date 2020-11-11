@@ -124,14 +124,14 @@ trait param {
   val INST_ACCESS_ENABLE5    = 0x0 //.U(1.W)
   val INST_ACCESS_ENABLE6    = 0x0 //.U(1.W)
   val INST_ACCESS_ENABLE7    = 0x0 //.U(1.W)
-  val INST_ACCESS_MASK0      = 0x7FFFFFFFL //.U(32.W)
-  val INST_ACCESS_MASK1      = 0x3FFFFFFFL //.U(32.W)
-  val INST_ACCESS_MASK2      = 0x1FFFFFFFL //.U(32.W)
-  val INST_ACCESS_MASK3      = 0x0FFFFFFFL //.U(32.W)
-  val INST_ACCESS_MASK4      = 0xFFFFFFFFL //.U(32.W)
-  val INST_ACCESS_MASK5      = 0xFFFFFFFFL //.U(32.W)
-  val INST_ACCESS_MASK6      = 0xFFFFFFFFL //.U(32.W)
-  val INST_ACCESS_MASK7      = 0xFFFFFFFFL //.U(32.W)
+  val INST_ACCESS_MASK0      = 0x7FFFFFFF //.U(32.W)
+  val INST_ACCESS_MASK1      = 0x3FFFFFFF //.U(32.W)
+  val INST_ACCESS_MASK2      = 0x1FFFFFFF //.U(32.W)
+  val INST_ACCESS_MASK3      = 0x0FFFFFFF //.U(32.W)
+  val INST_ACCESS_MASK4      = 0xFFFFFFFF //.U(32.W)
+  val INST_ACCESS_MASK5      = 0xFFFFFFFF //.U(32.W)
+  val INST_ACCESS_MASK6      = 0xFFFFFFFF //.U(32.W)
+  val INST_ACCESS_MASK7      = 0xFFFFFFFF //.U(32.W)
   val LOAD_TO_USE_PLUS1      = 0x0 //.U(1.W)
   val LSU2DMA                = 0x0 //.U(1.W)
   val LSU_BUS_ID             = 0x1 //.U(1.W)
@@ -171,7 +171,7 @@ trait el2_lib extends param{
   val Tag_Word = MEM_CAL._4
 
   implicit def bool2int(b:Boolean) = if (b) 1 else 0
-
+  implicit def aslong(b:Int) = 0xFFFFFFFFL & b
   object rvsyncss {
     def apply(din:UInt,clk:Clock) =withClock(clk){RegNext(withClock(clk){RegNext(din,0.U)},0.U)}
   }
