@@ -348,10 +348,12 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   val obuf_sz_in = Mux(ibuf_buf_byp, Cat(io.lsu_pkt_r.word, io.lsu_pkt_r.half), indexing(buf_sz, CmdPtr0))
   val obuf_merge_en = WireInit(Bool(), false.B)
   val obuf_merge_in = obuf_merge_en
-  val obuf_tag0_in = Mux(ibuf_buf_byp, WrPtr0_r, CmdPtr0)
+  val obuf_tag0_in = WireInit(UInt(LSU_BUS_TAG.W), 0.U)
+  val obuf_tag1_in = WireInit(UInt(LSU_BUS_TAG.W), 0.U)
+  obuf_tag0_in := Mux(ibuf_buf_byp, WrPtr0_r, CmdPtr0)
   val Cmdptr1 = WireInit(UInt(DEPTH_LOG2.W), 0.U)
 
-  val obuf_tag1_in = Mux(ibuf_buf_byp, WrPtr1_r, Cmdptr1)
+  obuf_tag1_in := Mux(ibuf_buf_byp, WrPtr1_r, Cmdptr1)
   val obuf_cmd_done = WireInit(Bool(), false.B)
   val bus_wcmd_sent = WireInit(Bool(), false.B)
   val obuf_cmd_done_in = !(obuf_wr_en | obuf_rst) & (obuf_cmd_done | bus_wcmd_sent)
