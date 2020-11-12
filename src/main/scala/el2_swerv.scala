@@ -15,13 +15,13 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
     val nmi_int = Input(Bool())
     val nmi_vec = Input(UInt(31.W))
     val core_rst_l = Output(AsyncReset())
-//    val trace_rv_i_insn_ip = Output(UInt(32.W))
-//    val trace_rv_i_address_ip = Output(UInt(32.W))
-//    val trace_rv_i_valid_ip = Output(UInt(2.W))
-//    val trace_rv_i_exception_ip = Output(UInt(2.W))
-//    val trace_rv_i_ecause_ip = Output(UInt(5.W))
-//    val trace_rv_i_interrupt_ip = Output(UInt(2.W))
-//    val trace_rv_i_tval_ip = Output(UInt(32.W))
+    val trace_rv_i_insn_ip = Output(UInt(32.W))
+    val trace_rv_i_address_ip = Output(UInt(32.W))
+    val trace_rv_i_valid_ip = Output(UInt(2.W))
+    val trace_rv_i_exception_ip = Output(UInt(2.W))
+    val trace_rv_i_ecause_ip = Output(UInt(5.W))
+    val trace_rv_i_interrupt_ip = Output(UInt(2.W))
+    val trace_rv_i_tval_ip = Output(UInt(32.W))
     val dccm_clk_override = Output(Bool())
     val icm_clk_override = Output(Bool())
     val dec_tlu_core_ecc_disable = Output(Bool())
@@ -661,7 +661,15 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
 
 
   // Trace Packet
-  // ???
+
+  io.trace_rv_i_insn_ip := dec.io.rv_trace_pkt.rv_i_insn_ip
+  io.trace_rv_i_address_ip := dec.io.rv_trace_pkt.rv_i_address_ip
+  io.trace_rv_i_valid_ip := dec.io.rv_trace_pkt.rv_i_valid_ip
+  io.trace_rv_i_exception_ip := dec.io.rv_trace_pkt.rv_i_exception_ip
+  io.trace_rv_i_ecause_ip := dec.io.rv_trace_pkt.rv_i_ecause_ip
+  io.trace_rv_i_interrupt_ip := dec.io.rv_trace_pkt.rv_i_interrupt_ip
+  io.trace_rv_i_tval_ip := dec.io.rv_trace_pkt.rv_i_tval_ip
+
 
   // Outputs
   io.dccm_clk_override := dec.io.dec_tlu_dccm_clk_override
@@ -856,3 +864,6 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
 object SWERV extends App {
   println((new chisel3.stage.ChiselStage).emitVerilog(new el2_swerv()))
 }
+
+
+

@@ -1,5 +1,6 @@
 package dec
 import chisel3._
+import chisel3.util._
 import include._
 import lib._
 
@@ -243,7 +244,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val ifu_i0_cinst     = Input(UInt(16.W))             // 16b compressed instruction
 
-  // val rv_trace_pkt     = Output(new el2_trace_pkt_t)        // trace packet
+  val rv_trace_pkt     = Output(new el2_trace_pkt_t)        // trace packet
 
   // feature disable from mfdc
   val dec_tlu_external_ldfwd_disable     = Output(Bool())       // disable external load forwarding
@@ -703,6 +704,13 @@ class el2_dec extends Module with param with RequireAsyncReset{
 
   //--------------------------------------------------------------------------//
 
+  io.rv_trace_pkt.rv_i_insn_ip := decode.io.dec_i0_inst_wb1
+  io.rv_trace_pkt.rv_i_address_ip := Cat(decode.io.dec_i0_pc_wb1, 0.U)
+  io.rv_trace_pkt.rv_i_valid_ip := Cat(tlu.io.dec_tlu_int_valid_wb1, tlu.io.dec_tlu_i0_valid_wb1 | tlu.io.dec_tlu_i0_exc_valid_wb1)
+  io.rv_trace_pkt.rv_i_exception_ip := Cat(tlu.io.dec_tlu_int_valid_wb1, tlu.io.dec_tlu_i0_exc_valid_wb1)
+  io.rv_trace_pkt.rv_i_ecause_ip := tlu.io.dec_tlu_exc_cause_wb1(4,0)
+  io.rv_trace_pkt.rv_i_interrupt_ip := Cat(tlu.io.dec_tlu_int_valid_wb1, 0.U)
+  io.rv_trace_pkt.rv_i_tval_ip := tlu.io.dec_tlu_mtval_wb1
 
 
   // debug command read data
