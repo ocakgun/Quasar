@@ -1,4 +1,4 @@
-module gated_latch(
+module gated_latch
   (
    input logic SE, EN, CK,
    output Q
