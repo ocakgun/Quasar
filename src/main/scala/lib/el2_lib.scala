@@ -454,14 +454,14 @@ trait el2_lib extends param{
 
 
 
-  class TEC_RV_ICG extends BlackBox with HasBlackBoxResource {
+  class gated_latch extends BlackBox with HasBlackBoxResource {
     val io = IO(new Bundle {
       val Q = Output(Clock())
       val CK  = Input(Clock())
       val EN  = Input(Bool())
       val SE = Input(Bool())
     })
-    addResource("/vsrc/TEC_RV_ICG.v")
+    addResource("/vsrc/gated_latch.v")
   }
 
   class rvclkhdr extends Module {
@@ -471,7 +471,7 @@ trait el2_lib extends param{
       val en  = Input(Bool())
       val scan_mode = Input(Bool())
     })
-    val clkhdr = { Module(new TEC_RV_ICG) }
+    val clkhdr = { Module(new gated_latch) }
     io.l1clk := clkhdr.io.Q
     clkhdr.io.CK := io.clk
     clkhdr.io.EN := io.en
