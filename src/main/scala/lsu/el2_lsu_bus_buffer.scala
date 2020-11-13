@@ -242,9 +242,9 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
                                    (io.lsu_addr_r(1,0)===3.U)->Cat(ldst_byteen_r(0)  , 0.U(3.W))))
 
   val store_data_hi_r = Mux1H(Seq((io.lsu_addr_r(1,0)===0.U)->0.U(32.W),
-                                  (io.lsu_addr_r(1,0)===1.U)->Cat(0.U(8.W) , io.store_data_r(31,8)),
+                                  (io.lsu_addr_r(1,0)===1.U)->Cat(0.U(24.W) , io.store_data_r(31,24)),
                                   (io.lsu_addr_r(1,0)===2.U)->Cat(0.U(16.W), io.store_data_r(31,16)),
-                                  (io.lsu_addr_r(1,0)===3.U)->Cat(0.U(24.W), io.store_data_r(31,24))))
+                                  (io.lsu_addr_r(1,0)===3.U)->Cat(0.U(8.W), io.store_data_r(31,8))))
 
   val store_data_lo_r = Mux1H(Seq((io.lsu_addr_r(1,0)===0.U)->io.store_data_r,
                                   (io.lsu_addr_r(1,0)===1.U)->Cat(io.store_data_r(23,0), 0.U(8.W)),
