@@ -241,12 +241,12 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
                                    (io.lsu_addr_r(1,0)===2.U)->Cat(ldst_byteen_r(1,0), 0.U(2.W)),
                                    (io.lsu_addr_r(1,0)===3.U)->Cat(ldst_byteen_r(0)  , 0.U(3.W))))
 
-  val store_data_hi_r = Mux1H(Seq((io.lsu_addr_r(1,0)===0.U)->0.U(32.W),
+  val store_data_hi_r = Mux1H(Seq((io.lsu_addr_r(1,0)===0.U)->    0.U(32.W),
                                   (io.lsu_addr_r(1,0)===1.U)->Cat(0.U(24.W) , io.store_data_r(31,24)),
                                   (io.lsu_addr_r(1,0)===2.U)->Cat(0.U(16.W), io.store_data_r(31,16)),
                                   (io.lsu_addr_r(1,0)===3.U)->Cat(0.U(8.W), io.store_data_r(31,8))))
 
-  val store_data_lo_r = Mux1H(Seq((io.lsu_addr_r(1,0)===0.U)->io.store_data_r,
+  val store_data_lo_r = Mux1H(Seq((io.lsu_addr_r(1,0)===0.U)->    io.store_data_r,
                                   (io.lsu_addr_r(1,0)===1.U)->Cat(io.store_data_r(23,0), 0.U(8.W)),
                                   (io.lsu_addr_r(1,0)===2.U)->Cat(io.store_data_r(15,0), 0.U(16.W)),
                                   (io.lsu_addr_r(1,0)===3.U)->Cat(io.store_data_r(7 ,0)  , 0.U(24.W))))
@@ -655,7 +655,7 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   val lsu_imprecise_error_store_tag = Mux1H((0 until DEPTH_LOG2).map(i=>((buf_state(i)===done_C) & buf_error(i) & buf_write(i))->i.U))
 
   io.lsu_imprecise_error_load_any := io.lsu_nonblock_load_data_error & !io.lsu_imprecise_error_store_any
-  io.lsu_imprecise_error_addr_any := Mux(io.lsu_imprecise_error_store_any, indexing(buf_addr, lsu_imprecise_error_store_tag), indexing(buf_addr, io.lsu_nonblock_load_data_tag))
+  io.lsu_imprecise_error_addr_any := Mux(io.lsu_imprecise_error_store_any, buf_addr(lsu_imprecise_error_store_tag), buf_addr(io.lsu_nonblock_load_data_tag))
   lsu_bus_cntr_overflow := 0.U
 
   io.lsu_bus_idle_any := 1.U

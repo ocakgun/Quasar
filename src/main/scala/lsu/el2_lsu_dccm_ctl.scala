@@ -219,13 +219,13 @@ class  el2_lsu_dccm_ctl extends Module with RequireAsyncReset with el2_lib
   io.dccm_rd_addr_hi := io.end_addr_d(DCCM_BITS-1,0)
 
   io.dccm_wr_data_lo := Mux(io.ld_single_ecc_error_r_ff.asBool,
-    Mux(ld_single_ecc_error_lo_r_ff===0.U,Cat(io.sec_data_ecc_lo_r_ff(DCCM_ECC_WIDTH-1,0),io.sec_data_lo_r_ff(DCCM_DATA_WIDTH-1,0))  ,
+    Mux(ld_single_ecc_error_lo_r_ff===1.U,Cat(io.sec_data_ecc_lo_r_ff(DCCM_ECC_WIDTH-1,0),io.sec_data_lo_r_ff(DCCM_DATA_WIDTH-1,0))  ,
       Cat(io.sec_data_ecc_hi_r_ff(DCCM_ECC_WIDTH-1,0),io.sec_data_hi_r_ff(DCCM_DATA_WIDTH-1,0))) ,
     Mux(io.dma_dccm_wen.asBool,Cat(io.dma_dccm_wdata_ecc_lo(DCCM_ECC_WIDTH-1,0),io.dma_dccm_wdata_lo(DCCM_DATA_WIDTH-1,0)),
       Cat(io.stbuf_ecc_any(DCCM_ECC_WIDTH-1,0),io.stbuf_data_any(DCCM_DATA_WIDTH-1,0))))
 
   io.dccm_wr_data_hi := Mux(io.ld_single_ecc_error_r_ff.asBool,
-    Mux(ld_single_ecc_error_hi_r_ff===0.U, Cat(io.sec_data_ecc_hi_r_ff(DCCM_ECC_WIDTH-1,0),io.sec_data_hi_r_ff(DCCM_DATA_WIDTH-1,0)),
+    Mux(ld_single_ecc_error_hi_r_ff===1.U, Cat(io.sec_data_ecc_hi_r_ff(DCCM_ECC_WIDTH-1,0),io.sec_data_hi_r_ff(DCCM_DATA_WIDTH-1,0)),
       Cat(io.sec_data_ecc_lo_r_ff(DCCM_ECC_WIDTH-1,0),io.sec_data_lo_r_ff(DCCM_DATA_WIDTH-1,0))),
     Mux(io.dma_dccm_wen.asBool, Cat(io.dma_dccm_wdata_ecc_hi(DCCM_ECC_WIDTH-1,0),io.dma_dccm_wdata_hi(DCCM_DATA_WIDTH-1,0)),
       Cat(io.stbuf_ecc_any(DCCM_ECC_WIDTH-1,0),io.stbuf_data_any(DCCM_DATA_WIDTH-1,0))))
@@ -283,7 +283,7 @@ class  el2_lsu_dccm_ctl extends Module with RequireAsyncReset with el2_lib
     io.store_data_lo_r      := withClock(io.lsu_store_c1_r_clk){RegNext(Reverse(Cat(VecInit.tabulate(4)(i=> Reverse(Mux(store_byteen_ext_m(i).asBool,  store_data_lo_m((8*i)+7,8*i), Mux((io.lsu_stbuf_commit_any &  dccm_wr_bypass_d_m_lo).asBool, io.stbuf_data_any((8*i)+7,8*i),io.sec_data_lo_m((8*i)+7,8*i))))))),0.U)}
     io.store_data_hi_r      := withClock(io.lsu_store_c1_r_clk){RegNext(Reverse(Cat(VecInit.tabulate(4)(i=> Reverse(Mux(store_byteen_ext_m(i+4).asBool,store_data_hi_m((8*i)+7,8*i), Mux((io.lsu_stbuf_commit_any &  dccm_wr_bypass_d_m_hi).asBool, io.stbuf_data_any((8*i)+7,8*i),io.sec_data_hi_m((8*i)+7,8*i))))))),0.U)}
     io.store_datafn_lo_r    := Reverse(Cat(VecInit.tabulate(4)(i=> Reverse(Mux((io.lsu_stbuf_commit_any & dccm_wr_bypass_d_r_lo & !store_byteen_ext_r(i)).asBool,io.stbuf_data_any((8*i)+7,8*i),io.store_data_lo_r((8*i)+7,8*i))))))
-    io.store_datafn_hi_r    := Reverse(Cat(VecInit.tabulate(4)(i=> Reverse(Mux((io.lsu_stbuf_commit_any & dccm_wr_bypass_d_r_lo & !store_byteen_ext_r(i)).asBool,io.stbuf_data_any((8*i)+7,8*i),io.store_data_hi_r((8*i)+7,8*i))))))
+    io.store_datafn_hi_r    := Reverse(Cat(VecInit.tabulate(4)(i=> Reverse(Mux((io.lsu_stbuf_commit_any & dccm_wr_bypass_d_r_hi & !store_byteen_ext_r(i+4)).asBool,io.stbuf_data_any((8*i)+7,8*i),io.store_data_hi_r((8*i)+7,8*i))))))
     io.store_data_r         := (Cat(io.store_data_hi_r(31,0),io.store_data_lo_r(31,0)) >> 8.U*io.lsu_addr_r(1,0)) & Reverse(Cat(VecInit.tabulate(4)(i=> Fill(8,store_byteen_r(i)))))
   }
   io.dccm_rdata_lo_m      := io.dccm_rd_data_lo(DCCM_DATA_WIDTH-1,0)  //4 lines
