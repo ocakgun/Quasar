@@ -1364,7 +1364,6 @@ module el2_lsu_bus_buffer(
   wire  _T_1334 = bus_cmd_sent & _T_1345; // @[el2_lsu_bus_buffer.scala 372:20]
   wire  _T_1335 = ~io_dec_tlu_force_halt; // @[el2_lsu_bus_buffer.scala 372:37]
   wire  _T_1336 = _T_1334 & _T_1335; // @[el2_lsu_bus_buffer.scala 372:35]
-  wire  _T_1338 = bus_cmd_sent | _T_1345; // @[el2_lsu_bus_buffer.scala 374:44]
   wire [7:0] _T_1360 = {ldst_byteen_lo_r,4'h0}; // @[Cat.scala 29:58]
   wire [7:0] _T_1361 = {4'h0,ldst_byteen_lo_r}; // @[Cat.scala 29:58]
   wire [7:0] _T_1362 = io_lsu_addr_r[2] ? _T_1360 : _T_1361; // @[el2_lsu_bus_buffer.scala 379:46]
@@ -4244,7 +4243,7 @@ end // initial
   always @(posedge io_lsu_busm_clk or posedge reset) begin
     if (reset) begin
       obuf_rdrsp_tag <= 3'h0;
-    end else if (_T_1338) begin
+    end else if (_T_1334) begin
       obuf_rdrsp_tag <= obuf_tag0;
     end
   end

@@ -2047,7 +2047,7 @@ circuit el2_lsu_bus_buffer :
     wire obuf_tag0 : UInt<3>
     obuf_tag0 <= UInt<1>("h00")
     node _T_1337 = eq(obuf_write, UInt<1>("h00")) @[el2_lsu_bus_buffer.scala 374:46]
-    node _T_1338 = or(bus_cmd_sent, _T_1337) @[el2_lsu_bus_buffer.scala 374:44]
+    node _T_1338 = and(bus_cmd_sent, _T_1337) @[el2_lsu_bus_buffer.scala 374:44]
     node obuf_rdrsp_tag_in = mux(_T_1338, obuf_tag0, obuf_rdrsp_tag) @[el2_lsu_bus_buffer.scala 374:30]
     wire obuf_addr : UInt<32>
     obuf_addr <= UInt<1>("h00")
