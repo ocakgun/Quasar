@@ -72,9 +72,9 @@ class el2_lsu_clkdomain extends Module  with RequireAsyncReset with el2_lib{
   val lsu_stbuf_c1_clken     = io.ldst_stbuf_reqvld_r | io.stbuf_reqvld_any | io.stbuf_reqvld_flushed_any | io.clk_override
   val lsu_bus_ibuf_c1_clken  = io.lsu_busreq_r  | io.clk_override
   val lsu_bus_obuf_c1_clken  = (io.lsu_bus_buffer_pend_any  | io.lsu_busreq_r | io.clk_override) & io.lsu_bus_clk_en
-  val lsu_bus_buf_c1_clken   = (!io.lsu_bus_buffer_empty_any | io.lsu_busreq_r | io.clk_override).asBool
+  val lsu_bus_buf_c1_clken   = !io.lsu_bus_buffer_empty_any | io.lsu_busreq_r | io.clk_override
 
-  val lsu_free_c1_clken      = (io.lsu_p.valid | io.lsu_pkt_d.valid | io.lsu_pkt_m.valid | io.lsu_pkt_r.valid) | ~io.lsu_bus_buffer_empty_any | ~io.lsu_stbuf_empty_any | io.clk_override
+  val lsu_free_c1_clken      = (io.lsu_p.valid | io.lsu_pkt_d.valid | io.lsu_pkt_m.valid | io.lsu_pkt_r.valid) | !io.lsu_bus_buffer_empty_any | !io.lsu_stbuf_empty_any | io.clk_override
   val lsu_free_c2_clken      = lsu_free_c1_clken | lsu_free_c1_clken_q | io.clk_override
 
 
