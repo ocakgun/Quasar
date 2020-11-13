@@ -43,12 +43,12 @@ class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
 
    val active_clk  = Input(Clock())
     val free_clk    = Input(Clock())
-    val rst_l       = Input(Bool())
+    //val rst_l       = Input(Bool())
     val scan_mode   = Input(Bool())
 
-    val        rst_vec         = Input(UInt(32.W))    // reset vector, from core pins
+    val        rst_vec         = Input(UInt(31.W))    // reset vector, from core pins
     val        nmi_int         = Input(UInt(1.W))    // nmi pin
-    val        nmi_vec         = Input(UInt(32.W))    // nmi vector
+    val        nmi_vec         = Input(UInt(31.W))    // nmi vector
     val  i_cpu_halt_req        = Input(UInt(1.W))        // Asynchronous Halt request to CPU
     val  i_cpu_run_req         = Input(UInt(1.W))        // Asynchronous Restart request to CPU
 
@@ -84,7 +84,7 @@ class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
     val       dma_pmu_any_read        = Input(UInt(1.W))   // DMA read
     val       dma_pmu_any_write       = Input(UInt(1.W))   // DMA write
 
-    val     lsu_fir_addr           = Input(UInt(32.W)) // Fast int address
+    val     lsu_fir_addr           = Input(UInt(31.W)) // Fast int address
     val     lsu_fir_error           = Input(UInt(2.W)) // Fast int lookup error
 
     val     iccm_dma_sb_error  = Input(UInt(1.W))      // I side dma single bit error
@@ -109,11 +109,11 @@ class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
 
     val       dec_tlu_i0_valid_r = Input(UInt(1.W)) // pipe 0 op at e4 is valid
 
-    val       exu_npc_r = Input(UInt(32.W)) // for NPC tracking
+    val       exu_npc_r = Input(UInt(31.W)) // for NPC tracking
 
-    val       dec_tlu_i0_pc_r = Input(UInt(32.W)) // for PC/NPC tracking
+    val       dec_tlu_i0_pc_r = Input(UInt(31.W)) // for PC/NPC tracking
 
-    val  dec_tlu_packet_r = Input(new el2_trap_pkt_t) // exceptions known at decode
+    val       dec_tlu_packet_r = Input(new el2_trap_pkt_t) // exceptions known at decode
 
     val        dec_illegal_inst = Input(UInt(32.W)) // For mtval
     val        dec_i0_decode_d = Input(UInt(1.W))  // decode valid, used for clean icache diagnostics
@@ -144,7 +144,7 @@ class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
     val dec_tlu_flush_err_r         = Output(UInt(1.W)) // iside perr/ecc rfpc. This is the D stage of the error
 
     val dec_tlu_flush_extint        = Output(UInt(1.W)) // fast ext int started
-    val dec_tlu_meihap              = Output(UInt(32.W)) // meihap for fast int
+    val dec_tlu_meihap              = Output(UInt(30.W)) // meihap for fast int
 
     val dbg_halt_req = Input(UInt(1.W)) // DM requests a halt
     val dbg_resume_req = Input(UInt(1.W)) // DM requests a resume
@@ -175,7 +175,7 @@ class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
     val o_cpu_run_ack         = Output(UInt(1.W)) // run req ack
     val o_debug_mode_status   = Output(UInt(1.W)) // Core to the PMU that core is in debug mode. When core is in debug mode, the PMU should refrain from sendng a halt or run request
 
-    val core_id = Input(UInt(32.W)) // Core ID
+    val core_id = Input(UInt(28.W)) // Core ID
 
     // external MPC halt/run interface
     val mpc_debug_halt_req  = Input(UInt(1.W))  // Async halt request
@@ -194,7 +194,7 @@ class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
     val dec_tlu_i0_commit_cmt       = Output(UInt(1.W))        // committed an instruction
     val dec_tlu_i0_kill_writeb_r    = Output(UInt(1.W))    // I0 is flushed, don't writeback any results to arch state
     val dec_tlu_flush_lower_r       = Output(UInt(1.W))       // commit has a flush (exception, int)
-    val dec_tlu_flush_path_r        = Output(UInt(32.W)) // flush pc
+    val dec_tlu_flush_path_r        = Output(UInt(31.W)) // flush pc
     val dec_tlu_fence_i_r           = Output(UInt(1.W))           // flush is a fence_i rfnpc, flush icache
     val dec_tlu_wr_pause_r          = Output(UInt(1.W))           // CSR write to pause reg is at R.
     val dec_tlu_flush_pause_r       = Output(UInt(1.W))        // Flush is due to pause
@@ -871,7 +871,7 @@ class el2_dec_tlu_ctl extends Module with el2_lib with RequireAsyncReset with CS
    							(take_nmi===0.U & rfpc_i0_r===1.U & io.dec_tlu_i0_valid_r===1.U & sel_npc_r===0.U)  -> io.dec_tlu_i0_pc_r,
    							(interrupt_valid_r===1.U & sel_fir_addr===0.U)  -> interrupt_path,
    							((i0_exception_valid_r | lsu_exc_valid_r | (i0_trigger_hit_r & ~trigger_hit_dmode_r)) & ~interrupt_valid_r & ~sel_fir_addr).asBool	-> Cat(mtvec(30,1),0.U(1.W)),
-   							(~take_nmi & mret_r).asBool   				->mepc,
+   							(~take_nmi & mret_r).asBool   				-> mepc,
    							(~take_nmi & debug_resume_req_f).asBool	-> dpc,
    							(~take_nmi & sel_npc_resume).asBool		-> npc_r_d1
    							)))
@@ -1329,7 +1329,7 @@ class el2_CSR_IO extends Bundle with el2_lib {
   val dec_tlu_meipt                     = Output(UInt(4.W))
   val pic_pl                            = Input(UInt(4.W))
   val dec_tlu_meicurpl                  = Output(UInt(4.W))
-  val dec_tlu_meihap                    = Output(UInt(32.W))
+  val dec_tlu_meihap                    = Output(UInt(30.W))
   val pic_claimid                       = Input(UInt(8.W))
   val iccm_dma_sb_error                 = Input(UInt(1.W))
   val lsu_imprecise_error_addr_any      = Input(UInt(32.W))
@@ -1347,8 +1347,8 @@ class el2_CSR_IO extends Bundle with el2_lib {
   val mexintpend                        = Input(UInt(1.W))
   val exu_npc_r                         = Input(UInt(31.W))
   val mpc_reset_run_req                 = Input(UInt(1.W))
-  val rst_vec                           = Input(UInt(32.W))
-  val core_id 							            = Input(UInt(32.W))
+  val rst_vec                           = Input(UInt(31.W))
+  val core_id 							            = Input(UInt(28.W))
   val dec_timer_rddata_d                = Input(UInt(32.W))
   val dec_timer_read_d                  = Input(UInt(1.W))
   
@@ -2578,7 +2578,7 @@ for(i <- 0 until 4) {io.trigger_pkt_any(i).tdata2 := mtdata2_t(i)}
                 io.csr_pkt.csr_mvendorid.asBool       -> 0x00000045.U(32.W),
                 io.csr_pkt.csr_marchid.asBool         -> 0x00000010.U(32.W),
                 io.csr_pkt.csr_mimpid.asBool          -> 0x2.U(32.W),
-                io.csr_pkt.csr_mhartid.asBool         -> Cat(io.core_id(31,4),0.U(4.W)),
+                io.csr_pkt.csr_mhartid.asBool         -> Cat(io.core_id,0.U(4.W)),
                 io.csr_pkt.csr_mstatus.asBool         -> Cat(0.U(19.W), 3.U(2.W), 0.U(3.W), io.mstatus(1), 0.U(3.W), io.mstatus(0), 0.U(3.W)),
                 io.csr_pkt.csr_mtvec.asBool           -> Cat(io.mtvec(30,1), 0.U(1.W), io.mtvec(0)),
                 io.csr_pkt.csr_mip.asBool             -> Cat(0.U(1.W), io.mip(5,3), 0.U(16.W), io.mip(2), 0.U(3.W), io.mip(1), 0.U(3.W), io.mip(0), 0.U(3.W)),
