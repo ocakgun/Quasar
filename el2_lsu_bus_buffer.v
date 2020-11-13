@@ -3678,21 +3678,21 @@ end // initial
       buf_ageQ_3 <= {_T_2558,_T_2481};
     end
   end
-  always @(posedge io_lsu_busm_clk or posedge reset) begin
+  always @(posedge io_lsu_bus_obuf_c1_clk or posedge reset) begin
     if (reset) begin
       obuf_tag0 <= 3'h0;
     end else if (obuf_wr_en) begin
       obuf_tag0 <= obuf_tag0_in;
     end
   end
-  always @(posedge io_lsu_busm_clk or posedge reset) begin
+  always @(posedge io_lsu_bus_obuf_c1_clk or posedge reset) begin
     if (reset) begin
       obuf_merge <= 1'h0;
     end else if (obuf_wr_en) begin
       obuf_merge <= obuf_merge_en;
     end
   end
-  always @(posedge io_lsu_busm_clk or posedge reset) begin
+  always @(posedge io_lsu_bus_obuf_c1_clk or posedge reset) begin
     if (reset) begin
       obuf_tag1 <= 3'h0;
     end else if (obuf_wr_en) begin
@@ -4127,7 +4127,7 @@ end // initial
       buf_samedw_0 <= buf_samedw_in[0];
     end
   end
-  always @(posedge io_lsu_busm_clk or posedge reset) begin
+  always @(posedge io_lsu_bus_obuf_c1_clk or posedge reset) begin
     if (reset) begin
       obuf_write <= 1'h0;
     end else if (obuf_wr_en) begin
@@ -4212,7 +4212,7 @@ end // initial
       end
     end
   end
-  always @(posedge io_lsu_busm_clk or posedge reset) begin
+  always @(posedge io_lsu_bus_obuf_c1_clk or posedge reset) begin
     if (reset) begin
       obuf_sideeffect <= 1'h0;
     end else if (obuf_wr_en) begin
@@ -4265,7 +4265,7 @@ end // initial
       buf_dualhi_0 <= buf_dualhi_in[0];
     end
   end
-  always @(posedge io_lsu_busm_clk or posedge reset) begin
+  always @(posedge io_lsu_bus_obuf_c1_clk or posedge reset) begin
     if (reset) begin
       obuf_sz <= 2'h0;
     end else if (obuf_wr_en) begin
@@ -4276,7 +4276,7 @@ end // initial
       end
     end
   end
-  always @(posedge io_lsu_busm_clk or posedge reset) begin
+  always @(posedge io_lsu_bus_obuf_c1_clk or posedge reset) begin
     if (reset) begin
       obuf_byteen <= 8'h0;
     end else if (obuf_wr_en) begin
