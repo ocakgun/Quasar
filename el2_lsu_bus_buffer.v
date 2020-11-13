@@ -2578,28 +2578,36 @@ module el2_lsu_bus_buffer(
   wire  _T_4929 = _T_2867 & _T_4925; // @[Mux.scala 27:72]
   wire  _T_4930 = _T_4926 | _T_4927; // @[Mux.scala 27:72]
   wire  _T_4931 = _T_4930 | _T_4928; // @[Mux.scala 27:72]
-  wire  _T_4941 = _T_2823 & buf_error[1]; // @[el2_lsu_bus_buffer.scala 655:98]
-  wire  lsu_imprecise_error_store_tag = _T_4941 & buf_write[1]; // @[el2_lsu_bus_buffer.scala 655:113]
-  wire  _T_4947 = ~io_lsu_imprecise_error_store_any; // @[el2_lsu_bus_buffer.scala 657:72]
-  wire [31:0] _GEN_351 = lsu_imprecise_error_store_tag ? buf_addr_1 : buf_addr_0; // @[el2_lsu_bus_buffer.scala 658:41]
-  wire [1:0] _GEN_390 = {{1'd0}, lsu_imprecise_error_store_tag}; // @[el2_lsu_bus_buffer.scala 658:41]
-  wire [31:0] _GEN_352 = 2'h2 == _GEN_390 ? buf_addr_2 : _GEN_351; // @[el2_lsu_bus_buffer.scala 658:41]
-  wire [31:0] _GEN_353 = 2'h3 == _GEN_390 ? buf_addr_3 : _GEN_352; // @[el2_lsu_bus_buffer.scala 658:41]
+  wire  _T_4941 = _T_2823 & buf_error[1]; // @[el2_lsu_bus_buffer.scala 655:93]
+  wire  _T_4943 = _T_4941 & buf_write[1]; // @[el2_lsu_bus_buffer.scala 655:108]
+  wire  _T_4946 = _T_2845 & buf_error[2]; // @[el2_lsu_bus_buffer.scala 655:93]
+  wire  _T_4948 = _T_4946 & buf_write[2]; // @[el2_lsu_bus_buffer.scala 655:108]
+  wire  _T_4951 = _T_2867 & buf_error[3]; // @[el2_lsu_bus_buffer.scala 655:93]
+  wire  _T_4953 = _T_4951 & buf_write[3]; // @[el2_lsu_bus_buffer.scala 655:108]
+  wire [1:0] _T_4956 = _T_4948 ? 2'h2 : 2'h0; // @[Mux.scala 27:72]
+  wire [1:0] _T_4957 = _T_4953 ? 2'h3 : 2'h0; // @[Mux.scala 27:72]
+  wire [1:0] _GEN_390 = {{1'd0}, _T_4943}; // @[Mux.scala 27:72]
+  wire [1:0] _T_4959 = _GEN_390 | _T_4956; // @[Mux.scala 27:72]
+  wire [1:0] lsu_imprecise_error_store_tag = _T_4959 | _T_4957; // @[Mux.scala 27:72]
+  wire  _T_4961 = ~io_lsu_imprecise_error_store_any; // @[el2_lsu_bus_buffer.scala 657:72]
+  wire [31:0] _GEN_351 = 2'h1 == lsu_imprecise_error_store_tag ? buf_addr_1 : buf_addr_0; // @[el2_lsu_bus_buffer.scala 658:41]
+  wire [31:0] _GEN_352 = 2'h2 == lsu_imprecise_error_store_tag ? buf_addr_2 : _GEN_351; // @[el2_lsu_bus_buffer.scala 658:41]
+  wire [31:0] _GEN_353 = 2'h3 == lsu_imprecise_error_store_tag ? buf_addr_3 : _GEN_352; // @[el2_lsu_bus_buffer.scala 658:41]
   wire [31:0] _GEN_355 = 2'h1 == io_lsu_nonblock_load_data_tag ? buf_addr_1 : buf_addr_0; // @[el2_lsu_bus_buffer.scala 658:41]
   wire [31:0] _GEN_356 = 2'h2 == io_lsu_nonblock_load_data_tag ? buf_addr_2 : _GEN_355; // @[el2_lsu_bus_buffer.scala 658:41]
   wire [31:0] _GEN_357 = 2'h3 == io_lsu_nonblock_load_data_tag ? buf_addr_3 : _GEN_356; // @[el2_lsu_bus_buffer.scala 658:41]
-  wire  _T_4952 = bus_wcmd_sent | bus_wdata_sent; // @[el2_lsu_bus_buffer.scala 664:68]
-  wire  _T_4955 = io_lsu_busreq_r & io_ldst_dual_r; // @[el2_lsu_bus_buffer.scala 665:48]
-  wire  _T_4958 = ~io_lsu_axi_awready; // @[el2_lsu_bus_buffer.scala 668:48]
-  wire  _T_4959 = io_lsu_axi_awvalid & _T_4958; // @[el2_lsu_bus_buffer.scala 668:46]
-  wire  _T_4960 = ~io_lsu_axi_wready; // @[el2_lsu_bus_buffer.scala 668:92]
-  wire  _T_4961 = io_lsu_axi_wvalid & _T_4960; // @[el2_lsu_bus_buffer.scala 668:90]
-  wire  _T_4962 = _T_4959 | _T_4961; // @[el2_lsu_bus_buffer.scala 668:69]
-  wire  _T_4963 = ~io_lsu_axi_arready; // @[el2_lsu_bus_buffer.scala 668:136]
-  wire  _T_4964 = io_lsu_axi_arvalid & _T_4963; // @[el2_lsu_bus_buffer.scala 668:134]
-  wire  _T_4968 = ~io_flush_r; // @[el2_lsu_bus_buffer.scala 672:75]
-  wire  _T_4969 = io_lsu_busreq_m & _T_4968; // @[el2_lsu_bus_buffer.scala 672:73]
-  reg  _T_4972; // @[el2_lsu_bus_buffer.scala 672:56]
+  wire  _T_4966 = bus_wcmd_sent | bus_wdata_sent; // @[el2_lsu_bus_buffer.scala 664:68]
+  wire  _T_4969 = io_lsu_busreq_r & io_ldst_dual_r; // @[el2_lsu_bus_buffer.scala 665:48]
+  wire  _T_4972 = ~io_lsu_axi_awready; // @[el2_lsu_bus_buffer.scala 668:48]
+  wire  _T_4973 = io_lsu_axi_awvalid & _T_4972; // @[el2_lsu_bus_buffer.scala 668:46]
+  wire  _T_4974 = ~io_lsu_axi_wready; // @[el2_lsu_bus_buffer.scala 668:92]
+  wire  _T_4975 = io_lsu_axi_wvalid & _T_4974; // @[el2_lsu_bus_buffer.scala 668:90]
+  wire  _T_4976 = _T_4973 | _T_4975; // @[el2_lsu_bus_buffer.scala 668:69]
+  wire  _T_4977 = ~io_lsu_axi_arready; // @[el2_lsu_bus_buffer.scala 668:136]
+  wire  _T_4978 = io_lsu_axi_arvalid & _T_4977; // @[el2_lsu_bus_buffer.scala 668:134]
+  wire  _T_4982 = ~io_flush_r; // @[el2_lsu_bus_buffer.scala 672:75]
+  wire  _T_4983 = io_lsu_busreq_m & _T_4982; // @[el2_lsu_bus_buffer.scala 672:73]
+  reg  _T_4986; // @[el2_lsu_bus_buffer.scala 672:56]
   rvclkhdr rvclkhdr ( // @[el2_lib.scala 508:23]
     .io_l1clk(rvclkhdr_io_l1clk),
     .io_clk(rvclkhdr_io_clk),
@@ -2672,7 +2680,7 @@ module el2_lsu_bus_buffer(
     .io_en(rvclkhdr_11_io_en),
     .io_scan_mode(rvclkhdr_11_io_scan_mode)
   );
-  assign io_lsu_busreq_r = _T_4972; // @[el2_lsu_bus_buffer.scala 672:19]
+  assign io_lsu_busreq_r = _T_4986; // @[el2_lsu_bus_buffer.scala 672:19]
   assign io_lsu_bus_buffer_pend_any = |buf_numvld_pend_any; // @[el2_lsu_bus_buffer.scala 581:30]
   assign io_lsu_bus_buffer_full_any = _T_4500 ? _T_4501 : _T_4502; // @[el2_lsu_bus_buffer.scala 582:30]
   assign io_lsu_bus_buffer_empty_any = _T_4513 & _T_1231; // @[el2_lsu_bus_buffer.scala 583:31]
@@ -2681,7 +2689,7 @@ module el2_lsu_bus_buffer(
   assign io_ld_byte_hit_buf_hi = {_T_84,_T_73}; // @[el2_lsu_bus_buffer.scala 192:25]
   assign io_ld_fwddata_buf_lo = _T_650 | _T_651; // @[el2_lsu_bus_buffer.scala 218:24]
   assign io_ld_fwddata_buf_hi = _T_747 | _T_748; // @[el2_lsu_bus_buffer.scala 224:24]
-  assign io_lsu_imprecise_error_load_any = io_lsu_nonblock_load_data_error & _T_4947; // @[el2_lsu_bus_buffer.scala 657:35]
+  assign io_lsu_imprecise_error_load_any = io_lsu_nonblock_load_data_error & _T_4961; // @[el2_lsu_bus_buffer.scala 657:35]
   assign io_lsu_imprecise_error_store_any = _T_4931 | _T_4929; // @[el2_lsu_bus_buffer.scala 654:36]
   assign io_lsu_imprecise_error_addr_any = io_lsu_imprecise_error_store_any ? _GEN_353 : _GEN_357; // @[el2_lsu_bus_buffer.scala 658:35]
   assign io_lsu_nonblock_load_valid_m = _T_4519 & _T_4520; // @[el2_lsu_bus_buffer.scala 585:32]
@@ -2692,10 +2700,10 @@ module el2_lsu_bus_buffer(
   assign io_lsu_nonblock_load_data_error = _T_4572 | _T_4570; // @[el2_lsu_bus_buffer.scala 591:35]
   assign io_lsu_nonblock_load_data_tag = _T_4612 | _T_4610; // @[el2_lsu_bus_buffer.scala 592:33]
   assign io_lsu_nonblock_load_data = _T_4778[31:0]; // @[el2_lsu_bus_buffer.scala 602:29]
-  assign io_lsu_pmu_bus_trxn = _T_4952 | _T_4865; // @[el2_lsu_bus_buffer.scala 664:23]
-  assign io_lsu_pmu_bus_misaligned = _T_4955 & io_lsu_commit_r; // @[el2_lsu_bus_buffer.scala 665:29]
+  assign io_lsu_pmu_bus_trxn = _T_4966 | _T_4865; // @[el2_lsu_bus_buffer.scala 664:23]
+  assign io_lsu_pmu_bus_misaligned = _T_4969 & io_lsu_commit_r; // @[el2_lsu_bus_buffer.scala 665:29]
   assign io_lsu_pmu_bus_error = io_lsu_imprecise_error_load_any | io_lsu_imprecise_error_store_any; // @[el2_lsu_bus_buffer.scala 666:24]
-  assign io_lsu_pmu_bus_busy = _T_4962 | _T_4964; // @[el2_lsu_bus_buffer.scala 668:23]
+  assign io_lsu_pmu_bus_busy = _T_4976 | _T_4978; // @[el2_lsu_bus_buffer.scala 668:23]
   assign io_lsu_axi_awvalid = _T_4875 & _T_1239; // @[el2_lsu_bus_buffer.scala 624:22]
   assign io_lsu_axi_awid = obuf_tag0; // @[el2_lsu_bus_buffer.scala 625:19]
   assign io_lsu_axi_awaddr = obuf_sideeffect ? obuf_addr : _T_4879; // @[el2_lsu_bus_buffer.scala 626:21]
@@ -3008,7 +3016,7 @@ initial begin
   _RAND_105 = {1{`RANDOM}};
   lsu_nonblock_load_valid_r = _RAND_105[0:0];
   _RAND_106 = {1{`RANDOM}};
-  _T_4972 = _RAND_106[0:0];
+  _T_4986 = _RAND_106[0:0];
 `endif // RANDOMIZE_REG_INIT
   if (reset) begin
     buf_addr_0 = 32'h0;
@@ -3329,7 +3337,7 @@ initial begin
     lsu_nonblock_load_valid_r = 1'h0;
   end
   if (reset) begin
-    _T_4972 = 1'h0;
+    _T_4986 = 1'h0;
   end
   `endif // RANDOMIZE
 end // initial
@@ -4549,9 +4557,9 @@ end // initial
   end
   always @(posedge io_lsu_c2_r_clk or posedge reset) begin
     if (reset) begin
-      _T_4972 <= 1'h0;
+      _T_4986 <= 1'h0;
     end else begin
-      _T_4972 <= _T_4969 & _T_4520;
+      _T_4986 <= _T_4983 & _T_4520;
     end
   end
 endmodule

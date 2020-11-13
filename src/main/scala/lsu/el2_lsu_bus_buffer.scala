@@ -652,7 +652,7 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   io.lsu_axi_bready := 1.U
   io.lsu_axi_rready := 1.U
   io.lsu_imprecise_error_store_any := Mux1H((0 until DEPTH).map(i=>(buf_state(i)===done_C)->(io.lsu_bus_clk_en_q & buf_error(i) & buf_write(i))))
-  val lsu_imprecise_error_store_tag = Mux1H((0 until DEPTH_LOG2).map(i=>((buf_state(i)===done_C) & buf_error(i) & buf_write(i))->i.U))
+  val lsu_imprecise_error_store_tag = Mux1H((0 until DEPTH).map(i=>((buf_state(i)===done_C) & buf_error(i) & buf_write(i))->i.U))
 
   io.lsu_imprecise_error_load_any := io.lsu_nonblock_load_data_error & !io.lsu_imprecise_error_store_any
   io.lsu_imprecise_error_addr_any := Mux(io.lsu_imprecise_error_store_any, buf_addr(lsu_imprecise_error_store_tag), buf_addr(io.lsu_nonblock_load_data_tag))
