@@ -348,12 +348,10 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   val obuf_sz_in = Mux(ibuf_buf_byp, Cat(io.lsu_pkt_r.word, io.lsu_pkt_r.half), indexing(buf_sz, CmdPtr0))
   val obuf_merge_en = WireInit(Bool(), false.B)
   val obuf_merge_in = obuf_merge_en
-  val obuf_tag0_in = WireInit(UInt(LSU_BUS_TAG.W), 0.U)
-  val obuf_tag1_in = WireInit(UInt(LSU_BUS_TAG.W), 0.U)
-  obuf_tag0_in := Mux(ibuf_buf_byp, WrPtr0_r, CmdPtr0)
+  val obuf_tag0_in = Mux(ibuf_buf_byp, WrPtr0_r, CmdPtr0)
   val Cmdptr1 = WireInit(UInt(DEPTH_LOG2.W), 0.U)
 
-  obuf_tag1_in := Mux(ibuf_buf_byp, WrPtr1_r, Cmdptr1)
+  val obuf_tag1_in = Mux(ibuf_buf_byp, WrPtr1_r, Cmdptr1)
   val obuf_cmd_done = WireInit(Bool(), false.B)
   val bus_wcmd_sent = WireInit(Bool(), false.B)
   val obuf_cmd_done_in = !(obuf_wr_en | obuf_rst) & (obuf_cmd_done | bus_wcmd_sent)
@@ -404,14 +402,14 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   obuf_data_done := withClock(io.lsu_busm_clk){RegNext(obuf_data_done_in, false.B)}
   obuf_rdrsp_pend := withClock(io.lsu_busm_clk){RegNext(obuf_rdrsp_pend_in, false.B)}
   obuf_rdrsp_tag := withClock(io.lsu_busm_clk){RegNext(obuf_rdrsp_tag_in, 0.U)}
-  obuf_tag0 := withClock(io.lsu_bus_obuf_c1_clk){RegEnable(obuf_tag0_in, 0.U, obuf_wr_en)}
-  val obuf_tag1 = withClock(io.lsu_bus_obuf_c1_clk){RegEnable(obuf_tag1_in, 0.U, obuf_wr_en)}
-  val obuf_merge = withClock(io.lsu_bus_obuf_c1_clk){RegEnable(obuf_merge_in, false.B, obuf_wr_en)}
-  obuf_write := withClock(io.lsu_bus_obuf_c1_clk){RegEnable(obuf_write_in, false.B, obuf_wr_en)}
-  obuf_sideeffect := withClock(io.lsu_bus_obuf_c1_clk){RegEnable(obuf_sideeffect_in, false.B, obuf_wr_en)}
-  val obuf_sz = withClock(io.lsu_bus_obuf_c1_clk){RegEnable(obuf_sz_in, 0.U, obuf_wr_en)}
+  obuf_tag0 := withClock(io.lsu_busm_clk){RegEnable(obuf_tag0_in, 0.U, obuf_wr_en)}
+  val obuf_tag1 = withClock(io.lsu_busm_clk){RegEnable(obuf_tag1_in, 0.U, obuf_wr_en)}
+  val obuf_merge = withClock(io.lsu_busm_clk){RegEnable(obuf_merge_in, false.B, obuf_wr_en)}
+  obuf_write := withClock(io.lsu_busm_clk){RegEnable(obuf_write_in, false.B, obuf_wr_en)}
+  obuf_sideeffect := withClock(io.lsu_busm_clk){RegEnable(obuf_sideeffect_in, false.B, obuf_wr_en)}
+  val obuf_sz = withClock(io.lsu_busm_clk){RegEnable(obuf_sz_in, 0.U, obuf_wr_en)}
   obuf_addr := rvdffe(obuf_addr_in, obuf_wr_en, io.lsu_busm_clk, io.scan_mode)
-  val obuf_byteen = withClock(io.lsu_bus_obuf_c1_clk){RegEnable(obuf_byteen_in, 0.U, obuf_wr_en)}
+  val obuf_byteen = withClock(io.lsu_busm_clk){RegEnable(obuf_byteen_in, 0.U, obuf_wr_en)}
   val obuf_data = rvdffe(obuf_data_in, obuf_wr_en, io.lsu_busm_clk, io.scan_mode)
   obuf_wr_timer := withClock(io.lsu_busm_clk){RegNext(obuf_wr_timer_in, 0.U)}
   val WrPtr0_m = WireInit(UInt(DEPTH_LOG2.W), 0.U)
