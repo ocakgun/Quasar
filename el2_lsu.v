@@ -4179,22 +4179,22 @@ end // initial
 endmodule
 module el2_lsu_trigger(
   input         io_trigger_pkt_any_0_select,
-  input         io_trigger_pkt_any_0_match_,
+  input         io_trigger_pkt_any_0_match_pkt,
   input         io_trigger_pkt_any_0_store,
   input         io_trigger_pkt_any_0_load,
   input  [31:0] io_trigger_pkt_any_0_tdata2,
   input         io_trigger_pkt_any_1_select,
-  input         io_trigger_pkt_any_1_match_,
+  input         io_trigger_pkt_any_1_match_pkt,
   input         io_trigger_pkt_any_1_store,
   input         io_trigger_pkt_any_1_load,
   input  [31:0] io_trigger_pkt_any_1_tdata2,
   input         io_trigger_pkt_any_2_select,
-  input         io_trigger_pkt_any_2_match_,
+  input         io_trigger_pkt_any_2_match_pkt,
   input         io_trigger_pkt_any_2_store,
   input         io_trigger_pkt_any_2_load,
   input  [31:0] io_trigger_pkt_any_2_tdata2,
   input         io_trigger_pkt_any_3_select,
-  input         io_trigger_pkt_any_3_match_,
+  input         io_trigger_pkt_any_3_match_pkt,
   input         io_trigger_pkt_any_3_store,
   input         io_trigger_pkt_any_3_load,
   input  [31:0] io_trigger_pkt_any_3_tdata2,
@@ -4243,7 +4243,7 @@ module el2_lsu_trigger(
   wire  _T_46 = _T_40 & _T_45; // @[el2_lsu_trigger.scala 18:89]
   wire  _T_49 = &io_trigger_pkt_any_0_tdata2; // @[el2_lib.scala 241:45]
   wire  _T_50 = ~_T_49; // @[el2_lib.scala 241:39]
-  wire  _T_51 = io_trigger_pkt_any_0_match_ & _T_50; // @[el2_lib.scala 241:37]
+  wire  _T_51 = io_trigger_pkt_any_0_match_pkt & _T_50; // @[el2_lib.scala 241:37]
   wire  _T_54 = io_trigger_pkt_any_0_tdata2[0] == lsu_match_data_0[0]; // @[el2_lib.scala 242:52]
   wire  _T_55 = _T_51 | _T_54; // @[el2_lib.scala 242:41]
   wire  _T_57 = &io_trigger_pkt_any_0_tdata2[0]; // @[el2_lib.scala 244:36]
@@ -4383,7 +4383,7 @@ module el2_lsu_trigger(
   wire  _T_312 = _T_40 & _T_311; // @[el2_lsu_trigger.scala 18:89]
   wire  _T_315 = &io_trigger_pkt_any_1_tdata2; // @[el2_lib.scala 241:45]
   wire  _T_316 = ~_T_315; // @[el2_lib.scala 241:39]
-  wire  _T_317 = io_trigger_pkt_any_1_match_ & _T_316; // @[el2_lib.scala 241:37]
+  wire  _T_317 = io_trigger_pkt_any_1_match_pkt & _T_316; // @[el2_lib.scala 241:37]
   wire  _T_320 = io_trigger_pkt_any_1_tdata2[0] == lsu_match_data_1[0]; // @[el2_lib.scala 242:52]
   wire  _T_321 = _T_317 | _T_320; // @[el2_lib.scala 242:41]
   wire  _T_323 = &io_trigger_pkt_any_1_tdata2[0]; // @[el2_lib.scala 244:36]
@@ -4523,7 +4523,7 @@ module el2_lsu_trigger(
   wire  _T_578 = _T_40 & _T_577; // @[el2_lsu_trigger.scala 18:89]
   wire  _T_581 = &io_trigger_pkt_any_2_tdata2; // @[el2_lib.scala 241:45]
   wire  _T_582 = ~_T_581; // @[el2_lib.scala 241:39]
-  wire  _T_583 = io_trigger_pkt_any_2_match_ & _T_582; // @[el2_lib.scala 241:37]
+  wire  _T_583 = io_trigger_pkt_any_2_match_pkt & _T_582; // @[el2_lib.scala 241:37]
   wire  _T_586 = io_trigger_pkt_any_2_tdata2[0] == lsu_match_data_2[0]; // @[el2_lib.scala 242:52]
   wire  _T_587 = _T_583 | _T_586; // @[el2_lib.scala 242:41]
   wire  _T_589 = &io_trigger_pkt_any_2_tdata2[0]; // @[el2_lib.scala 244:36]
@@ -4663,7 +4663,7 @@ module el2_lsu_trigger(
   wire  _T_844 = _T_40 & _T_843; // @[el2_lsu_trigger.scala 18:89]
   wire  _T_847 = &io_trigger_pkt_any_3_tdata2; // @[el2_lib.scala 241:45]
   wire  _T_848 = ~_T_847; // @[el2_lib.scala 241:39]
-  wire  _T_849 = io_trigger_pkt_any_3_match_ & _T_848; // @[el2_lib.scala 241:37]
+  wire  _T_849 = io_trigger_pkt_any_3_match_pkt & _T_848; // @[el2_lib.scala 241:37]
   wire  _T_852 = io_trigger_pkt_any_3_tdata2[0] == lsu_match_data_3[0]; // @[el2_lib.scala 242:52]
   wire  _T_853 = _T_849 | _T_852; // @[el2_lib.scala 242:41]
   wire  _T_855 = &io_trigger_pkt_any_3_tdata2[0]; // @[el2_lib.scala 244:36]
@@ -10299,28 +10299,28 @@ module el2_lsu(
   input         io_lsu_p_store_data_bypass_m,
   input         io_lsu_p_valid,
   input         io_trigger_pkt_any_0_select,
-  input         io_trigger_pkt_any_0_match_,
+  input         io_trigger_pkt_any_0_match_pkt,
   input         io_trigger_pkt_any_0_store,
   input         io_trigger_pkt_any_0_load,
   input         io_trigger_pkt_any_0_execute,
   input         io_trigger_pkt_any_0_m,
   input  [31:0] io_trigger_pkt_any_0_tdata2,
   input         io_trigger_pkt_any_1_select,
-  input         io_trigger_pkt_any_1_match_,
+  input         io_trigger_pkt_any_1_match_pkt,
   input         io_trigger_pkt_any_1_store,
   input         io_trigger_pkt_any_1_load,
   input         io_trigger_pkt_any_1_execute,
   input         io_trigger_pkt_any_1_m,
   input  [31:0] io_trigger_pkt_any_1_tdata2,
   input         io_trigger_pkt_any_2_select,
-  input         io_trigger_pkt_any_2_match_,
+  input         io_trigger_pkt_any_2_match_pkt,
   input         io_trigger_pkt_any_2_store,
   input         io_trigger_pkt_any_2_load,
   input         io_trigger_pkt_any_2_execute,
   input         io_trigger_pkt_any_2_m,
   input  [31:0] io_trigger_pkt_any_2_tdata2,
   input         io_trigger_pkt_any_3_select,
-  input         io_trigger_pkt_any_3_match_,
+  input         io_trigger_pkt_any_3_match_pkt,
   input         io_trigger_pkt_any_3_store,
   input         io_trigger_pkt_any_3_load,
   input         io_trigger_pkt_any_3_execute,
@@ -10730,22 +10730,22 @@ module el2_lsu(
   wire  ecc_io_lsu_single_ecc_error_m; // @[el2_lsu.scala 159:30]
   wire  ecc_io_lsu_double_ecc_error_m; // @[el2_lsu.scala 159:30]
   wire  trigger_io_trigger_pkt_any_0_select; // @[el2_lsu.scala 160:30]
-  wire  trigger_io_trigger_pkt_any_0_match_; // @[el2_lsu.scala 160:30]
+  wire  trigger_io_trigger_pkt_any_0_match_pkt; // @[el2_lsu.scala 160:30]
   wire  trigger_io_trigger_pkt_any_0_store; // @[el2_lsu.scala 160:30]
   wire  trigger_io_trigger_pkt_any_0_load; // @[el2_lsu.scala 160:30]
   wire [31:0] trigger_io_trigger_pkt_any_0_tdata2; // @[el2_lsu.scala 160:30]
   wire  trigger_io_trigger_pkt_any_1_select; // @[el2_lsu.scala 160:30]
-  wire  trigger_io_trigger_pkt_any_1_match_; // @[el2_lsu.scala 160:30]
+  wire  trigger_io_trigger_pkt_any_1_match_pkt; // @[el2_lsu.scala 160:30]
   wire  trigger_io_trigger_pkt_any_1_store; // @[el2_lsu.scala 160:30]
   wire  trigger_io_trigger_pkt_any_1_load; // @[el2_lsu.scala 160:30]
   wire [31:0] trigger_io_trigger_pkt_any_1_tdata2; // @[el2_lsu.scala 160:30]
   wire  trigger_io_trigger_pkt_any_2_select; // @[el2_lsu.scala 160:30]
-  wire  trigger_io_trigger_pkt_any_2_match_; // @[el2_lsu.scala 160:30]
+  wire  trigger_io_trigger_pkt_any_2_match_pkt; // @[el2_lsu.scala 160:30]
   wire  trigger_io_trigger_pkt_any_2_store; // @[el2_lsu.scala 160:30]
   wire  trigger_io_trigger_pkt_any_2_load; // @[el2_lsu.scala 160:30]
   wire [31:0] trigger_io_trigger_pkt_any_2_tdata2; // @[el2_lsu.scala 160:30]
   wire  trigger_io_trigger_pkt_any_3_select; // @[el2_lsu.scala 160:30]
-  wire  trigger_io_trigger_pkt_any_3_match_; // @[el2_lsu.scala 160:30]
+  wire  trigger_io_trigger_pkt_any_3_match_pkt; // @[el2_lsu.scala 160:30]
   wire  trigger_io_trigger_pkt_any_3_store; // @[el2_lsu.scala 160:30]
   wire  trigger_io_trigger_pkt_any_3_load; // @[el2_lsu.scala 160:30]
   wire [31:0] trigger_io_trigger_pkt_any_3_tdata2; // @[el2_lsu.scala 160:30]
@@ -11210,22 +11210,22 @@ module el2_lsu(
   );
   el2_lsu_trigger trigger ( // @[el2_lsu.scala 160:30]
     .io_trigger_pkt_any_0_select(trigger_io_trigger_pkt_any_0_select),
-    .io_trigger_pkt_any_0_match_(trigger_io_trigger_pkt_any_0_match_),
+    .io_trigger_pkt_any_0_match_pkt(trigger_io_trigger_pkt_any_0_match_pkt),
     .io_trigger_pkt_any_0_store(trigger_io_trigger_pkt_any_0_store),
     .io_trigger_pkt_any_0_load(trigger_io_trigger_pkt_any_0_load),
     .io_trigger_pkt_any_0_tdata2(trigger_io_trigger_pkt_any_0_tdata2),
     .io_trigger_pkt_any_1_select(trigger_io_trigger_pkt_any_1_select),
-    .io_trigger_pkt_any_1_match_(trigger_io_trigger_pkt_any_1_match_),
+    .io_trigger_pkt_any_1_match_pkt(trigger_io_trigger_pkt_any_1_match_pkt),
     .io_trigger_pkt_any_1_store(trigger_io_trigger_pkt_any_1_store),
     .io_trigger_pkt_any_1_load(trigger_io_trigger_pkt_any_1_load),
     .io_trigger_pkt_any_1_tdata2(trigger_io_trigger_pkt_any_1_tdata2),
     .io_trigger_pkt_any_2_select(trigger_io_trigger_pkt_any_2_select),
-    .io_trigger_pkt_any_2_match_(trigger_io_trigger_pkt_any_2_match_),
+    .io_trigger_pkt_any_2_match_pkt(trigger_io_trigger_pkt_any_2_match_pkt),
     .io_trigger_pkt_any_2_store(trigger_io_trigger_pkt_any_2_store),
     .io_trigger_pkt_any_2_load(trigger_io_trigger_pkt_any_2_load),
     .io_trigger_pkt_any_2_tdata2(trigger_io_trigger_pkt_any_2_tdata2),
     .io_trigger_pkt_any_3_select(trigger_io_trigger_pkt_any_3_select),
-    .io_trigger_pkt_any_3_match_(trigger_io_trigger_pkt_any_3_match_),
+    .io_trigger_pkt_any_3_match_pkt(trigger_io_trigger_pkt_any_3_match_pkt),
     .io_trigger_pkt_any_3_store(trigger_io_trigger_pkt_any_3_store),
     .io_trigger_pkt_any_3_load(trigger_io_trigger_pkt_any_3_load),
     .io_trigger_pkt_any_3_tdata2(trigger_io_trigger_pkt_any_3_tdata2),
@@ -11607,22 +11607,22 @@ module el2_lsu(
   assign ecc_io_dma_dccm_wdata_hi = dma_dccm_wdata[63:32]; // @[el2_lsu.scala 371:50]
   assign ecc_io_scan_mode = io_scan_mode; // @[el2_lsu.scala 372:50]
   assign trigger_io_trigger_pkt_any_0_select = io_trigger_pkt_any_0_select; // @[el2_lsu.scala 376:50]
-  assign trigger_io_trigger_pkt_any_0_match_ = io_trigger_pkt_any_0_match_; // @[el2_lsu.scala 376:50]
+  assign trigger_io_trigger_pkt_any_0_match_pkt = io_trigger_pkt_any_0_match_pkt; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_0_store = io_trigger_pkt_any_0_store; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_0_load = io_trigger_pkt_any_0_load; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_0_tdata2 = io_trigger_pkt_any_0_tdata2; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_1_select = io_trigger_pkt_any_1_select; // @[el2_lsu.scala 376:50]
-  assign trigger_io_trigger_pkt_any_1_match_ = io_trigger_pkt_any_1_match_; // @[el2_lsu.scala 376:50]
+  assign trigger_io_trigger_pkt_any_1_match_pkt = io_trigger_pkt_any_1_match_pkt; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_1_store = io_trigger_pkt_any_1_store; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_1_load = io_trigger_pkt_any_1_load; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_1_tdata2 = io_trigger_pkt_any_1_tdata2; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_2_select = io_trigger_pkt_any_2_select; // @[el2_lsu.scala 376:50]
-  assign trigger_io_trigger_pkt_any_2_match_ = io_trigger_pkt_any_2_match_; // @[el2_lsu.scala 376:50]
+  assign trigger_io_trigger_pkt_any_2_match_pkt = io_trigger_pkt_any_2_match_pkt; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_2_store = io_trigger_pkt_any_2_store; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_2_load = io_trigger_pkt_any_2_load; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_2_tdata2 = io_trigger_pkt_any_2_tdata2; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_3_select = io_trigger_pkt_any_3_select; // @[el2_lsu.scala 376:50]
-  assign trigger_io_trigger_pkt_any_3_match_ = io_trigger_pkt_any_3_match_; // @[el2_lsu.scala 376:50]
+  assign trigger_io_trigger_pkt_any_3_match_pkt = io_trigger_pkt_any_3_match_pkt; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_3_store = io_trigger_pkt_any_3_store; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_3_load = io_trigger_pkt_any_3_load; // @[el2_lsu.scala 376:50]
   assign trigger_io_trigger_pkt_any_3_tdata2 = io_trigger_pkt_any_3_tdata2; // @[el2_lsu.scala 376:50]

@@ -6362,7 +6362,7 @@ circuit el2_lsu :
   module el2_lsu_trigger : 
     input clock : Clock
     input reset : AsyncReset
-    output io : {flip trigger_pkt_any : {select : UInt<1>, match_ : UInt<1>, store : UInt<1>, load : UInt<1>, execute : UInt<1>, m : UInt<1>, tdata2 : UInt<32>}[4], flip lsu_pkt_m : {fast_int : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, dword : UInt<1>, load : UInt<1>, store : UInt<1>, unsign : UInt<1>, dma : UInt<1>, store_data_bypass_d : UInt<1>, load_ldst_bypass_d : UInt<1>, store_data_bypass_m : UInt<1>, valid : UInt<1>}, flip lsu_addr_m : UInt<32>, flip store_data_m : UInt<32>, lsu_trigger_match_m : UInt<4>}
+    output io : {flip trigger_pkt_any : {select : UInt<1>, match_pkt : UInt<1>, store : UInt<1>, load : UInt<1>, execute : UInt<1>, m : UInt<1>, tdata2 : UInt<32>}[4], flip lsu_pkt_m : {fast_int : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, dword : UInt<1>, load : UInt<1>, store : UInt<1>, unsign : UInt<1>, dma : UInt<1>, store_data_bypass_d : UInt<1>, load_ldst_bypass_d : UInt<1>, store_data_bypass_m : UInt<1>, valid : UInt<1>}, flip lsu_addr_m : UInt<32>, flip store_data_m : UInt<32>, lsu_trigger_match_m : UInt<4>}
     
     node _T = bits(io.lsu_pkt_m.word, 0, 0) @[Bitwise.scala 72:15]
     node _T_1 = mux(_T, UInt<16>("h0ffff"), UInt<16>("h00")) @[Bitwise.scala 72:12]
@@ -6420,7 +6420,7 @@ circuit el2_lsu :
     node _T_44 = and(_T_42, _T_43) @[el2_lsu_trigger.scala 19:53]
     node _T_45 = or(_T_41, _T_44) @[el2_lsu_trigger.scala 18:142]
     node _T_46 = and(_T_40, _T_45) @[el2_lsu_trigger.scala 18:89]
-    node _T_47 = bits(io.trigger_pkt_any[0].match_, 0, 0) @[el2_lsu_trigger.scala 20:104]
+    node _T_47 = bits(io.trigger_pkt_any[0].match_pkt, 0, 0) @[el2_lsu_trigger.scala 20:107]
     wire _T_48 : UInt<1>[32] @[el2_lib.scala 240:24]
     node _T_49 = andr(io.trigger_pkt_any[0].tdata2) @[el2_lib.scala 241:45]
     node _T_50 = not(_T_49) @[el2_lib.scala 241:39]
@@ -6718,7 +6718,7 @@ circuit el2_lsu :
     node _T_310 = and(_T_308, _T_309) @[el2_lsu_trigger.scala 19:53]
     node _T_311 = or(_T_307, _T_310) @[el2_lsu_trigger.scala 18:142]
     node _T_312 = and(_T_306, _T_311) @[el2_lsu_trigger.scala 18:89]
-    node _T_313 = bits(io.trigger_pkt_any[1].match_, 0, 0) @[el2_lsu_trigger.scala 20:104]
+    node _T_313 = bits(io.trigger_pkt_any[1].match_pkt, 0, 0) @[el2_lsu_trigger.scala 20:107]
     wire _T_314 : UInt<1>[32] @[el2_lib.scala 240:24]
     node _T_315 = andr(io.trigger_pkt_any[1].tdata2) @[el2_lib.scala 241:45]
     node _T_316 = not(_T_315) @[el2_lib.scala 241:39]
@@ -7016,7 +7016,7 @@ circuit el2_lsu :
     node _T_576 = and(_T_574, _T_575) @[el2_lsu_trigger.scala 19:53]
     node _T_577 = or(_T_573, _T_576) @[el2_lsu_trigger.scala 18:142]
     node _T_578 = and(_T_572, _T_577) @[el2_lsu_trigger.scala 18:89]
-    node _T_579 = bits(io.trigger_pkt_any[2].match_, 0, 0) @[el2_lsu_trigger.scala 20:104]
+    node _T_579 = bits(io.trigger_pkt_any[2].match_pkt, 0, 0) @[el2_lsu_trigger.scala 20:107]
     wire _T_580 : UInt<1>[32] @[el2_lib.scala 240:24]
     node _T_581 = andr(io.trigger_pkt_any[2].tdata2) @[el2_lib.scala 241:45]
     node _T_582 = not(_T_581) @[el2_lib.scala 241:39]
@@ -7314,7 +7314,7 @@ circuit el2_lsu :
     node _T_842 = and(_T_840, _T_841) @[el2_lsu_trigger.scala 19:53]
     node _T_843 = or(_T_839, _T_842) @[el2_lsu_trigger.scala 18:142]
     node _T_844 = and(_T_838, _T_843) @[el2_lsu_trigger.scala 18:89]
-    node _T_845 = bits(io.trigger_pkt_any[3].match_, 0, 0) @[el2_lsu_trigger.scala 20:104]
+    node _T_845 = bits(io.trigger_pkt_any[3].match_pkt, 0, 0) @[el2_lsu_trigger.scala 20:107]
     wire _T_846 : UInt<1>[32] @[el2_lib.scala 240:24]
     node _T_847 = andr(io.trigger_pkt_any[3].tdata2) @[el2_lib.scala 241:45]
     node _T_848 = not(_T_847) @[el2_lib.scala 241:39]
@@ -15230,7 +15230,7 @@ circuit el2_lsu :
   module el2_lsu : 
     input clock : Clock
     input reset : AsyncReset
-    output io : {flip clk_override : UInt<1>, flip dec_tlu_flush_lower_r : UInt<1>, flip dec_tlu_i0_kill_writeb_r : UInt<1>, flip dec_tlu_force_halt : UInt<1>, flip dec_tlu_external_ldfwd_disable : UInt<1>, flip dec_tlu_wb_coalescing_disable : UInt<1>, flip dec_tlu_sideeffect_posted_disable : UInt<1>, flip dec_tlu_core_ecc_disable : UInt<1>, flip exu_lsu_rs1_d : UInt<32>, flip exu_lsu_rs2_d : UInt<32>, flip dec_lsu_offset_d : UInt<12>, flip lsu_p : {fast_int : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, dword : UInt<1>, load : UInt<1>, store : UInt<1>, unsign : UInt<1>, dma : UInt<1>, store_data_bypass_d : UInt<1>, load_ldst_bypass_d : UInt<1>, store_data_bypass_m : UInt<1>, valid : UInt<1>}, flip trigger_pkt_any : {select : UInt<1>, match_ : UInt<1>, store : UInt<1>, load : UInt<1>, execute : UInt<1>, m : UInt<1>, tdata2 : UInt<32>}[4], flip dec_lsu_valid_raw_d : UInt<1>, flip dec_tlu_mrac_ff : UInt<32>, lsu_result_m : UInt<32>, lsu_result_corr_r : UInt<32>, lsu_load_stall_any : UInt<1>, lsu_store_stall_any : UInt<1>, lsu_fastint_stall_any : UInt<1>, lsu_idle_any : UInt<1>, lsu_fir_addr : UInt<31>, lsu_fir_error : UInt<2>, lsu_single_ecc_error_incr : UInt<1>, lsu_error_pkt_r : {exc_valid : UInt<1>, single_ecc_error : UInt<1>, inst_type : UInt<1>, exc_type : UInt<1>, mscause : UInt<1>, addr : UInt<1>}, lsu_imprecise_error_load_any : UInt<1>, lsu_imprecise_error_store_any : UInt<1>, lsu_imprecise_error_addr_any : UInt<32>, lsu_nonblock_load_valid_m : UInt<1>, lsu_nonblock_load_tag_m : UInt<2>, lsu_nonblock_load_inv_r : UInt<1>, lsu_nonblock_load_inv_tag_r : UInt<2>, lsu_nonblock_load_data_valid : UInt<1>, lsu_nonblock_load_data_error : UInt<1>, lsu_nonblock_load_data_tag : UInt<2>, lsu_nonblock_load_data : UInt<32>, lsu_pmu_load_external_m : UInt<1>, lsu_pmu_store_external_m : UInt<1>, lsu_pmu_misaligned_m : UInt<1>, lsu_pmu_bus_trxn : UInt<1>, lsu_pmu_bus_misaligned : UInt<1>, lsu_pmu_bus_error : UInt<1>, lsu_pmu_bus_busy : UInt<1>, lsu_trigger_match_m : UInt<4>, dccm_wren : UInt<1>, dccm_rden : UInt<1>, dccm_wr_addr_lo : UInt<16>, dccm_wr_addr_hi : UInt<16>, dccm_rd_addr_lo : UInt<16>, dccm_rd_addr_hi : UInt<16>, dccm_wr_data_lo : UInt<39>, dccm_wr_data_hi : UInt<39>, flip dccm_rd_data_lo : UInt<39>, flip dccm_rd_data_hi : UInt<39>, picm_wren : UInt<1>, picm_rden : UInt<1>, picm_mken : UInt<1>, picm_rdaddr : UInt<32>, picm_wraddr : UInt<32>, picm_wr_data : UInt<32>, flip picm_rd_data : UInt<32>, lsu_axi_awvalid : UInt<1>, lsu_axi_awlock : UInt<1>, flip lsu_axi_awready : UInt<1>, lsu_axi_awid : UInt<3>, lsu_axi_awaddr : UInt<32>, lsu_axi_awregion : UInt<4>, lsu_axi_awlen : UInt<8>, lsu_axi_awsize : UInt<3>, lsu_axi_awburst : UInt<2>, lsu_axi_awcache : UInt<4>, lsu_axi_awprot : UInt<3>, lsu_axi_awqos : UInt<4>, lsu_axi_wvalid : UInt<1>, flip lsu_axi_wready : UInt<1>, lsu_axi_wdata : UInt<64>, lsu_axi_wstrb : UInt<8>, lsu_axi_wlast : UInt<1>, flip lsu_axi_bvalid : UInt<1>, lsu_axi_bready : UInt<1>, flip lsu_axi_bresp : UInt<2>, flip lsu_axi_bid : UInt<3>, lsu_axi_arvalid : UInt<1>, lsu_axi_arlock : UInt<1>, flip lsu_axi_arready : UInt<1>, lsu_axi_arid : UInt<3>, lsu_axi_araddr : UInt<32>, lsu_axi_arregion : UInt<4>, lsu_axi_arlen : UInt<8>, lsu_axi_arsize : UInt<3>, lsu_axi_arburst : UInt<2>, lsu_axi_arcache : UInt<4>, lsu_axi_arprot : UInt<3>, lsu_axi_arqos : UInt<4>, flip lsu_axi_rvalid : UInt<1>, lsu_axi_rready : UInt<1>, flip lsu_axi_rdata : UInt<64>, flip lsu_axi_rlast : UInt<1>, flip lsu_axi_rresp : UInt<2>, flip lsu_axi_rid : UInt<3>, flip lsu_bus_clk_en : UInt<1>, flip dma_dccm_req : UInt<1>, flip dma_mem_write : UInt<1>, dccm_dma_rvalid : UInt<1>, dccm_dma_ecc_error : UInt<1>, flip dma_mem_tag : UInt<3>, flip dma_mem_addr : UInt<32>, flip dma_mem_sz : UInt<3>, flip dma_mem_wdata : UInt<64>, dccm_dma_rtag : UInt<3>, dccm_dma_rdata : UInt<64>, dccm_ready : UInt<1>, flip scan_mode : UInt<1>, flip free_clk : Clock}
+    output io : {flip clk_override : UInt<1>, flip dec_tlu_flush_lower_r : UInt<1>, flip dec_tlu_i0_kill_writeb_r : UInt<1>, flip dec_tlu_force_halt : UInt<1>, flip dec_tlu_external_ldfwd_disable : UInt<1>, flip dec_tlu_wb_coalescing_disable : UInt<1>, flip dec_tlu_sideeffect_posted_disable : UInt<1>, flip dec_tlu_core_ecc_disable : UInt<1>, flip exu_lsu_rs1_d : UInt<32>, flip exu_lsu_rs2_d : UInt<32>, flip dec_lsu_offset_d : UInt<12>, flip lsu_p : {fast_int : UInt<1>, by : UInt<1>, half : UInt<1>, word : UInt<1>, dword : UInt<1>, load : UInt<1>, store : UInt<1>, unsign : UInt<1>, dma : UInt<1>, store_data_bypass_d : UInt<1>, load_ldst_bypass_d : UInt<1>, store_data_bypass_m : UInt<1>, valid : UInt<1>}, flip trigger_pkt_any : {select : UInt<1>, match_pkt : UInt<1>, store : UInt<1>, load : UInt<1>, execute : UInt<1>, m : UInt<1>, tdata2 : UInt<32>}[4], flip dec_lsu_valid_raw_d : UInt<1>, flip dec_tlu_mrac_ff : UInt<32>, lsu_result_m : UInt<32>, lsu_result_corr_r : UInt<32>, lsu_load_stall_any : UInt<1>, lsu_store_stall_any : UInt<1>, lsu_fastint_stall_any : UInt<1>, lsu_idle_any : UInt<1>, lsu_fir_addr : UInt<31>, lsu_fir_error : UInt<2>, lsu_single_ecc_error_incr : UInt<1>, lsu_error_pkt_r : {exc_valid : UInt<1>, single_ecc_error : UInt<1>, inst_type : UInt<1>, exc_type : UInt<1>, mscause : UInt<1>, addr : UInt<1>}, lsu_imprecise_error_load_any : UInt<1>, lsu_imprecise_error_store_any : UInt<1>, lsu_imprecise_error_addr_any : UInt<32>, lsu_nonblock_load_valid_m : UInt<1>, lsu_nonblock_load_tag_m : UInt<2>, lsu_nonblock_load_inv_r : UInt<1>, lsu_nonblock_load_inv_tag_r : UInt<2>, lsu_nonblock_load_data_valid : UInt<1>, lsu_nonblock_load_data_error : UInt<1>, lsu_nonblock_load_data_tag : UInt<2>, lsu_nonblock_load_data : UInt<32>, lsu_pmu_load_external_m : UInt<1>, lsu_pmu_store_external_m : UInt<1>, lsu_pmu_misaligned_m : UInt<1>, lsu_pmu_bus_trxn : UInt<1>, lsu_pmu_bus_misaligned : UInt<1>, lsu_pmu_bus_error : UInt<1>, lsu_pmu_bus_busy : UInt<1>, lsu_trigger_match_m : UInt<4>, dccm_wren : UInt<1>, dccm_rden : UInt<1>, dccm_wr_addr_lo : UInt<16>, dccm_wr_addr_hi : UInt<16>, dccm_rd_addr_lo : UInt<16>, dccm_rd_addr_hi : UInt<16>, dccm_wr_data_lo : UInt<39>, dccm_wr_data_hi : UInt<39>, flip dccm_rd_data_lo : UInt<39>, flip dccm_rd_data_hi : UInt<39>, picm_wren : UInt<1>, picm_rden : UInt<1>, picm_mken : UInt<1>, picm_rdaddr : UInt<32>, picm_wraddr : UInt<32>, picm_wr_data : UInt<32>, flip picm_rd_data : UInt<32>, lsu_axi_awvalid : UInt<1>, lsu_axi_awlock : UInt<1>, flip lsu_axi_awready : UInt<1>, lsu_axi_awid : UInt<3>, lsu_axi_awaddr : UInt<32>, lsu_axi_awregion : UInt<4>, lsu_axi_awlen : UInt<8>, lsu_axi_awsize : UInt<3>, lsu_axi_awburst : UInt<2>, lsu_axi_awcache : UInt<4>, lsu_axi_awprot : UInt<3>, lsu_axi_awqos : UInt<4>, lsu_axi_wvalid : UInt<1>, flip lsu_axi_wready : UInt<1>, lsu_axi_wdata : UInt<64>, lsu_axi_wstrb : UInt<8>, lsu_axi_wlast : UInt<1>, flip lsu_axi_bvalid : UInt<1>, lsu_axi_bready : UInt<1>, flip lsu_axi_bresp : UInt<2>, flip lsu_axi_bid : UInt<3>, lsu_axi_arvalid : UInt<1>, lsu_axi_arlock : UInt<1>, flip lsu_axi_arready : UInt<1>, lsu_axi_arid : UInt<3>, lsu_axi_araddr : UInt<32>, lsu_axi_arregion : UInt<4>, lsu_axi_arlen : UInt<8>, lsu_axi_arsize : UInt<3>, lsu_axi_arburst : UInt<2>, lsu_axi_arcache : UInt<4>, lsu_axi_arprot : UInt<3>, lsu_axi_arqos : UInt<4>, flip lsu_axi_rvalid : UInt<1>, lsu_axi_rready : UInt<1>, flip lsu_axi_rdata : UInt<64>, flip lsu_axi_rlast : UInt<1>, flip lsu_axi_rresp : UInt<2>, flip lsu_axi_rid : UInt<3>, flip lsu_bus_clk_en : UInt<1>, flip dma_dccm_req : UInt<1>, flip dma_mem_write : UInt<1>, dccm_dma_rvalid : UInt<1>, dccm_dma_ecc_error : UInt<1>, flip dma_mem_tag : UInt<3>, flip dma_mem_addr : UInt<32>, flip dma_mem_sz : UInt<3>, flip dma_mem_wdata : UInt<64>, dccm_dma_rtag : UInt<3>, dccm_dma_rdata : UInt<64>, dccm_ready : UInt<1>, flip scan_mode : UInt<1>, flip free_clk : Clock}
     
     wire dma_dccm_wdata : UInt<64>
     dma_dccm_wdata <= UInt<64>("h00")
@@ -15602,28 +15602,28 @@ circuit el2_lsu :
     trigger.io.trigger_pkt_any[0].execute <= io.trigger_pkt_any[0].execute @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[0].load <= io.trigger_pkt_any[0].load @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[0].store <= io.trigger_pkt_any[0].store @[el2_lsu.scala 376:50]
-    trigger.io.trigger_pkt_any[0].match_ <= io.trigger_pkt_any[0].match_ @[el2_lsu.scala 376:50]
+    trigger.io.trigger_pkt_any[0].match_pkt <= io.trigger_pkt_any[0].match_pkt @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[0].select <= io.trigger_pkt_any[0].select @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[1].tdata2 <= io.trigger_pkt_any[1].tdata2 @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[1].m <= io.trigger_pkt_any[1].m @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[1].execute <= io.trigger_pkt_any[1].execute @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[1].load <= io.trigger_pkt_any[1].load @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[1].store <= io.trigger_pkt_any[1].store @[el2_lsu.scala 376:50]
-    trigger.io.trigger_pkt_any[1].match_ <= io.trigger_pkt_any[1].match_ @[el2_lsu.scala 376:50]
+    trigger.io.trigger_pkt_any[1].match_pkt <= io.trigger_pkt_any[1].match_pkt @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[1].select <= io.trigger_pkt_any[1].select @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[2].tdata2 <= io.trigger_pkt_any[2].tdata2 @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[2].m <= io.trigger_pkt_any[2].m @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[2].execute <= io.trigger_pkt_any[2].execute @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[2].load <= io.trigger_pkt_any[2].load @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[2].store <= io.trigger_pkt_any[2].store @[el2_lsu.scala 376:50]
-    trigger.io.trigger_pkt_any[2].match_ <= io.trigger_pkt_any[2].match_ @[el2_lsu.scala 376:50]
+    trigger.io.trigger_pkt_any[2].match_pkt <= io.trigger_pkt_any[2].match_pkt @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[2].select <= io.trigger_pkt_any[2].select @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[3].tdata2 <= io.trigger_pkt_any[3].tdata2 @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[3].m <= io.trigger_pkt_any[3].m @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[3].execute <= io.trigger_pkt_any[3].execute @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[3].load <= io.trigger_pkt_any[3].load @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[3].store <= io.trigger_pkt_any[3].store @[el2_lsu.scala 376:50]
-    trigger.io.trigger_pkt_any[3].match_ <= io.trigger_pkt_any[3].match_ @[el2_lsu.scala 376:50]
+    trigger.io.trigger_pkt_any[3].match_pkt <= io.trigger_pkt_any[3].match_pkt @[el2_lsu.scala 376:50]
     trigger.io.trigger_pkt_any[3].select <= io.trigger_pkt_any[3].select @[el2_lsu.scala 376:50]
     trigger.io.lsu_pkt_m.valid <= lsu_lsc_ctl.io.lsu_pkt_m.valid @[el2_lsu.scala 377:50]
     trigger.io.lsu_pkt_m.store_data_bypass_m <= lsu_lsc_ctl.io.lsu_pkt_m.store_data_bypass_m @[el2_lsu.scala 377:50]

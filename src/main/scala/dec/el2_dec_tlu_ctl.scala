@@ -2306,7 +2306,7 @@ class csr_tlu extends Module with el2_lib with CSRs {
   val mtdata1_tsel_out = Mux1H((0 until 4).map(i => (mtsel === i.U(2.W)) -> Cat(2.U(4.W), io.mtdata1_t(i)(9), "b011111".U(6.W), io.mtdata1_t(i)(8,7), 0.U(6.W), io.mtdata1_t(i)(6,5), 0.U(3.W), io.mtdata1_t(i)(4,3), 0.U(3.W), io.mtdata1_t(i)(2,0))))
   for(i <- 0 until 4 ){
     io.trigger_pkt_any(i).select   := io.mtdata1_t(i)(MTDATA1_SEL)
-    io.trigger_pkt_any(i).match_   := io.mtdata1_t(i)(MTDATA1_MATCH)
+    io.trigger_pkt_any(i).match_pkt:= io.mtdata1_t(i)(MTDATA1_MATCH)
     io.trigger_pkt_any(i).store    := io.mtdata1_t(i)(MTDATA1_ST)
     io.trigger_pkt_any(i).load     := io.mtdata1_t(i)(MTDATA1_LD)
     io.trigger_pkt_any(i).execute  := io.mtdata1_t(i)(MTDATA1_EXE)

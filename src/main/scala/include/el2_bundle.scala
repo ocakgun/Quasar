@@ -326,7 +326,7 @@ class el2_ic_tag_ext_in_pkt_t extends Bundle {
 
 class el2_trigger_pkt_t extends Bundle {
   val        select    = UInt(1.W)
-  val        match_    = UInt(1.W)
+  val        match_pkt    = UInt(1.W)
   val        store     = UInt(1.W)
   val        load      = UInt(1.W)
   val        execute   = UInt(1.W)
