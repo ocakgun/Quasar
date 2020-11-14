@@ -235,8 +235,8 @@ module el2_lsu_lsc_ctl(
   output        io_lsu_error_pkt_r_single_ecc_error,
   output        io_lsu_error_pkt_r_inst_type,
   output        io_lsu_error_pkt_r_exc_type,
-  output        io_lsu_error_pkt_r_mscause,
-  output        io_lsu_error_pkt_r_addr,
+  output [3:0]  io_lsu_error_pkt_r_mscause,
+  output [31:0] io_lsu_error_pkt_r_addr,
   output [30:0] io_lsu_fir_addr,
   output [1:0]  io_lsu_fir_error,
   output        io_addr_in_dccm_d,
@@ -414,14 +414,13 @@ module el2_lsu_lsc_ctl(
   wire  _T_90 = io_lsu_double_ecc_error_m & lsu_error_pkt_m_exc_type; // @[el2_lsu_lsc_ctl.scala 183:73]
   wire  _T_91 = ~access_fault_m; // @[el2_lsu_lsc_ctl.scala 183:97]
   wire  _T_92 = _T_90 & _T_91; // @[el2_lsu_lsc_ctl.scala 183:95]
-  wire [3:0] _T_95 = _T_92 ? 4'h1 : exc_mscause_m; // @[el2_lsu_lsc_ctl.scala 183:44]
   wire  _T_99 = io_lsu_pkt_m_fast_int & io_lsu_double_ecc_error_m; // @[el2_lsu_lsc_ctl.scala 185:161]
   reg  _T_105_exc_valid; // @[el2_lsu_lsc_ctl.scala 186:75]
   reg  _T_105_single_ecc_error; // @[el2_lsu_lsc_ctl.scala 186:75]
   reg  _T_105_inst_type; // @[el2_lsu_lsc_ctl.scala 186:75]
   reg  _T_105_exc_type; // @[el2_lsu_lsc_ctl.scala 186:75]
-  reg  _T_105_mscause; // @[el2_lsu_lsc_ctl.scala 186:75]
-  reg  _T_105_addr; // @[el2_lsu_lsc_ctl.scala 186:75]
+  reg [3:0] _T_105_mscause; // @[el2_lsu_lsc_ctl.scala 186:75]
+  reg [31:0] _T_105_addr; // @[el2_lsu_lsc_ctl.scala 186:75]
   reg [1:0] _T_106; // @[el2_lsu_lsc_ctl.scala 187:75]
   wire  dma_pkt_d_load = ~io_dma_mem_write; // @[el2_lsu_lsc_ctl.scala 194:25]
   wire  dma_pkt_d_by = io_dma_mem_sz == 3'h0; // @[el2_lsu_lsc_ctl.scala 195:45]
@@ -684,9 +683,9 @@ initial begin
   _RAND_8 = {1{`RANDOM}};
   _T_105_exc_type = _RAND_8[0:0];
   _RAND_9 = {1{`RANDOM}};
-  _T_105_mscause = _RAND_9[0:0];
+  _T_105_mscause = _RAND_9[3:0];
   _RAND_10 = {1{`RANDOM}};
-  _T_105_addr = _RAND_10[0:0];
+  _T_105_addr = _RAND_10[31:0];
   _RAND_11 = {1{`RANDOM}};
   _T_106 = _RAND_11[1:0];
   _RAND_12 = {1{`RANDOM}};
@@ -782,10 +781,10 @@ initial begin
     _T_105_exc_type = 1'h0;
   end
   if (reset) begin
-    _T_105_mscause = 1'h0;
+    _T_105_mscause = 4'h0;
   end
   if (reset) begin
-    _T_105_addr = 1'h0;
+    _T_105_addr = 32'h0;
   end
   if (reset) begin
     _T_106 = 2'h0;
@@ -957,16 +956,18 @@ end // initial
   end
   always @(posedge io_lsu_c2_r_clk or posedge reset) begin
     if (reset) begin
-      _T_105_mscause <= 1'h0;
+      _T_105_mscause <= 4'h0;
+    end else if (_T_92) begin
+      _T_105_mscause <= 4'h1;
     end else begin
-      _T_105_mscause <= _T_95[0];
+      _T_105_mscause <= exc_mscause_m;
     end
   end
   always @(posedge io_lsu_c2_r_clk or posedge reset) begin
     if (reset) begin
-      _T_105_addr <= 1'h0;
+      _T_105_addr <= 32'h0;
     end else begin
-      _T_105_addr <= io_lsu_addr_m[0];
+      _T_105_addr <= io_lsu_addr_m;
     end
   end
   always @(posedge io_lsu_c2_r_clk or posedge reset) begin
@@ -10341,8 +10342,8 @@ module el2_lsu(
   output        io_lsu_error_pkt_r_single_ecc_error,
   output        io_lsu_error_pkt_r_inst_type,
   output        io_lsu_error_pkt_r_exc_type,
-  output        io_lsu_error_pkt_r_mscause,
-  output        io_lsu_error_pkt_r_addr,
+  output [3:0]  io_lsu_error_pkt_r_mscause,
+  output [31:0] io_lsu_error_pkt_r_addr,
   output        io_lsu_imprecise_error_load_any,
   output        io_lsu_imprecise_error_store_any,
   output [31:0] io_lsu_imprecise_error_addr_any,
@@ -10489,8 +10490,8 @@ module el2_lsu(
   wire  lsu_lsc_ctl_io_lsu_error_pkt_r_single_ecc_error; // @[el2_lsu.scala 154:30]
   wire  lsu_lsc_ctl_io_lsu_error_pkt_r_inst_type; // @[el2_lsu.scala 154:30]
   wire  lsu_lsc_ctl_io_lsu_error_pkt_r_exc_type; // @[el2_lsu.scala 154:30]
-  wire  lsu_lsc_ctl_io_lsu_error_pkt_r_mscause; // @[el2_lsu.scala 154:30]
-  wire  lsu_lsc_ctl_io_lsu_error_pkt_r_addr; // @[el2_lsu.scala 154:30]
+  wire [3:0] lsu_lsc_ctl_io_lsu_error_pkt_r_mscause; // @[el2_lsu.scala 154:30]
+  wire [31:0] lsu_lsc_ctl_io_lsu_error_pkt_r_addr; // @[el2_lsu.scala 154:30]
   wire [30:0] lsu_lsc_ctl_io_lsu_fir_addr; // @[el2_lsu.scala 154:30]
   wire [1:0] lsu_lsc_ctl_io_lsu_fir_error; // @[el2_lsu.scala 154:30]
   wire  lsu_lsc_ctl_io_addr_in_dccm_d; // @[el2_lsu.scala 154:30]
