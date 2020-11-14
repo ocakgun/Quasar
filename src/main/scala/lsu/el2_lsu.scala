@@ -33,7 +33,7 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
     val lsu_store_stall_any               = Output(Bool())
     val lsu_fastint_stall_any             = Output(Bool())
     val lsu_idle_any                      = Output(Bool())
-    val lsu_fir_addr                      = Output(UInt(32.W))
+    val lsu_fir_addr                      = Output(UInt(31.W))
     val lsu_fir_error                     = Output(UInt(2.W))
     val lsu_single_ecc_error_incr         = Output(Bool())
     val lsu_error_pkt_r                   = Output(new el2_lsu_error_pkt_t)

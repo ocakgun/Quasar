@@ -10334,7 +10334,7 @@ module el2_lsu(
   output        io_lsu_store_stall_any,
   output        io_lsu_fastint_stall_any,
   output        io_lsu_idle_any,
-  output [31:0] io_lsu_fir_addr,
+  output [30:0] io_lsu_fir_addr,
   output [1:0]  io_lsu_fir_error,
   output        io_lsu_single_ecc_error_incr,
   output        io_lsu_error_pkt_r_exc_valid,
@@ -11363,7 +11363,7 @@ module el2_lsu(
   assign io_lsu_store_stall_any = _T | dccm_ctl_io_ld_single_ecc_error_r_ff; // @[el2_lsu.scala 168:26]
   assign io_lsu_fastint_stall_any = dccm_ctl_io_ld_single_ecc_error_r; // @[el2_lsu.scala 170:28]
   assign io_lsu_idle_any = _T_22 & bus_intf_io_lsu_bus_buffer_empty_any; // @[el2_lsu.scala 190:19]
-  assign io_lsu_fir_addr = {{1'd0}, lsu_lsc_ctl_io_lsu_fir_addr}; // @[el2_lsu.scala 236:49]
+  assign io_lsu_fir_addr = lsu_lsc_ctl_io_lsu_fir_addr; // @[el2_lsu.scala 236:49]
   assign io_lsu_fir_error = lsu_lsc_ctl_io_lsu_fir_error; // @[el2_lsu.scala 237:49]
   assign io_lsu_single_ecc_error_incr = lsu_lsc_ctl_io_lsu_single_ecc_error_incr; // @[el2_lsu.scala 234:49]
   assign io_lsu_error_pkt_r_exc_valid = lsu_lsc_ctl_io_lsu_error_pkt_r_exc_valid; // @[el2_lsu.scala 235:49]
