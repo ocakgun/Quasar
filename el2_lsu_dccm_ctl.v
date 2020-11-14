@@ -1028,7 +1028,7 @@ module el2_lsu_dccm_ctl(
   wire  _T_1862 = io_lsu_pkt_d_valid & io_lsu_pkt_d_load; // @[el2_lsu_dccm_ctl.scala 295:50]
   wire  _T_1864 = io_lsu_pkt_d_valid & io_lsu_pkt_d_store; // @[el2_lsu_dccm_ctl.scala 296:50]
   wire [31:0] _T_1868 = {17'h0,io_lsu_addr_d[14:0]}; // @[Cat.scala 29:58]
-  wire [14:0] _T_1874 = io_dma_pic_wen ? io_dma_mem_addr[14:0] : io_lsu_addr_r[14:0]; // @[el2_lsu_dccm_ctl.scala 298:77]
+  wire [14:0] _T_1874 = io_dma_pic_wen ? io_dma_mem_addr[14:0] : io_lsu_addr_r[14:0]; // @[el2_lsu_dccm_ctl.scala 298:85]
   wire [31:0] _T_1875 = {17'h0,_T_1874}; // @[Cat.scala 29:58]
   reg  _T_1882; // @[el2_lsu_dccm_ctl.scala 303:61]
   reg  _T_1883; // @[el2_lsu_dccm_ctl.scala 304:61]

@@ -294,8 +294,8 @@ class  el2_lsu_dccm_ctl extends Module with RequireAsyncReset with el2_lib
   io.picm_wren            := (io.lsu_pkt_r.valid & io.lsu_pkt_r.store & io.addr_in_pic_r & io.lsu_commit_r) | io.dma_pic_wen
   io.picm_rden            := io.lsu_pkt_d.valid  & io.lsu_pkt_d.load  & io.addr_in_pic_d
   io.picm_mken            := io.lsu_pkt_d.valid  & io.lsu_pkt_d.store & io.addr_in_pic_d
-  io.picm_rdaddr          := PIC_BASE_ADDR.U | Cat(Fill(32-PIC_BITS,0.U),io.lsu_addr_d(PIC_BITS-1,0))
-  io.picm_wraddr          := PIC_BASE_ADDR.U | Cat(Fill(32-PIC_BITS,0.U),Mux(io.dma_pic_wen.asBool,io.dma_mem_addr(PIC_BITS-1,0),io.lsu_addr_r(PIC_BITS-1,0)))
+  io.picm_rdaddr          := aslong(PIC_BASE_ADDR).U | Cat(Fill(32-PIC_BITS,0.U),io.lsu_addr_d(PIC_BITS-1,0))
+  io.picm_wraddr          := aslong(PIC_BASE_ADDR).U | Cat(Fill(32-PIC_BITS,0.U),Mux(io.dma_pic_wen.asBool,io.dma_mem_addr(PIC_BITS-1,0),io.lsu_addr_r(PIC_BITS-1,0)))
   io.picm_mask_data_m     := picm_rd_data_m(31,0)
   io.picm_wr_data         := Mux(io.dma_pic_wen.asBool,io.dma_mem_wdata(31,0),io.store_datafn_lo_r(31,0))
 
