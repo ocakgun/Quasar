@@ -14,12 +14,14 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
     val dec_tlu_wb_coalescing_disable = Input(Bool())
     val dec_tlu_sideeffect_posted_disable = Input(Bool())
     val dec_tlu_force_halt = Input(Bool())
+
     val lsu_c2_r_clk = Input(Clock())
     val lsu_bus_ibuf_c1_clk = Input(Clock())
     val lsu_bus_obuf_c1_clk = Input(Clock())
     val lsu_bus_buf_c1_clk = Input(Clock())
     val lsu_free_c2_clk = Input(Clock())
     val lsu_busm_clk = Input(Clock())
+
     val dec_lsu_valid_raw_d = Input(Bool())
     val lsu_pkt_m = Input(new el2_lsu_pkt_t)
     val lsu_pkt_r = Input(new el2_lsu_pkt_t)
