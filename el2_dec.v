@@ -883,7 +883,7 @@ module el2_dec_decode_ctl(
   output [4:0]  io_dec_i0_rs1_d,
   output [4:0]  io_dec_i0_rs2_d,
   output [31:0] io_dec_i0_immed_d,
-  output [11:0] io_dec_i0_br_immed_d,
+  output [10:0] io_dec_i0_br_immed_d,
   output        io_i0_ap_land,
   output        io_i0_ap_lor,
   output        io_i0_ap_lxor,
@@ -1830,6 +1830,7 @@ module el2_dec_decode_ctl(
   wire  _T_761 = x_d_i0v & x_d_i0load; // @[el2_dec_decode_ctl.scala 708:42]
   wire  _T_768 = io_i0_ap_predict_nt & _T_561; // @[el2_dec_decode_ctl.scala 714:52]
   wire [11:0] _T_781 = {10'h0,io_dec_i0_pc4_d,i0_ap_pc2}; // @[Cat.scala 29:58]
+  wire [11:0] _T_782 = _T_768 ? i0_br_offset : _T_781; // @[el2_dec_decode_ctl.scala 714:30]
   reg [11:0] last_br_immed_x; // @[el2_lib.scala 514:16]
   wire  _T_799 = x_d_i0div & x_d_i0valid; // @[el2_dec_decode_ctl.scala 722:40]
   wire  div_e1_to_r = _T_799 | _T_545; // @[el2_dec_decode_ctl.scala 722:55]
@@ -2120,7 +2121,7 @@ module el2_dec_decode_ctl(
   assign io_dec_i0_rs1_d = io_dec_i0_instr_d[19:15]; // @[el2_dec_decode_ctl.scala 630:19]
   assign io_dec_i0_rs2_d = io_dec_i0_instr_d[24:20]; // @[el2_dec_decode_ctl.scala 631:19]
   assign io_dec_i0_immed_d = _T_563 | _T_564; // @[el2_dec_decode_ctl.scala 636:21]
-  assign io_dec_i0_br_immed_d = _T_768 ? i0_br_offset : _T_781; // @[el2_dec_decode_ctl.scala 714:24]
+  assign io_dec_i0_br_immed_d = _T_782[10:0]; // @[el2_dec_decode_ctl.scala 714:24]
   assign io_i0_ap_land = _T_40 ? 1'h0 : i0_dp_raw_land; // @[el2_dec_decode_ctl.scala 288:20]
   assign io_i0_ap_lor = _T_40 | i0_dp_raw_lor; // @[el2_dec_decode_ctl.scala 289:20]
   assign io_i0_ap_lxor = _T_40 ? 1'h0 : i0_dp_raw_lxor; // @[el2_dec_decode_ctl.scala 290:20]
@@ -12772,7 +12773,7 @@ module el2_dec(
   input  [30:0] io_i0_brp_prett,
   input         io_i0_brp_way,
   input         io_i0_brp_ret,
-  input  [8:0]  io_ifu_i0_bp_index,
+  input         io_ifu_i0_bp_index,
   input  [7:0]  io_ifu_i0_bp_fghr,
   input  [4:0]  io_ifu_i0_bp_btag,
   input         io_lsu_error_pkt_r_exc_valid,
@@ -12796,7 +12797,7 @@ module el2_dec(
   input         io_dma_iccm_stall_any,
   input         io_iccm_dma_sb_error,
   input         io_exu_flush_final,
-  input  [31:0] io_exu_npc_r,
+  input  [30:0] io_exu_npc_r,
   input  [31:0] io_exu_i0_result_x,
   input         io_ifu_i0_valid,
   input  [31:0] io_ifu_i0_instr,
@@ -13111,7 +13112,7 @@ module el2_dec(
   wire [4:0] decode_io_dec_i0_rs1_d; // @[el2_dec.scala 354:22]
   wire [4:0] decode_io_dec_i0_rs2_d; // @[el2_dec.scala 354:22]
   wire [31:0] decode_io_dec_i0_immed_d; // @[el2_dec.scala 354:22]
-  wire [11:0] decode_io_dec_i0_br_immed_d; // @[el2_dec.scala 354:22]
+  wire [10:0] decode_io_dec_i0_br_immed_d; // @[el2_dec.scala 354:22]
   wire  decode_io_i0_ap_land; // @[el2_dec.scala 354:22]
   wire  decode_io_i0_ap_lor; // @[el2_dec.scala 354:22]
   wire  decode_io_i0_ap_lxor; // @[el2_dec.scala 354:22]
@@ -13967,7 +13968,7 @@ module el2_dec(
   assign io_gpr_i0_rs1_d = gpr_io_rd0; // @[el2_dec.scala 545:19]
   assign io_gpr_i0_rs2_d = gpr_io_rd1; // @[el2_dec.scala 546:19]
   assign io_dec_i0_immed_d = decode_io_dec_i0_immed_d; // @[el2_dec.scala 476:40]
-  assign io_dec_i0_br_immed_d = decode_io_dec_i0_br_immed_d[10:0]; // @[el2_dec.scala 477:40]
+  assign io_dec_i0_br_immed_d = decode_io_dec_i0_br_immed_d; // @[el2_dec.scala 477:40]
   assign io_i0_ap_land = decode_io_i0_ap_land; // @[el2_dec.scala 478:40]
   assign io_i0_ap_lor = decode_io_i0_ap_lor; // @[el2_dec.scala 478:40]
   assign io_i0_ap_lxor = decode_io_i0_ap_lxor; // @[el2_dec.scala 478:40]
@@ -14101,7 +14102,7 @@ module el2_dec(
   assign instbuff_io_i0_brp_prett = io_i0_brp_prett; // @[el2_dec.scala 368:55]
   assign instbuff_io_i0_brp_way = io_i0_brp_way; // @[el2_dec.scala 368:55]
   assign instbuff_io_i0_brp_ret = io_i0_brp_ret; // @[el2_dec.scala 368:55]
-  assign instbuff_io_ifu_i0_bp_index = io_ifu_i0_bp_index[7:0]; // @[el2_dec.scala 369:35]
+  assign instbuff_io_ifu_i0_bp_index = {{7'd0}, io_ifu_i0_bp_index}; // @[el2_dec.scala 369:35]
   assign instbuff_io_ifu_i0_bp_fghr = io_ifu_i0_bp_fghr; // @[el2_dec.scala 370:35]
   assign instbuff_io_ifu_i0_bp_btag = io_ifu_i0_bp_btag; // @[el2_dec.scala 371:35]
   assign instbuff_io_ifu_i0_valid = io_ifu_i0_valid; // @[el2_dec.scala 373:35]
@@ -14249,7 +14250,7 @@ module el2_dec(
   assign tlu_io_dec_csr_wrdata_r = decode_io_dec_csr_wrdata_r; // @[el2_dec.scala 502:40 el2_dec.scala 606:45]
   assign tlu_io_dec_csr_stall_int_ff = decode_io_dec_csr_stall_int_ff; // @[el2_dec.scala 503:40 el2_dec.scala 607:45]
   assign tlu_io_dec_tlu_i0_valid_r = decode_io_dec_tlu_i0_valid_r; // @[el2_dec.scala 504:40 el2_dec.scala 608:45]
-  assign tlu_io_exu_npc_r = io_exu_npc_r[30:0]; // @[el2_dec.scala 609:45]
+  assign tlu_io_exu_npc_r = io_exu_npc_r; // @[el2_dec.scala 609:45]
   assign tlu_io_dec_tlu_i0_pc_r = decode_io_dec_tlu_i0_pc_r; // @[el2_dec.scala 506:40 el2_dec.scala 610:45]
   assign tlu_io_dec_tlu_packet_r_legal = decode_io_dec_tlu_packet_r_legal; // @[el2_dec.scala 505:40 el2_dec.scala 611:45]
   assign tlu_io_dec_tlu_packet_r_icaf = decode_io_dec_tlu_packet_r_icaf; // @[el2_dec.scala 505:40 el2_dec.scala 611:45]
