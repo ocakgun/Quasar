@@ -5247,28 +5247,28 @@ module csr_tlu(
   output        io_dec_tlu_ic_diag_pkt_icache_wr_valid,
   input         io_ifu_ic_debug_rd_data_valid,
   output        io_trigger_pkt_any_0_select,
-  output        io_trigger_pkt_any_0_match_,
+  output        io_trigger_pkt_any_0_match_pkt,
   output        io_trigger_pkt_any_0_store,
   output        io_trigger_pkt_any_0_load,
   output        io_trigger_pkt_any_0_execute,
   output        io_trigger_pkt_any_0_m,
   output [31:0] io_trigger_pkt_any_0_tdata2,
   output        io_trigger_pkt_any_1_select,
-  output        io_trigger_pkt_any_1_match_,
+  output        io_trigger_pkt_any_1_match_pkt,
   output        io_trigger_pkt_any_1_store,
   output        io_trigger_pkt_any_1_load,
   output        io_trigger_pkt_any_1_execute,
   output        io_trigger_pkt_any_1_m,
   output [31:0] io_trigger_pkt_any_1_tdata2,
   output        io_trigger_pkt_any_2_select,
-  output        io_trigger_pkt_any_2_match_,
+  output        io_trigger_pkt_any_2_match_pkt,
   output        io_trigger_pkt_any_2_store,
   output        io_trigger_pkt_any_2_load,
   output        io_trigger_pkt_any_2_execute,
   output        io_trigger_pkt_any_2_m,
   output [31:0] io_trigger_pkt_any_2_tdata2,
   output        io_trigger_pkt_any_3_select,
-  output        io_trigger_pkt_any_3_match_,
+  output        io_trigger_pkt_any_3_match_pkt,
   output        io_trigger_pkt_any_3_store,
   output        io_trigger_pkt_any_3_load,
   output        io_trigger_pkt_any_3_execute,
@@ -5347,7 +5347,7 @@ module csr_tlu(
   output        io_dec_tlu_external_ldfwd_disable,
   output [2:0]  io_dec_tlu_dma_qos_prty,
   input  [31:0] io_dec_illegal_inst,
-  input         io_lsu_error_pkt_r_mscause,
+  input  [3:0]  io_lsu_error_pkt_r_mscause,
   input         io_mexintpend,
   input  [30:0] io_exu_npc_r,
   input         io_mpc_reset_run_req,
@@ -5913,14 +5913,14 @@ module csr_tlu(
   wire  _T_237 = io_dec_tlu_packet_r_icaf_type == 2'h0; // @[el2_dec_tlu_ctl.scala 1741:57]
   wire [3:0] _T_238 = {2'h0,io_dec_tlu_packet_r_icaf_type}; // @[Cat.scala 29:58]
   wire [3:0] ifu_mscause = _T_237 ? 4'h9 : _T_238; // @[el2_dec_tlu_ctl.scala 1741:25]
-  wire  _T_243 = io_lsu_i0_exc_r & io_lsu_error_pkt_r_mscause; // @[Mux.scala 27:72]
+  wire [3:0] _T_243 = io_lsu_i0_exc_r ? io_lsu_error_pkt_r_mscause : 4'h0; // @[Mux.scala 27:72]
   wire [1:0] _T_245 = io_ebreak_r ? 2'h2 : 2'h0; // @[Mux.scala 27:72]
   wire [3:0] _T_246 = io_inst_acc_r ? ifu_mscause : 4'h0; // @[Mux.scala 27:72]
-  wire  _T_247 = _T_243 | io_i0_trigger_hit_r; // @[Mux.scala 27:72]
-  wire [1:0] _GEN_13 = {{1'd0}, _T_247}; // @[Mux.scala 27:72]
-  wire [1:0] _T_248 = _GEN_13 | _T_245; // @[Mux.scala 27:72]
-  wire [3:0] _GEN_14 = {{2'd0}, _T_248}; // @[Mux.scala 27:72]
-  wire [3:0] mscause_type = _GEN_14 | _T_246; // @[Mux.scala 27:72]
+  wire [3:0] _GEN_13 = {{3'd0}, io_i0_trigger_hit_r}; // @[Mux.scala 27:72]
+  wire [3:0] _T_247 = _T_243 | _GEN_13; // @[Mux.scala 27:72]
+  wire [3:0] _GEN_14 = {{2'd0}, _T_245}; // @[Mux.scala 27:72]
+  wire [3:0] _T_248 = _T_247 | _GEN_14; // @[Mux.scala 27:72]
+  wire [3:0] mscause_type = _T_248 | _T_246; // @[Mux.scala 27:72]
   wire  _T_252 = wr_mscause_r & _T_15; // @[el2_dec_tlu_ctl.scala 1752:19]
   wire  _T_255 = ~wr_mscause_r; // @[el2_dec_tlu_ctl.scala 1753:6]
   wire  _T_257 = _T_255 & _T_15; // @[el2_dec_tlu_ctl.scala 1753:20]
@@ -7456,28 +7456,28 @@ module csr_tlu(
   assign io_dec_tlu_ic_diag_pkt_icache_rd_valid = icache_rd_valid_f; // @[el2_dec_tlu_ctl.scala 2243:42]
   assign io_dec_tlu_ic_diag_pkt_icache_wr_valid = icache_wr_valid_f; // @[el2_dec_tlu_ctl.scala 2244:42]
   assign io_trigger_pkt_any_0_select = io_mtdata1_t_0[7]; // @[el2_dec_tlu_ctl.scala 2308:36]
-  assign io_trigger_pkt_any_0_match_ = io_mtdata1_t_0[4]; // @[el2_dec_tlu_ctl.scala 2309:36]
+  assign io_trigger_pkt_any_0_match_pkt = io_mtdata1_t_0[4]; // @[el2_dec_tlu_ctl.scala 2309:36]
   assign io_trigger_pkt_any_0_store = io_mtdata1_t_0[1]; // @[el2_dec_tlu_ctl.scala 2310:36]
   assign io_trigger_pkt_any_0_load = io_mtdata1_t_0[0]; // @[el2_dec_tlu_ctl.scala 2311:36]
   assign io_trigger_pkt_any_0_execute = io_mtdata1_t_0[2]; // @[el2_dec_tlu_ctl.scala 2312:36]
   assign io_trigger_pkt_any_0_m = io_mtdata1_t_0[3]; // @[el2_dec_tlu_ctl.scala 2313:36]
   assign io_trigger_pkt_any_0_tdata2 = mtdata2_t_0; // @[el2_dec_tlu_ctl.scala 2326:53]
   assign io_trigger_pkt_any_1_select = io_mtdata1_t_1[7]; // @[el2_dec_tlu_ctl.scala 2308:36]
-  assign io_trigger_pkt_any_1_match_ = io_mtdata1_t_1[4]; // @[el2_dec_tlu_ctl.scala 2309:36]
+  assign io_trigger_pkt_any_1_match_pkt = io_mtdata1_t_1[4]; // @[el2_dec_tlu_ctl.scala 2309:36]
   assign io_trigger_pkt_any_1_store = io_mtdata1_t_1[1]; // @[el2_dec_tlu_ctl.scala 2310:36]
   assign io_trigger_pkt_any_1_load = io_mtdata1_t_1[0]; // @[el2_dec_tlu_ctl.scala 2311:36]
   assign io_trigger_pkt_any_1_execute = io_mtdata1_t_1[2]; // @[el2_dec_tlu_ctl.scala 2312:36]
   assign io_trigger_pkt_any_1_m = io_mtdata1_t_1[3]; // @[el2_dec_tlu_ctl.scala 2313:36]
   assign io_trigger_pkt_any_1_tdata2 = mtdata2_t_1; // @[el2_dec_tlu_ctl.scala 2326:53]
   assign io_trigger_pkt_any_2_select = io_mtdata1_t_2[7]; // @[el2_dec_tlu_ctl.scala 2308:36]
-  assign io_trigger_pkt_any_2_match_ = io_mtdata1_t_2[4]; // @[el2_dec_tlu_ctl.scala 2309:36]
+  assign io_trigger_pkt_any_2_match_pkt = io_mtdata1_t_2[4]; // @[el2_dec_tlu_ctl.scala 2309:36]
   assign io_trigger_pkt_any_2_store = io_mtdata1_t_2[1]; // @[el2_dec_tlu_ctl.scala 2310:36]
   assign io_trigger_pkt_any_2_load = io_mtdata1_t_2[0]; // @[el2_dec_tlu_ctl.scala 2311:36]
   assign io_trigger_pkt_any_2_execute = io_mtdata1_t_2[2]; // @[el2_dec_tlu_ctl.scala 2312:36]
   assign io_trigger_pkt_any_2_m = io_mtdata1_t_2[3]; // @[el2_dec_tlu_ctl.scala 2313:36]
   assign io_trigger_pkt_any_2_tdata2 = mtdata2_t_2; // @[el2_dec_tlu_ctl.scala 2326:53]
   assign io_trigger_pkt_any_3_select = io_mtdata1_t_3[7]; // @[el2_dec_tlu_ctl.scala 2308:36]
-  assign io_trigger_pkt_any_3_match_ = io_mtdata1_t_3[4]; // @[el2_dec_tlu_ctl.scala 2309:36]
+  assign io_trigger_pkt_any_3_match_pkt = io_mtdata1_t_3[4]; // @[el2_dec_tlu_ctl.scala 2309:36]
   assign io_trigger_pkt_any_3_store = io_mtdata1_t_3[1]; // @[el2_dec_tlu_ctl.scala 2310:36]
   assign io_trigger_pkt_any_3_load = io_mtdata1_t_3[0]; // @[el2_dec_tlu_ctl.scala 2311:36]
   assign io_trigger_pkt_any_3_execute = io_mtdata1_t_3[2]; // @[el2_dec_tlu_ctl.scala 2312:36]
@@ -9127,8 +9127,8 @@ module el2_dec_tlu_ctl(
   input         io_lsu_error_pkt_r_single_ecc_error,
   input         io_lsu_error_pkt_r_inst_type,
   input         io_lsu_error_pkt_r_exc_type,
-  input         io_lsu_error_pkt_r_mscause,
-  input         io_lsu_error_pkt_r_addr,
+  input  [3:0]  io_lsu_error_pkt_r_mscause,
+  input  [31:0] io_lsu_error_pkt_r_addr,
   input         io_lsu_single_ecc_error_incr,
   input         io_dec_pause_state,
   input         io_lsu_imprecise_error_store_any,
@@ -9181,28 +9181,28 @@ module el2_dec_tlu_ctl(
   input         io_lsu_idle_any,
   input         io_dec_div_active,
   output        io_trigger_pkt_any_0_select,
-  output        io_trigger_pkt_any_0_match_,
+  output        io_trigger_pkt_any_0_match_pkt,
   output        io_trigger_pkt_any_0_store,
   output        io_trigger_pkt_any_0_load,
   output        io_trigger_pkt_any_0_execute,
   output        io_trigger_pkt_any_0_m,
   output [31:0] io_trigger_pkt_any_0_tdata2,
   output        io_trigger_pkt_any_1_select,
-  output        io_trigger_pkt_any_1_match_,
+  output        io_trigger_pkt_any_1_match_pkt,
   output        io_trigger_pkt_any_1_store,
   output        io_trigger_pkt_any_1_load,
   output        io_trigger_pkt_any_1_execute,
   output        io_trigger_pkt_any_1_m,
   output [31:0] io_trigger_pkt_any_1_tdata2,
   output        io_trigger_pkt_any_2_select,
-  output        io_trigger_pkt_any_2_match_,
+  output        io_trigger_pkt_any_2_match_pkt,
   output        io_trigger_pkt_any_2_store,
   output        io_trigger_pkt_any_2_load,
   output        io_trigger_pkt_any_2_execute,
   output        io_trigger_pkt_any_2_m,
   output [31:0] io_trigger_pkt_any_2_tdata2,
   output        io_trigger_pkt_any_3_select,
-  output        io_trigger_pkt_any_3_match_,
+  output        io_trigger_pkt_any_3_match_pkt,
   output        io_trigger_pkt_any_3_store,
   output        io_trigger_pkt_any_3_load,
   output        io_trigger_pkt_any_3_execute,
@@ -9410,28 +9410,28 @@ module el2_dec_tlu_ctl(
   wire  csr_io_dec_tlu_ic_diag_pkt_icache_wr_valid; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_ifu_ic_debug_rd_data_valid; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_0_select; // @[el2_dec_tlu_ctl.scala 897:17]
-  wire  csr_io_trigger_pkt_any_0_match_; // @[el2_dec_tlu_ctl.scala 897:17]
+  wire  csr_io_trigger_pkt_any_0_match_pkt; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_0_store; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_0_load; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_0_execute; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_0_m; // @[el2_dec_tlu_ctl.scala 897:17]
   wire [31:0] csr_io_trigger_pkt_any_0_tdata2; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_1_select; // @[el2_dec_tlu_ctl.scala 897:17]
-  wire  csr_io_trigger_pkt_any_1_match_; // @[el2_dec_tlu_ctl.scala 897:17]
+  wire  csr_io_trigger_pkt_any_1_match_pkt; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_1_store; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_1_load; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_1_execute; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_1_m; // @[el2_dec_tlu_ctl.scala 897:17]
   wire [31:0] csr_io_trigger_pkt_any_1_tdata2; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_2_select; // @[el2_dec_tlu_ctl.scala 897:17]
-  wire  csr_io_trigger_pkt_any_2_match_; // @[el2_dec_tlu_ctl.scala 897:17]
+  wire  csr_io_trigger_pkt_any_2_match_pkt; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_2_store; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_2_load; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_2_execute; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_2_m; // @[el2_dec_tlu_ctl.scala 897:17]
   wire [31:0] csr_io_trigger_pkt_any_2_tdata2; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_3_select; // @[el2_dec_tlu_ctl.scala 897:17]
-  wire  csr_io_trigger_pkt_any_3_match_; // @[el2_dec_tlu_ctl.scala 897:17]
+  wire  csr_io_trigger_pkt_any_3_match_pkt; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_3_store; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_3_load; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_trigger_pkt_any_3_execute; // @[el2_dec_tlu_ctl.scala 897:17]
@@ -9510,7 +9510,7 @@ module el2_dec_tlu_ctl(
   wire  csr_io_dec_tlu_external_ldfwd_disable; // @[el2_dec_tlu_ctl.scala 897:17]
   wire [2:0] csr_io_dec_tlu_dma_qos_prty; // @[el2_dec_tlu_ctl.scala 897:17]
   wire [31:0] csr_io_dec_illegal_inst; // @[el2_dec_tlu_ctl.scala 897:17]
-  wire  csr_io_lsu_error_pkt_r_mscause; // @[el2_dec_tlu_ctl.scala 897:17]
+  wire [3:0] csr_io_lsu_error_pkt_r_mscause; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_mexintpend; // @[el2_dec_tlu_ctl.scala 897:17]
   wire [30:0] csr_io_exu_npc_r; // @[el2_dec_tlu_ctl.scala 897:17]
   wire  csr_io_mpc_reset_run_req; // @[el2_dec_tlu_ctl.scala 897:17]
@@ -10500,28 +10500,28 @@ module el2_dec_tlu_ctl(
     .io_dec_tlu_ic_diag_pkt_icache_wr_valid(csr_io_dec_tlu_ic_diag_pkt_icache_wr_valid),
     .io_ifu_ic_debug_rd_data_valid(csr_io_ifu_ic_debug_rd_data_valid),
     .io_trigger_pkt_any_0_select(csr_io_trigger_pkt_any_0_select),
-    .io_trigger_pkt_any_0_match_(csr_io_trigger_pkt_any_0_match_),
+    .io_trigger_pkt_any_0_match_pkt(csr_io_trigger_pkt_any_0_match_pkt),
     .io_trigger_pkt_any_0_store(csr_io_trigger_pkt_any_0_store),
     .io_trigger_pkt_any_0_load(csr_io_trigger_pkt_any_0_load),
     .io_trigger_pkt_any_0_execute(csr_io_trigger_pkt_any_0_execute),
     .io_trigger_pkt_any_0_m(csr_io_trigger_pkt_any_0_m),
     .io_trigger_pkt_any_0_tdata2(csr_io_trigger_pkt_any_0_tdata2),
     .io_trigger_pkt_any_1_select(csr_io_trigger_pkt_any_1_select),
-    .io_trigger_pkt_any_1_match_(csr_io_trigger_pkt_any_1_match_),
+    .io_trigger_pkt_any_1_match_pkt(csr_io_trigger_pkt_any_1_match_pkt),
     .io_trigger_pkt_any_1_store(csr_io_trigger_pkt_any_1_store),
     .io_trigger_pkt_any_1_load(csr_io_trigger_pkt_any_1_load),
     .io_trigger_pkt_any_1_execute(csr_io_trigger_pkt_any_1_execute),
     .io_trigger_pkt_any_1_m(csr_io_trigger_pkt_any_1_m),
     .io_trigger_pkt_any_1_tdata2(csr_io_trigger_pkt_any_1_tdata2),
     .io_trigger_pkt_any_2_select(csr_io_trigger_pkt_any_2_select),
-    .io_trigger_pkt_any_2_match_(csr_io_trigger_pkt_any_2_match_),
+    .io_trigger_pkt_any_2_match_pkt(csr_io_trigger_pkt_any_2_match_pkt),
     .io_trigger_pkt_any_2_store(csr_io_trigger_pkt_any_2_store),
     .io_trigger_pkt_any_2_load(csr_io_trigger_pkt_any_2_load),
     .io_trigger_pkt_any_2_execute(csr_io_trigger_pkt_any_2_execute),
     .io_trigger_pkt_any_2_m(csr_io_trigger_pkt_any_2_m),
     .io_trigger_pkt_any_2_tdata2(csr_io_trigger_pkt_any_2_tdata2),
     .io_trigger_pkt_any_3_select(csr_io_trigger_pkt_any_3_select),
-    .io_trigger_pkt_any_3_match_(csr_io_trigger_pkt_any_3_match_),
+    .io_trigger_pkt_any_3_match_pkt(csr_io_trigger_pkt_any_3_match_pkt),
     .io_trigger_pkt_any_3_store(csr_io_trigger_pkt_any_3_store),
     .io_trigger_pkt_any_3_load(csr_io_trigger_pkt_any_3_load),
     .io_trigger_pkt_any_3_execute(csr_io_trigger_pkt_any_3_execute),
@@ -10840,28 +10840,28 @@ module el2_dec_tlu_ctl(
   assign io_dec_tlu_flush_extint = ext_int_ready & _T_704; // @[el2_dec_tlu_ctl.scala 557:27]
   assign io_dec_tlu_meihap = csr_io_dec_tlu_meihap; // @[el2_dec_tlu_ctl.scala 956:44]
   assign io_trigger_pkt_any_0_select = csr_io_trigger_pkt_any_0_select; // @[el2_dec_tlu_ctl.scala 962:40]
-  assign io_trigger_pkt_any_0_match_ = csr_io_trigger_pkt_any_0_match_; // @[el2_dec_tlu_ctl.scala 962:40]
+  assign io_trigger_pkt_any_0_match_pkt = csr_io_trigger_pkt_any_0_match_pkt; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_0_store = csr_io_trigger_pkt_any_0_store; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_0_load = csr_io_trigger_pkt_any_0_load; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_0_execute = csr_io_trigger_pkt_any_0_execute; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_0_m = csr_io_trigger_pkt_any_0_m; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_0_tdata2 = csr_io_trigger_pkt_any_0_tdata2; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_1_select = csr_io_trigger_pkt_any_1_select; // @[el2_dec_tlu_ctl.scala 962:40]
-  assign io_trigger_pkt_any_1_match_ = csr_io_trigger_pkt_any_1_match_; // @[el2_dec_tlu_ctl.scala 962:40]
+  assign io_trigger_pkt_any_1_match_pkt = csr_io_trigger_pkt_any_1_match_pkt; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_1_store = csr_io_trigger_pkt_any_1_store; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_1_load = csr_io_trigger_pkt_any_1_load; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_1_execute = csr_io_trigger_pkt_any_1_execute; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_1_m = csr_io_trigger_pkt_any_1_m; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_1_tdata2 = csr_io_trigger_pkt_any_1_tdata2; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_2_select = csr_io_trigger_pkt_any_2_select; // @[el2_dec_tlu_ctl.scala 962:40]
-  assign io_trigger_pkt_any_2_match_ = csr_io_trigger_pkt_any_2_match_; // @[el2_dec_tlu_ctl.scala 962:40]
+  assign io_trigger_pkt_any_2_match_pkt = csr_io_trigger_pkt_any_2_match_pkt; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_2_store = csr_io_trigger_pkt_any_2_store; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_2_load = csr_io_trigger_pkt_any_2_load; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_2_execute = csr_io_trigger_pkt_any_2_execute; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_2_m = csr_io_trigger_pkt_any_2_m; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_2_tdata2 = csr_io_trigger_pkt_any_2_tdata2; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_3_select = csr_io_trigger_pkt_any_3_select; // @[el2_dec_tlu_ctl.scala 962:40]
-  assign io_trigger_pkt_any_3_match_ = csr_io_trigger_pkt_any_3_match_; // @[el2_dec_tlu_ctl.scala 962:40]
+  assign io_trigger_pkt_any_3_match_pkt = csr_io_trigger_pkt_any_3_match_pkt; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_3_store = csr_io_trigger_pkt_any_3_store; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_3_load = csr_io_trigger_pkt_any_3_load; // @[el2_dec_tlu_ctl.scala 962:40]
   assign io_trigger_pkt_any_3_execute = csr_io_trigger_pkt_any_3_execute; // @[el2_dec_tlu_ctl.scala 962:40]
@@ -11041,7 +11041,7 @@ module el2_dec_tlu_ctl(
   assign csr_io_inst_acc_r = _T_511 & _T_465; // @[el2_dec_tlu_ctl.scala 1021:39]
   assign csr_io_inst_acc_second_r = io_dec_tlu_packet_r_icaf_f1; // @[el2_dec_tlu_ctl.scala 1022:39]
   assign csr_io_take_nmi = _T_756 & _T_760; // @[el2_dec_tlu_ctl.scala 1023:39]
-  assign csr_io_lsu_error_pkt_addr_r = {{31'd0}, io_lsu_error_pkt_r_addr}; // @[el2_dec_tlu_ctl.scala 1024:39]
+  assign csr_io_lsu_error_pkt_addr_r = io_lsu_error_pkt_r_addr; // @[el2_dec_tlu_ctl.scala 1024:39]
   assign csr_io_exc_cause_r = _T_603 | _T_591; // @[el2_dec_tlu_ctl.scala 1025:39]
   assign csr_io_i0_valid_wb = i0_valid_wb; // @[el2_dec_tlu_ctl.scala 1026:39]
   assign csr_io_exc_or_int_valid_r_d1 = exc_or_int_valid_r_d1; // @[el2_dec_tlu_ctl.scala 1027:39]
@@ -12093,22 +12093,22 @@ end // initial
 endmodule
 module el2_dec_trigger(
   input         io_trigger_pkt_any_0_select,
-  input         io_trigger_pkt_any_0_match_,
+  input         io_trigger_pkt_any_0_match_pkt,
   input         io_trigger_pkt_any_0_execute,
   input         io_trigger_pkt_any_0_m,
   input  [31:0] io_trigger_pkt_any_0_tdata2,
   input         io_trigger_pkt_any_1_select,
-  input         io_trigger_pkt_any_1_match_,
+  input         io_trigger_pkt_any_1_match_pkt,
   input         io_trigger_pkt_any_1_execute,
   input         io_trigger_pkt_any_1_m,
   input  [31:0] io_trigger_pkt_any_1_tdata2,
   input         io_trigger_pkt_any_2_select,
-  input         io_trigger_pkt_any_2_match_,
+  input         io_trigger_pkt_any_2_match_pkt,
   input         io_trigger_pkt_any_2_execute,
   input         io_trigger_pkt_any_2_m,
   input  [31:0] io_trigger_pkt_any_2_tdata2,
   input         io_trigger_pkt_any_3_select,
-  input         io_trigger_pkt_any_3_match_,
+  input         io_trigger_pkt_any_3_match_pkt,
   input         io_trigger_pkt_any_3_execute,
   input         io_trigger_pkt_any_3_m,
   input  [31:0] io_trigger_pkt_any_3_tdata2,
@@ -12150,7 +12150,7 @@ module el2_dec_trigger(
   wire  _T_148 = io_trigger_pkt_any_0_execute & io_trigger_pkt_any_0_m; // @[el2_dec_trigger.scala 15:83]
   wire  _T_151 = &io_trigger_pkt_any_0_tdata2; // @[el2_lib.scala 241:45]
   wire  _T_152 = ~_T_151; // @[el2_lib.scala 241:39]
-  wire  _T_153 = io_trigger_pkt_any_0_match_ & _T_152; // @[el2_lib.scala 241:37]
+  wire  _T_153 = io_trigger_pkt_any_0_match_pkt & _T_152; // @[el2_lib.scala 241:37]
   wire  _T_156 = io_trigger_pkt_any_0_tdata2[0] == dec_i0_match_data_0[0]; // @[el2_lib.scala 242:52]
   wire  _T_157 = _T_153 | _T_156; // @[el2_lib.scala 242:41]
   wire  _T_159 = &io_trigger_pkt_any_0_tdata2[0]; // @[el2_lib.scala 244:36]
@@ -12286,7 +12286,7 @@ module el2_dec_trigger(
   wire  _T_407 = io_trigger_pkt_any_1_execute & io_trigger_pkt_any_1_m; // @[el2_dec_trigger.scala 15:83]
   wire  _T_410 = &io_trigger_pkt_any_1_tdata2; // @[el2_lib.scala 241:45]
   wire  _T_411 = ~_T_410; // @[el2_lib.scala 241:39]
-  wire  _T_412 = io_trigger_pkt_any_1_match_ & _T_411; // @[el2_lib.scala 241:37]
+  wire  _T_412 = io_trigger_pkt_any_1_match_pkt & _T_411; // @[el2_lib.scala 241:37]
   wire  _T_415 = io_trigger_pkt_any_1_tdata2[0] == dec_i0_match_data_1[0]; // @[el2_lib.scala 242:52]
   wire  _T_416 = _T_412 | _T_415; // @[el2_lib.scala 242:41]
   wire  _T_418 = &io_trigger_pkt_any_1_tdata2[0]; // @[el2_lib.scala 244:36]
@@ -12422,7 +12422,7 @@ module el2_dec_trigger(
   wire  _T_666 = io_trigger_pkt_any_2_execute & io_trigger_pkt_any_2_m; // @[el2_dec_trigger.scala 15:83]
   wire  _T_669 = &io_trigger_pkt_any_2_tdata2; // @[el2_lib.scala 241:45]
   wire  _T_670 = ~_T_669; // @[el2_lib.scala 241:39]
-  wire  _T_671 = io_trigger_pkt_any_2_match_ & _T_670; // @[el2_lib.scala 241:37]
+  wire  _T_671 = io_trigger_pkt_any_2_match_pkt & _T_670; // @[el2_lib.scala 241:37]
   wire  _T_674 = io_trigger_pkt_any_2_tdata2[0] == dec_i0_match_data_2[0]; // @[el2_lib.scala 242:52]
   wire  _T_675 = _T_671 | _T_674; // @[el2_lib.scala 242:41]
   wire  _T_677 = &io_trigger_pkt_any_2_tdata2[0]; // @[el2_lib.scala 244:36]
@@ -12558,7 +12558,7 @@ module el2_dec_trigger(
   wire  _T_925 = io_trigger_pkt_any_3_execute & io_trigger_pkt_any_3_m; // @[el2_dec_trigger.scala 15:83]
   wire  _T_928 = &io_trigger_pkt_any_3_tdata2; // @[el2_lib.scala 241:45]
   wire  _T_929 = ~_T_928; // @[el2_lib.scala 241:39]
-  wire  _T_930 = io_trigger_pkt_any_3_match_ & _T_929; // @[el2_lib.scala 241:37]
+  wire  _T_930 = io_trigger_pkt_any_3_match_pkt & _T_929; // @[el2_lib.scala 241:37]
   wire  _T_933 = io_trigger_pkt_any_3_tdata2[0] == dec_i0_match_data_3[0]; // @[el2_lib.scala 242:52]
   wire  _T_934 = _T_930 | _T_933; // @[el2_lib.scala 242:41]
   wire  _T_936 = &io_trigger_pkt_any_3_tdata2[0]; // @[el2_lib.scala 244:36]
@@ -12779,8 +12779,8 @@ module el2_dec(
   input         io_lsu_error_pkt_r_single_ecc_error,
   input         io_lsu_error_pkt_r_inst_type,
   input         io_lsu_error_pkt_r_exc_type,
-  input         io_lsu_error_pkt_r_mscause,
-  input         io_lsu_error_pkt_r_addr,
+  input  [3:0]  io_lsu_error_pkt_r_mscause,
+  input  [31:0] io_lsu_error_pkt_r_addr,
   input         io_lsu_single_ecc_error_incr,
   input         io_lsu_imprecise_error_load_any,
   input         io_lsu_imprecise_error_store_any,
@@ -12833,28 +12833,28 @@ module el2_dec(
   output        io_dec_dbg_cmd_done,
   output        io_dec_dbg_cmd_fail,
   output        io_trigger_pkt_any_0_select,
-  output        io_trigger_pkt_any_0_match_,
+  output        io_trigger_pkt_any_0_match_pkt,
   output        io_trigger_pkt_any_0_store,
   output        io_trigger_pkt_any_0_load,
   output        io_trigger_pkt_any_0_execute,
   output        io_trigger_pkt_any_0_m,
   output [31:0] io_trigger_pkt_any_0_tdata2,
   output        io_trigger_pkt_any_1_select,
-  output        io_trigger_pkt_any_1_match_,
+  output        io_trigger_pkt_any_1_match_pkt,
   output        io_trigger_pkt_any_1_store,
   output        io_trigger_pkt_any_1_load,
   output        io_trigger_pkt_any_1_execute,
   output        io_trigger_pkt_any_1_m,
   output [31:0] io_trigger_pkt_any_1_tdata2,
   output        io_trigger_pkt_any_2_select,
-  output        io_trigger_pkt_any_2_match_,
+  output        io_trigger_pkt_any_2_match_pkt,
   output        io_trigger_pkt_any_2_store,
   output        io_trigger_pkt_any_2_load,
   output        io_trigger_pkt_any_2_execute,
   output        io_trigger_pkt_any_2_m,
   output [31:0] io_trigger_pkt_any_2_tdata2,
   output        io_trigger_pkt_any_3_select,
-  output        io_trigger_pkt_any_3_match_,
+  output        io_trigger_pkt_any_3_match_pkt,
   output        io_trigger_pkt_any_3_store,
   output        io_trigger_pkt_any_3_load,
   output        io_trigger_pkt_any_3_execute,
@@ -13271,8 +13271,8 @@ module el2_dec(
   wire  tlu_io_lsu_error_pkt_r_single_ecc_error; // @[el2_dec.scala 356:19]
   wire  tlu_io_lsu_error_pkt_r_inst_type; // @[el2_dec.scala 356:19]
   wire  tlu_io_lsu_error_pkt_r_exc_type; // @[el2_dec.scala 356:19]
-  wire  tlu_io_lsu_error_pkt_r_mscause; // @[el2_dec.scala 356:19]
-  wire  tlu_io_lsu_error_pkt_r_addr; // @[el2_dec.scala 356:19]
+  wire [3:0] tlu_io_lsu_error_pkt_r_mscause; // @[el2_dec.scala 356:19]
+  wire [31:0] tlu_io_lsu_error_pkt_r_addr; // @[el2_dec.scala 356:19]
   wire  tlu_io_lsu_single_ecc_error_incr; // @[el2_dec.scala 356:19]
   wire  tlu_io_dec_pause_state; // @[el2_dec.scala 356:19]
   wire  tlu_io_lsu_imprecise_error_store_any; // @[el2_dec.scala 356:19]
@@ -13325,28 +13325,28 @@ module el2_dec(
   wire  tlu_io_lsu_idle_any; // @[el2_dec.scala 356:19]
   wire  tlu_io_dec_div_active; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_0_select; // @[el2_dec.scala 356:19]
-  wire  tlu_io_trigger_pkt_any_0_match_; // @[el2_dec.scala 356:19]
+  wire  tlu_io_trigger_pkt_any_0_match_pkt; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_0_store; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_0_load; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_0_execute; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_0_m; // @[el2_dec.scala 356:19]
   wire [31:0] tlu_io_trigger_pkt_any_0_tdata2; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_1_select; // @[el2_dec.scala 356:19]
-  wire  tlu_io_trigger_pkt_any_1_match_; // @[el2_dec.scala 356:19]
+  wire  tlu_io_trigger_pkt_any_1_match_pkt; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_1_store; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_1_load; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_1_execute; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_1_m; // @[el2_dec.scala 356:19]
   wire [31:0] tlu_io_trigger_pkt_any_1_tdata2; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_2_select; // @[el2_dec.scala 356:19]
-  wire  tlu_io_trigger_pkt_any_2_match_; // @[el2_dec.scala 356:19]
+  wire  tlu_io_trigger_pkt_any_2_match_pkt; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_2_store; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_2_load; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_2_execute; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_2_m; // @[el2_dec.scala 356:19]
   wire [31:0] tlu_io_trigger_pkt_any_2_tdata2; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_3_select; // @[el2_dec.scala 356:19]
-  wire  tlu_io_trigger_pkt_any_3_match_; // @[el2_dec.scala 356:19]
+  wire  tlu_io_trigger_pkt_any_3_match_pkt; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_3_store; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_3_load; // @[el2_dec.scala 356:19]
   wire  tlu_io_trigger_pkt_any_3_execute; // @[el2_dec.scala 356:19]
@@ -13425,22 +13425,22 @@ module el2_dec(
   wire  tlu_io_dec_tlu_dccm_clk_override; // @[el2_dec.scala 356:19]
   wire  tlu_io_dec_tlu_icm_clk_override; // @[el2_dec.scala 356:19]
   wire  dec_trigger_io_trigger_pkt_any_0_select; // @[el2_dec.scala 357:27]
-  wire  dec_trigger_io_trigger_pkt_any_0_match_; // @[el2_dec.scala 357:27]
+  wire  dec_trigger_io_trigger_pkt_any_0_match_pkt; // @[el2_dec.scala 357:27]
   wire  dec_trigger_io_trigger_pkt_any_0_execute; // @[el2_dec.scala 357:27]
   wire  dec_trigger_io_trigger_pkt_any_0_m; // @[el2_dec.scala 357:27]
   wire [31:0] dec_trigger_io_trigger_pkt_any_0_tdata2; // @[el2_dec.scala 357:27]
   wire  dec_trigger_io_trigger_pkt_any_1_select; // @[el2_dec.scala 357:27]
-  wire  dec_trigger_io_trigger_pkt_any_1_match_; // @[el2_dec.scala 357:27]
+  wire  dec_trigger_io_trigger_pkt_any_1_match_pkt; // @[el2_dec.scala 357:27]
   wire  dec_trigger_io_trigger_pkt_any_1_execute; // @[el2_dec.scala 357:27]
   wire  dec_trigger_io_trigger_pkt_any_1_m; // @[el2_dec.scala 357:27]
   wire [31:0] dec_trigger_io_trigger_pkt_any_1_tdata2; // @[el2_dec.scala 357:27]
   wire  dec_trigger_io_trigger_pkt_any_2_select; // @[el2_dec.scala 357:27]
-  wire  dec_trigger_io_trigger_pkt_any_2_match_; // @[el2_dec.scala 357:27]
+  wire  dec_trigger_io_trigger_pkt_any_2_match_pkt; // @[el2_dec.scala 357:27]
   wire  dec_trigger_io_trigger_pkt_any_2_execute; // @[el2_dec.scala 357:27]
   wire  dec_trigger_io_trigger_pkt_any_2_m; // @[el2_dec.scala 357:27]
   wire [31:0] dec_trigger_io_trigger_pkt_any_2_tdata2; // @[el2_dec.scala 357:27]
   wire  dec_trigger_io_trigger_pkt_any_3_select; // @[el2_dec.scala 357:27]
-  wire  dec_trigger_io_trigger_pkt_any_3_match_; // @[el2_dec.scala 357:27]
+  wire  dec_trigger_io_trigger_pkt_any_3_match_pkt; // @[el2_dec.scala 357:27]
   wire  dec_trigger_io_trigger_pkt_any_3_execute; // @[el2_dec.scala 357:27]
   wire  dec_trigger_io_trigger_pkt_any_3_m; // @[el2_dec.scala 357:27]
   wire [31:0] dec_trigger_io_trigger_pkt_any_3_tdata2; // @[el2_dec.scala 357:27]
@@ -13781,28 +13781,28 @@ module el2_dec(
     .io_lsu_idle_any(tlu_io_lsu_idle_any),
     .io_dec_div_active(tlu_io_dec_div_active),
     .io_trigger_pkt_any_0_select(tlu_io_trigger_pkt_any_0_select),
-    .io_trigger_pkt_any_0_match_(tlu_io_trigger_pkt_any_0_match_),
+    .io_trigger_pkt_any_0_match_pkt(tlu_io_trigger_pkt_any_0_match_pkt),
     .io_trigger_pkt_any_0_store(tlu_io_trigger_pkt_any_0_store),
     .io_trigger_pkt_any_0_load(tlu_io_trigger_pkt_any_0_load),
     .io_trigger_pkt_any_0_execute(tlu_io_trigger_pkt_any_0_execute),
     .io_trigger_pkt_any_0_m(tlu_io_trigger_pkt_any_0_m),
     .io_trigger_pkt_any_0_tdata2(tlu_io_trigger_pkt_any_0_tdata2),
     .io_trigger_pkt_any_1_select(tlu_io_trigger_pkt_any_1_select),
-    .io_trigger_pkt_any_1_match_(tlu_io_trigger_pkt_any_1_match_),
+    .io_trigger_pkt_any_1_match_pkt(tlu_io_trigger_pkt_any_1_match_pkt),
     .io_trigger_pkt_any_1_store(tlu_io_trigger_pkt_any_1_store),
     .io_trigger_pkt_any_1_load(tlu_io_trigger_pkt_any_1_load),
     .io_trigger_pkt_any_1_execute(tlu_io_trigger_pkt_any_1_execute),
     .io_trigger_pkt_any_1_m(tlu_io_trigger_pkt_any_1_m),
     .io_trigger_pkt_any_1_tdata2(tlu_io_trigger_pkt_any_1_tdata2),
     .io_trigger_pkt_any_2_select(tlu_io_trigger_pkt_any_2_select),
-    .io_trigger_pkt_any_2_match_(tlu_io_trigger_pkt_any_2_match_),
+    .io_trigger_pkt_any_2_match_pkt(tlu_io_trigger_pkt_any_2_match_pkt),
     .io_trigger_pkt_any_2_store(tlu_io_trigger_pkt_any_2_store),
     .io_trigger_pkt_any_2_load(tlu_io_trigger_pkt_any_2_load),
     .io_trigger_pkt_any_2_execute(tlu_io_trigger_pkt_any_2_execute),
     .io_trigger_pkt_any_2_m(tlu_io_trigger_pkt_any_2_m),
     .io_trigger_pkt_any_2_tdata2(tlu_io_trigger_pkt_any_2_tdata2),
     .io_trigger_pkt_any_3_select(tlu_io_trigger_pkt_any_3_select),
-    .io_trigger_pkt_any_3_match_(tlu_io_trigger_pkt_any_3_match_),
+    .io_trigger_pkt_any_3_match_pkt(tlu_io_trigger_pkt_any_3_match_pkt),
     .io_trigger_pkt_any_3_store(tlu_io_trigger_pkt_any_3_store),
     .io_trigger_pkt_any_3_load(tlu_io_trigger_pkt_any_3_load),
     .io_trigger_pkt_any_3_execute(tlu_io_trigger_pkt_any_3_execute),
@@ -13883,22 +13883,22 @@ module el2_dec(
   );
   el2_dec_trigger dec_trigger ( // @[el2_dec.scala 357:27]
     .io_trigger_pkt_any_0_select(dec_trigger_io_trigger_pkt_any_0_select),
-    .io_trigger_pkt_any_0_match_(dec_trigger_io_trigger_pkt_any_0_match_),
+    .io_trigger_pkt_any_0_match_pkt(dec_trigger_io_trigger_pkt_any_0_match_pkt),
     .io_trigger_pkt_any_0_execute(dec_trigger_io_trigger_pkt_any_0_execute),
     .io_trigger_pkt_any_0_m(dec_trigger_io_trigger_pkt_any_0_m),
     .io_trigger_pkt_any_0_tdata2(dec_trigger_io_trigger_pkt_any_0_tdata2),
     .io_trigger_pkt_any_1_select(dec_trigger_io_trigger_pkt_any_1_select),
-    .io_trigger_pkt_any_1_match_(dec_trigger_io_trigger_pkt_any_1_match_),
+    .io_trigger_pkt_any_1_match_pkt(dec_trigger_io_trigger_pkt_any_1_match_pkt),
     .io_trigger_pkt_any_1_execute(dec_trigger_io_trigger_pkt_any_1_execute),
     .io_trigger_pkt_any_1_m(dec_trigger_io_trigger_pkt_any_1_m),
     .io_trigger_pkt_any_1_tdata2(dec_trigger_io_trigger_pkt_any_1_tdata2),
     .io_trigger_pkt_any_2_select(dec_trigger_io_trigger_pkt_any_2_select),
-    .io_trigger_pkt_any_2_match_(dec_trigger_io_trigger_pkt_any_2_match_),
+    .io_trigger_pkt_any_2_match_pkt(dec_trigger_io_trigger_pkt_any_2_match_pkt),
     .io_trigger_pkt_any_2_execute(dec_trigger_io_trigger_pkt_any_2_execute),
     .io_trigger_pkt_any_2_m(dec_trigger_io_trigger_pkt_any_2_m),
     .io_trigger_pkt_any_2_tdata2(dec_trigger_io_trigger_pkt_any_2_tdata2),
     .io_trigger_pkt_any_3_select(dec_trigger_io_trigger_pkt_any_3_select),
-    .io_trigger_pkt_any_3_match_(dec_trigger_io_trigger_pkt_any_3_match_),
+    .io_trigger_pkt_any_3_match_pkt(dec_trigger_io_trigger_pkt_any_3_match_pkt),
     .io_trigger_pkt_any_3_execute(dec_trigger_io_trigger_pkt_any_3_execute),
     .io_trigger_pkt_any_3_m(dec_trigger_io_trigger_pkt_any_3_m),
     .io_trigger_pkt_any_3_tdata2(dec_trigger_io_trigger_pkt_any_3_tdata2),
@@ -13934,28 +13934,28 @@ module el2_dec(
   assign io_dec_dbg_cmd_done = tlu_io_dec_dbg_cmd_done; // @[el2_dec.scala 641:28]
   assign io_dec_dbg_cmd_fail = tlu_io_dec_dbg_cmd_fail; // @[el2_dec.scala 642:28]
   assign io_trigger_pkt_any_0_select = tlu_io_trigger_pkt_any_0_select; // @[el2_dec.scala 653:29]
-  assign io_trigger_pkt_any_0_match_ = tlu_io_trigger_pkt_any_0_match_; // @[el2_dec.scala 653:29]
+  assign io_trigger_pkt_any_0_match_pkt = tlu_io_trigger_pkt_any_0_match_pkt; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_0_store = tlu_io_trigger_pkt_any_0_store; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_0_load = tlu_io_trigger_pkt_any_0_load; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_0_execute = tlu_io_trigger_pkt_any_0_execute; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_0_m = tlu_io_trigger_pkt_any_0_m; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_0_tdata2 = tlu_io_trigger_pkt_any_0_tdata2; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_1_select = tlu_io_trigger_pkt_any_1_select; // @[el2_dec.scala 653:29]
-  assign io_trigger_pkt_any_1_match_ = tlu_io_trigger_pkt_any_1_match_; // @[el2_dec.scala 653:29]
+  assign io_trigger_pkt_any_1_match_pkt = tlu_io_trigger_pkt_any_1_match_pkt; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_1_store = tlu_io_trigger_pkt_any_1_store; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_1_load = tlu_io_trigger_pkt_any_1_load; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_1_execute = tlu_io_trigger_pkt_any_1_execute; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_1_m = tlu_io_trigger_pkt_any_1_m; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_1_tdata2 = tlu_io_trigger_pkt_any_1_tdata2; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_2_select = tlu_io_trigger_pkt_any_2_select; // @[el2_dec.scala 653:29]
-  assign io_trigger_pkt_any_2_match_ = tlu_io_trigger_pkt_any_2_match_; // @[el2_dec.scala 653:29]
+  assign io_trigger_pkt_any_2_match_pkt = tlu_io_trigger_pkt_any_2_match_pkt; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_2_store = tlu_io_trigger_pkt_any_2_store; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_2_load = tlu_io_trigger_pkt_any_2_load; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_2_execute = tlu_io_trigger_pkt_any_2_execute; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_2_m = tlu_io_trigger_pkt_any_2_m; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_2_tdata2 = tlu_io_trigger_pkt_any_2_tdata2; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_3_select = tlu_io_trigger_pkt_any_3_select; // @[el2_dec.scala 653:29]
-  assign io_trigger_pkt_any_3_match_ = tlu_io_trigger_pkt_any_3_match_; // @[el2_dec.scala 653:29]
+  assign io_trigger_pkt_any_3_match_pkt = tlu_io_trigger_pkt_any_3_match_pkt; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_3_store = tlu_io_trigger_pkt_any_3_store; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_3_load = tlu_io_trigger_pkt_any_3_load; // @[el2_dec.scala 653:29]
   assign io_trigger_pkt_any_3_execute = tlu_io_trigger_pkt_any_3_execute; // @[el2_dec.scala 653:29]
@@ -14290,22 +14290,22 @@ module el2_dec(
   assign tlu_io_mpc_debug_run_req = io_mpc_debug_run_req; // @[el2_dec.scala 638:45]
   assign tlu_io_mpc_reset_run_req = io_mpc_reset_run_req; // @[el2_dec.scala 639:45]
   assign dec_trigger_io_trigger_pkt_any_0_select = tlu_io_trigger_pkt_any_0_select; // @[el2_dec.scala 401:34]
-  assign dec_trigger_io_trigger_pkt_any_0_match_ = tlu_io_trigger_pkt_any_0_match_; // @[el2_dec.scala 401:34]
+  assign dec_trigger_io_trigger_pkt_any_0_match_pkt = tlu_io_trigger_pkt_any_0_match_pkt; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_0_execute = tlu_io_trigger_pkt_any_0_execute; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_0_m = tlu_io_trigger_pkt_any_0_m; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_0_tdata2 = tlu_io_trigger_pkt_any_0_tdata2; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_1_select = tlu_io_trigger_pkt_any_1_select; // @[el2_dec.scala 401:34]
-  assign dec_trigger_io_trigger_pkt_any_1_match_ = tlu_io_trigger_pkt_any_1_match_; // @[el2_dec.scala 401:34]
+  assign dec_trigger_io_trigger_pkt_any_1_match_pkt = tlu_io_trigger_pkt_any_1_match_pkt; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_1_execute = tlu_io_trigger_pkt_any_1_execute; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_1_m = tlu_io_trigger_pkt_any_1_m; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_1_tdata2 = tlu_io_trigger_pkt_any_1_tdata2; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_2_select = tlu_io_trigger_pkt_any_2_select; // @[el2_dec.scala 401:34]
-  assign dec_trigger_io_trigger_pkt_any_2_match_ = tlu_io_trigger_pkt_any_2_match_; // @[el2_dec.scala 401:34]
+  assign dec_trigger_io_trigger_pkt_any_2_match_pkt = tlu_io_trigger_pkt_any_2_match_pkt; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_2_execute = tlu_io_trigger_pkt_any_2_execute; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_2_m = tlu_io_trigger_pkt_any_2_m; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_2_tdata2 = tlu_io_trigger_pkt_any_2_tdata2; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_3_select = tlu_io_trigger_pkt_any_3_select; // @[el2_dec.scala 401:34]
-  assign dec_trigger_io_trigger_pkt_any_3_match_ = tlu_io_trigger_pkt_any_3_match_; // @[el2_dec.scala 401:34]
+  assign dec_trigger_io_trigger_pkt_any_3_match_pkt = tlu_io_trigger_pkt_any_3_match_pkt; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_3_execute = tlu_io_trigger_pkt_any_3_execute; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_3_m = tlu_io_trigger_pkt_any_3_m; // @[el2_dec.scala 401:34]
   assign dec_trigger_io_trigger_pkt_any_3_tdata2 = tlu_io_trigger_pkt_any_3_tdata2; // @[el2_dec.scala 401:34]
