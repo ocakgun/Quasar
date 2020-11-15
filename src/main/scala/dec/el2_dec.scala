@@ -97,7 +97,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val lsu_idle_any            = Input(Bool())     // lsu idle for halting
 
   val i0_brp                  = Input(new el2_br_pkt_t)         // branch packet
-  val ifu_i0_bp_index         = Input(UInt((BTB_ADDR_HI-BTB_ADDR_HI+1).W))      // BP index
+  val ifu_i0_bp_index         = Input(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W))      // BP index
   val ifu_i0_bp_fghr          = Input(UInt(BHT_GHR_SIZE.W))     // BP FGHR
   val ifu_i0_bp_btag          = Input(UInt(BTB_BTAG_SIZE.W))    // BP tag
 
@@ -191,7 +191,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val gpr_i0_rs2_d               = Output(UInt(32.W)) // gpr rs2 data
 
   val dec_i0_immed_d             = Output(UInt(32.W)) // immediate data
-  val dec_i0_br_immed_d          = Output(UInt(11.W)) // br immediate data
+  val dec_i0_br_immed_d          = Output(UInt(12.W)) // br immediate data
 
   val i0_ap                      = Output(new el2_alu_pkt_t)// alu packet
 

@@ -72,7 +72,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
     val dec_i0_rs1_d               =   Output(UInt(5.W))    // rs1 logical source
     val dec_i0_rs2_d               =   Output(UInt(5.W))
     val dec_i0_immed_d             =   Output(UInt(32.W))   // 32b immediate data decode
-    val dec_i0_br_immed_d          =   Output(UInt(11.W))    // 12b branch immediate
+    val dec_i0_br_immed_d          =   Output(UInt(12.W))    // 12b branch immediate
     val i0_ap                      =   Output(new el2_alu_pkt_t)   // alu packets
     val dec_i0_decode_d            =   Output(Bool())     // i0 decode
     val dec_i0_alu_decode_d        =   Output(Bool())  // decode to D-stage alu
