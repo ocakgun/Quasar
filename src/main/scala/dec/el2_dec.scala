@@ -17,10 +17,10 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_pause_state_cg    = Output(Bool())          // to top for active state clock gating
 
   // val rst_l                 = Input(Bool())           // reset, active low
-  val rst_vec               = Input(UInt(32.W))       // [31:1] reset vector, from core pins
+  val rst_vec               = Input(UInt(31.W))       // [31:1] reset vector, from core pins
 
   val nmi_int               = Input(Bool())           // NMI pin
-  val nmi_vec               = Input(UInt(32.W))       // [31:1] NMI vector, from pins
+  val nmi_vec               = Input(UInt(31.W))       // [31:1] NMI vector, from pins
 
   val i_cpu_halt_req        = Input(Bool())           // Asynchronous Halt request to CPU
   val i_cpu_run_req         = Input(Bool())           // Asynchronous Restart request to CPU
@@ -30,7 +30,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val o_cpu_run_ack         = Output(Bool())          // Run request ack
   val o_debug_mode_status   = Output(Bool())          // Core to the PMU that core is in debug mode. When core is in debug mode, the PMU should refrain from sendng a halt or run request
 
-  val core_id               = Input(UInt(32.W))       // [31:4] CORE ID
+  val core_id               = Input(UInt(28.W))       // [31:4] CORE ID
 
   // external MPC halt/run interface
   val mpc_debug_halt_req    = Input(Bool())   // Async halt request
@@ -66,7 +66,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dma_pmu_any_read              =  Input(Bool())      // DMA read
   val dma_pmu_any_write             =  Input(Bool())      // DMA write
 
-  val lsu_fir_addr    =   Input(UInt(32.W)) //[31:1] Fast int address
+  val lsu_fir_addr    =   Input(UInt(31.W)) //[31:1] Fast int address
   val lsu_fir_error   =   Input(UInt(2.W))  //[1:0]  Fast int lookup error
 
   val ifu_pmu_instr_aligned   =  Input(Bool())         // aligned instructions
@@ -130,9 +130,9 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val ifu_i0_valid             = Input(Bool())         // fetch valids to instruction buffer
   val ifu_i0_instr             = Input(UInt(32.W))     // fetch inst's to instruction buffer
-  val ifu_i0_pc                = Input(UInt(32.W))     // pc's for instruction buffer
+  val ifu_i0_pc                = Input(UInt(31.W))     // pc's for instruction buffer
   val ifu_i0_pc4               = Input(Bool())         // indication of 4B or 2B for corresponding inst
-  val exu_i0_pc_x              = Input(UInt(32.W))     // pc's for e1 from the alu's
+  val exu_i0_pc_x              = Input(UInt(31.W))     // pc's for e1 from the alu's
 
   val mexintpend                = Input(Bool())        // External interrupt pending
   val timer_int                 = Input(Bool())        // Timer interrupt pending (from pin)
@@ -145,7 +145,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_tlu_meicurpl          = Output(UInt(4.W))     // to PIC, Current priv level
   val dec_tlu_meipt             = Output(UInt(4.W))     // to PIC
 
-  val ifu_ic_debug_rd_data           = Input(UInt(70.W))          // diagnostic icache read data
+  val ifu_ic_debug_rd_data           = Input(UInt(71.W))          // diagnostic icache read data
   val ifu_ic_debug_rd_data_valid     = Input(Bool())          // diagnostic icache read data valid
   val dec_tlu_ic_diag_pkt            = Output(new el2_cache_debug_pkt_t)          // packet of DICAWICS, DICAD0/1, DICAGO info for icache diagnostics
 
@@ -162,7 +162,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_tlu_mpc_halted_only   = Output(Bool())       // Core is halted only due to MPC
   val dec_tlu_flush_leak_one_r  = Output(Bool())       // single step
   val dec_tlu_flush_err_r       = Output(Bool())       // iside perr/ecc rfpc
-  val dec_tlu_meihap            = Output(UInt(32.W))       // Fast ext int base
+  val dec_tlu_meihap            = Output(UInt(30.W))       // Fast ext int base
 
   val dec_debug_wdata_rs1_d     = Output(Bool())      // insert debug write data into rs1 at decode
 
@@ -173,7 +173,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val trigger_pkt_any           = Output(Vec(4,new el2_trigger_pkt_t))  // info needed by debug trigger blocks
 
-  val dec_tlu_force_halt        = Output(UInt(1.W))        // halt has been forced
+  val dec_tlu_force_halt        = Output(Bool())        // halt has been forced
   // Debug end
   // branch info from pipe0 for errors or counter updates
   val exu_i0_br_hist_r           = Input(UInt(2.W))          // history
@@ -191,7 +191,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val gpr_i0_rs2_d               = Output(UInt(32.W)) // gpr rs2 data
 
   val dec_i0_immed_d             = Output(UInt(32.W)) // immediate data
-  val dec_i0_br_immed_d          = Output(UInt(13.W)) // br immediate data
+  val dec_i0_br_immed_d          = Output(UInt(11.W)) // br immediate data
 
   val i0_ap                      = Output(new el2_alu_pkt_t)// alu packet
 
@@ -199,7 +199,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val dec_i0_select_pc_d        = Output(Bool())   // select pc onto rs1 for jal's
 
-  val dec_i0_pc_d               = Output(UInt(32.W)) // pc's at decode
+  val dec_i0_pc_d               = Output(UInt(31.W)) // pc's at decode
   val dec_i0_rs1_bypass_en_d    = Output(UInt(2.W)) // rs1 bypass enable
   val dec_i0_rs2_bypass_en_d    = Output(UInt(2.W)) // rs2 bypass enable
 
@@ -217,11 +217,11 @@ class el2_dec_IO extends Bundle with el2_lib {
 
 
   val dec_tlu_flush_lower_r     = Output(Bool())   // tlu flush due to late mp, exception, rfpc, or int
-  val dec_tlu_flush_path_r      = Output(UInt(32.W))   // tlu flush target
+  val dec_tlu_flush_path_r      = Output(UInt(31.W))   // tlu flush target
   val dec_tlu_i0_kill_writeb_r  = Output(Bool())   // I0 is flushed, don't writeback any results to arch state
   val dec_tlu_fence_i_r         = Output(Bool())   // flush is a fence_i rfnpc, flush icache
 
-  val pred_correct_npc_x  = Output(UInt(32.W))       // npc if prediction is correct at e2 stage
+  val pred_correct_npc_x  = Output(UInt(31.W))       // npc if prediction is correct at e2 stage
 
   val dec_tlu_br0_r_pkt  = Output(new el2_br_tlu_pkt_t)    // slot 0 branch predictor update packet
 
@@ -232,7 +232,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val dec_i0_predict_p_d = Output(new el2_predict_pkt_t)      // prediction packet to alus
   val i0_predict_fghr_d  = Output(UInt(BHT_GHR_SIZE.W))   // DEC predict fghr
-  val i0_predict_index_d = Output(UInt(BHT_ADDR_HI.W))   // DEC predict index
+  val i0_predict_index_d = Output(UInt((BHT_ADDR_HI-BHT_ADDR_LO+1).W))   // DEC predict index
   val i0_predict_btag_d  = Output(UInt(BTB_BTAG_SIZE.W))   // DEC predict branch tag
 
   val dec_lsu_valid_raw_d = Output(Bool())

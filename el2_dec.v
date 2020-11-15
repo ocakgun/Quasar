@@ -12703,16 +12703,16 @@ module el2_dec(
   output        io_dec_extint_stall,
   output        io_dec_i0_decode_d,
   output        io_dec_pause_state_cg,
-  input  [31:0] io_rst_vec,
+  input  [30:0] io_rst_vec,
   input         io_nmi_int,
-  input  [31:0] io_nmi_vec,
+  input  [30:0] io_nmi_vec,
   input         io_i_cpu_halt_req,
   input         io_i_cpu_run_req,
   output        io_o_cpu_halt_status,
   output        io_o_cpu_halt_ack,
   output        io_o_cpu_run_ack,
   output        io_o_debug_mode_status,
-  input  [31:0] io_core_id,
+  input  [27:0] io_core_id,
   input         io_mpc_debug_halt_req,
   input         io_mpc_debug_run_req,
   input         io_mpc_reset_run_req,
@@ -12741,7 +12741,7 @@ module el2_dec(
   input         io_dma_pmu_dccm_write,
   input         io_dma_pmu_any_read,
   input         io_dma_pmu_any_write,
-  input  [31:0] io_lsu_fir_addr,
+  input  [30:0] io_lsu_fir_addr,
   input  [1:0]  io_lsu_fir_error,
   input         io_ifu_pmu_instr_aligned,
   input         io_ifu_pmu_fetch_stall,
@@ -12800,9 +12800,9 @@ module el2_dec(
   input  [31:0] io_exu_i0_result_x,
   input         io_ifu_i0_valid,
   input  [31:0] io_ifu_i0_instr,
-  input  [31:0] io_ifu_i0_pc,
+  input  [30:0] io_ifu_i0_pc,
   input         io_ifu_i0_pc4,
-  input  [31:0] io_exu_i0_pc_x,
+  input  [30:0] io_exu_i0_pc_x,
   input         io_mexintpend,
   input         io_timer_int,
   input         io_soft_int,
@@ -12811,7 +12811,7 @@ module el2_dec(
   input         io_mhwakeup,
   output [3:0]  io_dec_tlu_meicurpl,
   output [3:0]  io_dec_tlu_meipt,
-  input  [69:0] io_ifu_ic_debug_rd_data,
+  input  [70:0] io_ifu_ic_debug_rd_data,
   input         io_ifu_ic_debug_rd_data_valid,
   output [70:0] io_dec_tlu_ic_diag_pkt_icache_wrdata,
   output [16:0] io_dec_tlu_ic_diag_pkt_icache_dicawics,
@@ -12827,7 +12827,7 @@ module el2_dec(
   output        io_dec_tlu_mpc_halted_only,
   output        io_dec_tlu_flush_leak_one_r,
   output        io_dec_tlu_flush_err_r,
-  output [31:0] io_dec_tlu_meihap,
+  output [29:0] io_dec_tlu_meihap,
   output        io_dec_debug_wdata_rs1_d,
   output [31:0] io_dec_dbg_rddata,
   output        io_dec_dbg_cmd_done,
@@ -12873,7 +12873,7 @@ module el2_dec(
   output [31:0] io_gpr_i0_rs1_d,
   output [31:0] io_gpr_i0_rs2_d,
   output [31:0] io_dec_i0_immed_d,
-  output [12:0] io_dec_i0_br_immed_d,
+  output [10:0] io_dec_i0_br_immed_d,
   output        io_i0_ap_land,
   output        io_i0_ap_lor,
   output        io_i0_ap_lxor,
@@ -12895,7 +12895,7 @@ module el2_dec(
   output        io_i0_ap_csr_imm,
   output        io_dec_i0_alu_decode_d,
   output        io_dec_i0_select_pc_d,
-  output [31:0] io_dec_i0_pc_d,
+  output [30:0] io_dec_i0_pc_d,
   output [1:0]  io_dec_i0_rs1_bypass_en_d,
   output [1:0]  io_dec_i0_rs2_bypass_en_d,
   output [31:0] io_dec_i0_rs1_bypass_data_d,
@@ -12939,10 +12939,10 @@ module el2_dec(
   output [11:0] io_dec_lsu_offset_d,
   output        io_dec_csr_ren_d,
   output        io_dec_tlu_flush_lower_r,
-  output [31:0] io_dec_tlu_flush_path_r,
+  output [30:0] io_dec_tlu_flush_path_r,
   output        io_dec_tlu_i0_kill_writeb_r,
   output        io_dec_tlu_fence_i_r,
-  output [31:0] io_pred_correct_npc_x,
+  output [30:0] io_pred_correct_npc_x,
   output        io_dec_tlu_br0_r_pkt_valid,
   output [1:0]  io_dec_tlu_br0_r_pkt_hist,
   output        io_dec_tlu_br0_r_pkt_br_error,
@@ -12968,7 +12968,7 @@ module el2_dec(
   output        io_dec_i0_predict_p_d_pja,
   output        io_dec_i0_predict_p_d_way,
   output [7:0]  io_i0_predict_fghr_d,
-  output [8:0]  io_i0_predict_index_d,
+  output [7:0]  io_i0_predict_index_d,
   output [4:0]  io_i0_predict_btag_d,
   output        io_dec_lsu_valid_raw_d,
   output [31:0] io_dec_tlu_mrac_ff,
@@ -13928,7 +13928,7 @@ module el2_dec(
   assign io_dec_tlu_mpc_halted_only = tlu_io_dec_tlu_mpc_halted_only; // @[el2_dec.scala 648:34]
   assign io_dec_tlu_flush_leak_one_r = tlu_io_dec_tlu_flush_leak_one_r; // @[el2_dec.scala 649:34]
   assign io_dec_tlu_flush_err_r = tlu_io_dec_tlu_flush_err_r; // @[el2_dec.scala 650:34]
-  assign io_dec_tlu_meihap = {{2'd0}, tlu_io_dec_tlu_meihap}; // @[el2_dec.scala 652:29]
+  assign io_dec_tlu_meihap = tlu_io_dec_tlu_meihap; // @[el2_dec.scala 652:29]
   assign io_dec_debug_wdata_rs1_d = instbuff_io_dec_debug_wdata_rs1_d; // @[el2_dec.scala 393:38]
   assign io_dec_dbg_rddata = decode_io_dec_i0_wdata_r; // @[el2_dec.scala 717:21]
   assign io_dec_dbg_cmd_done = tlu_io_dec_dbg_cmd_done; // @[el2_dec.scala 641:28]
@@ -13967,7 +13967,7 @@ module el2_dec(
   assign io_gpr_i0_rs1_d = gpr_io_rd0; // @[el2_dec.scala 545:19]
   assign io_gpr_i0_rs2_d = gpr_io_rd1; // @[el2_dec.scala 546:19]
   assign io_dec_i0_immed_d = decode_io_dec_i0_immed_d; // @[el2_dec.scala 476:40]
-  assign io_dec_i0_br_immed_d = {{1'd0}, decode_io_dec_i0_br_immed_d}; // @[el2_dec.scala 477:40]
+  assign io_dec_i0_br_immed_d = decode_io_dec_i0_br_immed_d[10:0]; // @[el2_dec.scala 477:40]
   assign io_i0_ap_land = decode_io_i0_ap_land; // @[el2_dec.scala 478:40]
   assign io_i0_ap_lor = decode_io_i0_ap_lor; // @[el2_dec.scala 478:40]
   assign io_i0_ap_lxor = decode_io_i0_ap_lxor; // @[el2_dec.scala 478:40]
@@ -13989,7 +13989,7 @@ module el2_dec(
   assign io_i0_ap_csr_imm = decode_io_i0_ap_csr_imm; // @[el2_dec.scala 478:40]
   assign io_dec_i0_alu_decode_d = decode_io_dec_i0_alu_decode_d; // @[el2_dec.scala 480:40]
   assign io_dec_i0_select_pc_d = decode_io_dec_i0_select_pc_d; // @[el2_dec.scala 486:40]
-  assign io_dec_i0_pc_d = 32'h0; // @[el2_dec.scala 273:18]
+  assign io_dec_i0_pc_d = 31'h0; // @[el2_dec.scala 273:18]
   assign io_dec_i0_rs1_bypass_en_d = decode_io_dec_i0_rs1_bypass_en_d; // @[el2_dec.scala 487:40]
   assign io_dec_i0_rs2_bypass_en_d = decode_io_dec_i0_rs2_bypass_en_d; // @[el2_dec.scala 488:40]
   assign io_dec_i0_rs1_bypass_data_d = decode_io_dec_i0_rs1_bypass_data_d; // @[el2_dec.scala 481:40]
@@ -14033,10 +14033,10 @@ module el2_dec(
   assign io_dec_lsu_offset_d = decode_io_dec_lsu_offset_d; // @[el2_dec.scala 495:40]
   assign io_dec_csr_ren_d = decode_io_dec_csr_ren_d; // @[el2_dec.scala 496:40]
   assign io_dec_tlu_flush_lower_r = tlu_io_dec_tlu_flush_lower_r; // @[el2_dec.scala 671:34]
-  assign io_dec_tlu_flush_path_r = {{1'd0}, tlu_io_dec_tlu_flush_path_r}; // @[el2_dec.scala 672:34]
+  assign io_dec_tlu_flush_path_r = tlu_io_dec_tlu_flush_path_r; // @[el2_dec.scala 672:34]
   assign io_dec_tlu_i0_kill_writeb_r = tlu_io_dec_tlu_i0_kill_writeb_r; // @[el2_dec.scala 670:34]
   assign io_dec_tlu_fence_i_r = tlu_io_dec_tlu_fence_i_r; // @[el2_dec.scala 673:34]
-  assign io_pred_correct_npc_x = {{1'd0}, decode_io_pred_correct_npc_x}; // @[el2_dec.scala 508:40]
+  assign io_pred_correct_npc_x = decode_io_pred_correct_npc_x; // @[el2_dec.scala 508:40]
   assign io_dec_tlu_br0_r_pkt_valid = tlu_io_dec_tlu_br0_r_pkt_valid; // @[el2_dec.scala 666:42]
   assign io_dec_tlu_br0_r_pkt_hist = tlu_io_dec_tlu_br0_r_pkt_hist; // @[el2_dec.scala 666:42]
   assign io_dec_tlu_br0_r_pkt_br_error = tlu_io_dec_tlu_br0_r_pkt_br_error; // @[el2_dec.scala 666:42]
@@ -14062,7 +14062,7 @@ module el2_dec(
   assign io_dec_i0_predict_p_d_pja = decode_io_dec_i0_predict_p_d_pja; // @[el2_dec.scala 509:40]
   assign io_dec_i0_predict_p_d_way = decode_io_dec_i0_predict_p_d_way; // @[el2_dec.scala 509:40]
   assign io_i0_predict_fghr_d = decode_io_i0_predict_fghr_d; // @[el2_dec.scala 510:40]
-  assign io_i0_predict_index_d = {{1'd0}, decode_io_i0_predict_index_d}; // @[el2_dec.scala 511:40]
+  assign io_i0_predict_index_d = decode_io_i0_predict_index_d; // @[el2_dec.scala 511:40]
   assign io_i0_predict_btag_d = decode_io_i0_predict_btag_d; // @[el2_dec.scala 512:40]
   assign io_dec_lsu_valid_raw_d = decode_io_dec_lsu_valid_raw_d; // @[el2_dec.scala 494:40]
   assign io_dec_tlu_mrac_ff = tlu_io_dec_tlu_mrac_ff; // @[el2_dec.scala 678:29]
@@ -14110,7 +14110,7 @@ module el2_dec(
   assign instbuff_io_ifu_i0_icaf_f1 = io_ifu_i0_icaf_f1; // @[el2_dec.scala 376:35]
   assign instbuff_io_ifu_i0_dbecc = io_ifu_i0_dbecc; // @[el2_dec.scala 377:35]
   assign instbuff_io_ifu_i0_instr = io_ifu_i0_instr; // @[el2_dec.scala 378:35]
-  assign instbuff_io_ifu_i0_pc = io_ifu_i0_pc[30:0]; // @[el2_dec.scala 379:35]
+  assign instbuff_io_ifu_i0_pc = io_ifu_i0_pc; // @[el2_dec.scala 379:35]
   assign decode_clock = clock;
   assign decode_reset = reset;
   assign decode_io_dec_tlu_flush_extint = tlu_io_dec_tlu_flush_extint; // @[el2_dec.scala 410:48 el2_dec.scala 651:37]
@@ -14167,7 +14167,7 @@ module el2_dec(
   assign decode_io_lsu_result_m = io_lsu_result_m; // @[el2_dec.scala 455:48]
   assign decode_io_lsu_result_corr_r = io_lsu_result_corr_r; // @[el2_dec.scala 456:48]
   assign decode_io_exu_flush_final = io_exu_flush_final; // @[el2_dec.scala 457:48]
-  assign decode_io_exu_i0_pc_x = io_exu_i0_pc_x[30:0]; // @[el2_dec.scala 458:48]
+  assign decode_io_exu_i0_pc_x = io_exu_i0_pc_x; // @[el2_dec.scala 458:48]
   assign decode_io_dec_i0_instr_d = instbuff_io_dec_i0_instr_d; // @[el2_dec.scala 383:38 el2_dec.scala 459:48]
   assign decode_io_dec_ib0_valid_d = instbuff_io_dec_ib0_valid_d; // @[el2_dec.scala 381:38 el2_dec.scala 460:48]
   assign decode_io_exu_i0_result_x = io_exu_i0_result_x; // @[el2_dec.scala 461:48]
@@ -14194,9 +14194,9 @@ module el2_dec(
   assign tlu_io_active_clk = io_active_clk; // @[el2_dec.scala 555:45]
   assign tlu_io_free_clk = io_free_clk; // @[el2_dec.scala 556:45]
   assign tlu_io_scan_mode = io_scan_mode; // @[el2_dec.scala 558:45]
-  assign tlu_io_rst_vec = io_rst_vec[30:0]; // @[el2_dec.scala 559:45]
+  assign tlu_io_rst_vec = io_rst_vec; // @[el2_dec.scala 559:45]
   assign tlu_io_nmi_int = io_nmi_int; // @[el2_dec.scala 560:45]
-  assign tlu_io_nmi_vec = io_nmi_vec[30:0]; // @[el2_dec.scala 561:45]
+  assign tlu_io_nmi_vec = io_nmi_vec; // @[el2_dec.scala 561:45]
   assign tlu_io_i_cpu_halt_req = io_i_cpu_halt_req; // @[el2_dec.scala 562:45]
   assign tlu_io_i_cpu_run_req = io_i_cpu_run_req; // @[el2_dec.scala 563:45]
   assign tlu_io_lsu_fastint_stall_any = io_lsu_fastint_stall_any; // @[el2_dec.scala 564:45]
@@ -14227,7 +14227,7 @@ module el2_dec(
   assign tlu_io_dma_pmu_dccm_write = io_dma_pmu_dccm_write; // @[el2_dec.scala 589:45]
   assign tlu_io_dma_pmu_any_read = io_dma_pmu_any_read; // @[el2_dec.scala 590:45]
   assign tlu_io_dma_pmu_any_write = io_dma_pmu_any_write; // @[el2_dec.scala 591:45]
-  assign tlu_io_lsu_fir_addr = io_lsu_fir_addr[30:0]; // @[el2_dec.scala 592:45]
+  assign tlu_io_lsu_fir_addr = io_lsu_fir_addr; // @[el2_dec.scala 592:45]
   assign tlu_io_lsu_fir_error = io_lsu_fir_error; // @[el2_dec.scala 593:45]
   assign tlu_io_iccm_dma_sb_error = io_iccm_dma_sb_error; // @[el2_dec.scala 594:45]
   assign tlu_io_lsu_error_pkt_r_exc_valid = io_lsu_error_pkt_r_exc_valid; // @[el2_dec.scala 595:45]
@@ -14277,7 +14277,7 @@ module el2_dec(
   assign tlu_io_dec_div_active = decode_io_dec_div_active; // @[el2_dec.scala 523:40 el2_dec.scala 625:45]
   assign tlu_io_ifu_ic_error_start = io_ifu_ic_error_start; // @[el2_dec.scala 626:45]
   assign tlu_io_ifu_iccm_rd_ecc_single_err = io_ifu_iccm_rd_ecc_single_err; // @[el2_dec.scala 627:45]
-  assign tlu_io_ifu_ic_debug_rd_data = {{1'd0}, io_ifu_ic_debug_rd_data}; // @[el2_dec.scala 628:45]
+  assign tlu_io_ifu_ic_debug_rd_data = io_ifu_ic_debug_rd_data; // @[el2_dec.scala 628:45]
   assign tlu_io_ifu_ic_debug_rd_data_valid = io_ifu_ic_debug_rd_data_valid; // @[el2_dec.scala 629:45]
   assign tlu_io_pic_claimid = io_pic_claimid; // @[el2_dec.scala 630:45]
   assign tlu_io_pic_pl = io_pic_pl; // @[el2_dec.scala 631:45]
@@ -14285,7 +14285,7 @@ module el2_dec(
   assign tlu_io_mexintpend = io_mexintpend; // @[el2_dec.scala 633:45]
   assign tlu_io_timer_int = io_timer_int; // @[el2_dec.scala 634:45]
   assign tlu_io_soft_int = io_soft_int; // @[el2_dec.scala 635:45]
-  assign tlu_io_core_id = io_core_id[27:0]; // @[el2_dec.scala 636:45]
+  assign tlu_io_core_id = io_core_id; // @[el2_dec.scala 636:45]
   assign tlu_io_mpc_debug_halt_req = io_mpc_debug_halt_req; // @[el2_dec.scala 637:45]
   assign tlu_io_mpc_debug_run_req = io_mpc_debug_run_req; // @[el2_dec.scala 638:45]
   assign tlu_io_mpc_reset_run_req = io_mpc_reset_run_req; // @[el2_dec.scala 639:45]
