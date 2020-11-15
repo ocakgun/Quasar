@@ -114,7 +114,7 @@ class  el2_lsu_bus_intf extends Module with RequireAsyncReset with el2_lib {
     val lsu_axi_rid         = Input(UInt(LSU_BUS_TAG.W))
     val lsu_axi_rdata       = Input(UInt(64.W))
     val lsu_axi_rresp       = Input(UInt(2.W))
-    //val lsu_axi_rlast       = Input(Bool())
+    val lsu_axi_rlast       = Input(Bool())
 
     val lsu_bus_clk_en      = Input(Bool())
   })
