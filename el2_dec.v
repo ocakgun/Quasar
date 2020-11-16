@@ -972,7 +972,7 @@ module el2_dec_decode_ctl(
   output        io_dec_i0_predict_p_d_valid,
   output        io_dec_i0_predict_p_d_br_error,
   output        io_dec_i0_predict_p_d_br_start_error,
-  output [31:0] io_dec_i0_predict_p_d_prett,
+  output [30:0] io_dec_i0_predict_p_d_prett,
   output        io_dec_i0_predict_p_d_pcall,
   output        io_dec_i0_predict_p_d_pret,
   output        io_dec_i0_predict_p_d_pja,
@@ -2209,7 +2209,7 @@ module el2_dec_decode_ctl(
   assign io_dec_i0_predict_p_d_valid = i0_brp_valid & i0_legal_decode_d; // @[el2_dec_decode_ctl.scala 240:38]
   assign io_dec_i0_predict_p_d_br_error = _T_32 & _T_17; // @[el2_dec_decode_ctl.scala 247:51]
   assign io_dec_i0_predict_p_d_br_start_error = _T_35 & _T_17; // @[el2_dec_decode_ctl.scala 248:51]
-  assign io_dec_i0_predict_p_d_prett = {{1'd0}, io_dec_i0_brp_prett}; // @[el2_dec_decode_ctl.scala 237:38]
+  assign io_dec_i0_predict_p_d_prett = io_dec_i0_brp_prett; // @[el2_dec_decode_ctl.scala 237:38]
   assign io_dec_i0_predict_p_d_pcall = i0_dp_jal & i0_pcall_case; // @[el2_dec_decode_ctl.scala 234:38]
   assign io_dec_i0_predict_p_d_pret = i0_dp_jal & i0_pret_case; // @[el2_dec_decode_ctl.scala 236:38]
   assign io_dec_i0_predict_p_d_pja = i0_dp_jal & i0_pja_case; // @[el2_dec_decode_ctl.scala 235:38]
@@ -12972,7 +12972,7 @@ module el2_dec(
   output        io_dec_i0_predict_p_d_valid,
   output        io_dec_i0_predict_p_d_br_error,
   output        io_dec_i0_predict_p_d_br_start_error,
-  output [31:0] io_dec_i0_predict_p_d_prett,
+  output [30:0] io_dec_i0_predict_p_d_prett,
   output        io_dec_i0_predict_p_d_pcall,
   output        io_dec_i0_predict_p_d_pret,
   output        io_dec_i0_predict_p_d_pja,
@@ -13200,7 +13200,7 @@ module el2_dec(
   wire  decode_io_dec_i0_predict_p_d_valid; // @[el2_dec.scala 354:22]
   wire  decode_io_dec_i0_predict_p_d_br_error; // @[el2_dec.scala 354:22]
   wire  decode_io_dec_i0_predict_p_d_br_start_error; // @[el2_dec.scala 354:22]
-  wire [31:0] decode_io_dec_i0_predict_p_d_prett; // @[el2_dec.scala 354:22]
+  wire [30:0] decode_io_dec_i0_predict_p_d_prett; // @[el2_dec.scala 354:22]
   wire  decode_io_dec_i0_predict_p_d_pcall; // @[el2_dec.scala 354:22]
   wire  decode_io_dec_i0_predict_p_d_pret; // @[el2_dec.scala 354:22]
   wire  decode_io_dec_i0_predict_p_d_pja; // @[el2_dec.scala 354:22]
