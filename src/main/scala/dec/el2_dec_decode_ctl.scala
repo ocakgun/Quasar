@@ -218,6 +218,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
                       (io.exu_flush_final        ^  flush_final_r      ) |   // replaces free_clk
                       (illegal_lockout_in        ^  illegal_lockout    )     // replaces active_clk
 
+
   val data_gated_cgc= Module(new rvclkhdr)
   data_gated_cgc.io.en        := data_gate_en
   data_gated_cgc.io.scan_mode :=io.scan_mode

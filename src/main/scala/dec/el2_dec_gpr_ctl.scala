@@ -5,7 +5,7 @@ import chisel3.util._
 import include._
 import lib._
 
-class el2_dec_gpr_ctl extends Module with RequireAsyncReset{
+class el2_dec_gpr_ctl extends Module with el2_lib with RequireAsyncReset{
 	val io		=IO(new el2_dec_gpr_ctl_IO)
 	val w0v		=Wire(Vec(32,UInt(1.W)))
 	val w1v		=Wire(Vec(32,UInt(1.W)))

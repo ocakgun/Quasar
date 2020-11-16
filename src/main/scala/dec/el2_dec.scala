@@ -1,6 +1,6 @@
 package dec
-import Chisel.Cat
 import chisel3._
+import chisel3.util._
 import include._
 import lib._
 
@@ -16,11 +16,11 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_i0_decode_d       = Output(Bool())
   val dec_pause_state_cg    = Output(Bool())          // to top for active state clock gating
 
- // val rst_l                 = Input(Bool())           // reset, active low
-  val rst_vec               = Input(UInt(32.W))       // [31:1] reset vector, from core pins
+  // val rst_l                 = Input(Bool())           // reset, active low
+  val rst_vec               = Input(UInt(31.W))       // [31:1] reset vector, from core pins
 
   val nmi_int               = Input(Bool())           // NMI pin
-  val nmi_vec               = Input(UInt(32.W))       // [31:1] NMI vector, from pins
+  val nmi_vec               = Input(UInt(31.W))       // [31:1] NMI vector, from pins
 
   val i_cpu_halt_req        = Input(Bool())           // Asynchronous Halt request to CPU
   val i_cpu_run_req         = Input(Bool())           // Asynchronous Restart request to CPU
@@ -30,7 +30,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val o_cpu_run_ack         = Output(Bool())          // Run request ack
   val o_debug_mode_status   = Output(Bool())          // Core to the PMU that core is in debug mode. When core is in debug mode, the PMU should refrain from sendng a halt or run request
 
-  val core_id               = Input(UInt(32.W))       // [31:4] CORE ID
+  val core_id               = Input(UInt(28.W))       // [31:4] CORE ID
 
   // external MPC halt/run interface
   val mpc_debug_halt_req    = Input(Bool())   // Async halt request
@@ -66,7 +66,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dma_pmu_any_read              =  Input(Bool())      // DMA read
   val dma_pmu_any_write             =  Input(Bool())      // DMA write
 
-  val lsu_fir_addr    =   Input(UInt(32.W)) //[31:1] Fast int address
+  val lsu_fir_addr    =   Input(UInt(31.W)) //[31:1] Fast int address
   val lsu_fir_error   =   Input(UInt(2.W))  //[1:0]  Fast int lookup error
 
   val ifu_pmu_instr_aligned   =  Input(Bool())         // aligned instructions
@@ -97,7 +97,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val lsu_idle_any            = Input(Bool())     // lsu idle for halting
 
   val i0_brp                  = Input(new el2_br_pkt_t)         // branch packet
-  val ifu_i0_bp_index         = Input(UInt(BTB_ADDR_HI.W))      // BP index
+  val ifu_i0_bp_index         = Input(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W))      // BP index
   val ifu_i0_bp_fghr          = Input(UInt(BHT_GHR_SIZE.W))     // BP FGHR
   val ifu_i0_bp_btag          = Input(UInt(BTB_BTAG_SIZE.W))    // BP tag
 
@@ -123,16 +123,16 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val exu_flush_final               = Input(Bool())             // slot0 flush
 
-  val exu_npc_r                     = Input(UInt(32.W))            // next PC
+  val exu_npc_r                     = Input(UInt(31.W))            // next PC
 
   val exu_i0_result_x               = Input(UInt(32.W))     // alu result x
 
 
   val ifu_i0_valid             = Input(Bool())         // fetch valids to instruction buffer
   val ifu_i0_instr             = Input(UInt(32.W))     // fetch inst's to instruction buffer
-  val ifu_i0_pc                = Input(UInt(32.W))     // pc's for instruction buffer
+  val ifu_i0_pc                = Input(UInt(31.W))     // pc's for instruction buffer
   val ifu_i0_pc4               = Input(Bool())         // indication of 4B or 2B for corresponding inst
-  val exu_i0_pc_x              = Input(UInt(32.W))     // pc's for e1 from the alu's
+  val exu_i0_pc_x              = Input(UInt(31.W))     // pc's for e1 from the alu's
 
   val mexintpend                = Input(Bool())        // External interrupt pending
   val timer_int                 = Input(Bool())        // Timer interrupt pending (from pin)
@@ -145,7 +145,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_tlu_meicurpl          = Output(UInt(4.W))     // to PIC, Current priv level
   val dec_tlu_meipt             = Output(UInt(4.W))     // to PIC
 
-  val ifu_ic_debug_rd_data           = Input(UInt(70.W))          // diagnostic icache read data
+  val ifu_ic_debug_rd_data           = Input(UInt(71.W))          // diagnostic icache read data
   val ifu_ic_debug_rd_data_valid     = Input(Bool())          // diagnostic icache read data valid
   val dec_tlu_ic_diag_pkt            = Output(new el2_cache_debug_pkt_t)          // packet of DICAWICS, DICAD0/1, DICAGO info for icache diagnostics
 
@@ -162,7 +162,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_tlu_mpc_halted_only   = Output(Bool())       // Core is halted only due to MPC
   val dec_tlu_flush_leak_one_r  = Output(Bool())       // single step
   val dec_tlu_flush_err_r       = Output(Bool())       // iside perr/ecc rfpc
-  val dec_tlu_meihap            = Output(UInt(32.W))       // Fast ext int base
+  val dec_tlu_meihap            = Output(UInt(30.W))       // Fast ext int base
 
   val dec_debug_wdata_rs1_d     = Output(Bool())      // insert debug write data into rs1 at decode
 
@@ -173,7 +173,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val trigger_pkt_any           = Output(Vec(4,new el2_trigger_pkt_t))  // info needed by debug trigger blocks
 
-  val dec_tlu_force_halt        = Output(UInt(1.W))        // halt has been forced
+  val dec_tlu_force_halt        = Output(Bool())        // halt has been forced
   // Debug end
   // branch info from pipe0 for errors or counter updates
   val exu_i0_br_hist_r           = Input(UInt(2.W))          // history
@@ -191,7 +191,7 @@ class el2_dec_IO extends Bundle with el2_lib {
   val gpr_i0_rs2_d               = Output(UInt(32.W)) // gpr rs2 data
 
   val dec_i0_immed_d             = Output(UInt(32.W)) // immediate data
-  val dec_i0_br_immed_d          = Output(UInt(13.W)) // br immediate data
+  val dec_i0_br_immed_d          = Output(UInt(12.W)) // br immediate data
 
   val i0_ap                      = Output(new el2_alu_pkt_t)// alu packet
 
@@ -199,7 +199,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val dec_i0_select_pc_d        = Output(Bool())   // select pc onto rs1 for jal's
 
-  val dec_i0_pc_d               = Output(UInt(32.W)) // pc's at decode
+  val dec_i0_pc_d               = Output(UInt(31.W)) // pc's at decode
   val dec_i0_rs1_bypass_en_d    = Output(UInt(2.W)) // rs1 bypass enable
   val dec_i0_rs2_bypass_en_d    = Output(UInt(2.W)) // rs2 bypass enable
 
@@ -217,11 +217,11 @@ class el2_dec_IO extends Bundle with el2_lib {
 
 
   val dec_tlu_flush_lower_r     = Output(Bool())   // tlu flush due to late mp, exception, rfpc, or int
-  val dec_tlu_flush_path_r      = Output(UInt(32.W))   // tlu flush target
+  val dec_tlu_flush_path_r      = Output(UInt(31.W))   // tlu flush target
   val dec_tlu_i0_kill_writeb_r  = Output(Bool())   // I0 is flushed, don't writeback any results to arch state
   val dec_tlu_fence_i_r         = Output(Bool())   // flush is a fence_i rfnpc, flush icache
 
-  val pred_correct_npc_x  = Output(UInt(32.W))       // npc if prediction is correct at e2 stage
+  val pred_correct_npc_x  = Output(UInt(31.W))       // npc if prediction is correct at e2 stage
 
   val dec_tlu_br0_r_pkt  = Output(new el2_br_tlu_pkt_t)    // slot 0 branch predictor update packet
 
@@ -232,7 +232,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val dec_i0_predict_p_d = Output(new el2_predict_pkt_t)      // prediction packet to alus
   val i0_predict_fghr_d  = Output(UInt(BHT_GHR_SIZE.W))   // DEC predict fghr
-  val i0_predict_index_d = Output(UInt(BHT_ADDR_HI.W))   // DEC predict index
+  val i0_predict_index_d = Output(UInt((BHT_ADDR_HI-BHT_ADDR_LO+1).W))   // DEC predict index
   val i0_predict_btag_d  = Output(UInt(BTB_BTAG_SIZE.W))   // DEC predict branch tag
 
   val dec_lsu_valid_raw_d = Output(Bool())
@@ -274,79 +274,79 @@ class el2_dec extends Module with param with RequireAsyncReset{
 
 
 
-//  val               dec_ib0_valid_d    = WireInit(Bool(),0.B)
-//
-//  val               dec_pmu_instr_decoded  = WireInit(Bool(),0.B)
-//  val               dec_pmu_decode_stall   = WireInit(Bool(),0.B)
-//  val               dec_pmu_presync_stall  = WireInit(Bool(),0.B)
-//  val               dec_pmu_postsync_stall = WireInit(Bool(),0.B)
-//
-//  val dec_tlu_wr_pause_r = WireInit(UInt(1.W),0.U)           // CSR write to pause reg is at R.
-//
-//  val dec_i0_rs1_d = WireInit(UInt(5.W),0.U)
-//  val dec_i0_rs2_d = WireInit(UInt(5.W),0.U)
-//
-//  val dec_i0_instr_d = WireInit(UInt(32.W),0.U)
-//
-//  val  dec_tlu_pipelining_disable = WireInit(UInt(1.W),0.U)
-//  val dec_i0_waddr_r = WireInit(UInt(5.W),0.U)
-//  val        dec_i0_wen_r = WireInit(UInt(5.W),0.U)
-//  val dec_i0_wdata_r = WireInit(UInt(32.W),0.U)
-//  val        dec_csr_wen_r = WireInit(UInt(1.W),0.U)      // csr write enable at wb
-//  val  dec_csr_wraddr_r = WireInit(UInt(12.W),0.U)      // write address for csryes
-//  val  dec_csr_wrdata_r = WireInit(UInt(32.W),0.U)    // csr write data at wb
-//
-//  val dec_csr_rdaddr_d = WireInit(UInt(12.W),0.U)      // read address for csr
-//  val dec_csr_rddata_d = WireInit(UInt(32.W),0.U)    // csr read data at wb
-//  val        dec_csr_legal_d = WireInit(Bool(),0.B)              // csr indicates legal operation
-//
-//  val        dec_csr_wen_unq_d = WireInit(Bool(),0.B)       // valid csr with write - for csr legal
-//  val        dec_csr_any_unq_d = WireInit(Bool(),0.B)       // valid csr - for csr legal
-//  val        dec_csr_stall_int_ff = WireInit(Bool(),0.B)    // csr is mie/mstatus
-//
-//  val dec_tlu_packet_r = Wire(new el2_trap_pkt_t)
-//
-//  val        dec_i0_pc4_d                           = WireInit(UInt(1.W),0.U)
-//  val        dec_tlu_presync_d                      = WireInit(UInt(1.W),0.U)
-//  val        dec_tlu_postsync_d                     = WireInit(UInt(1.W),0.U)
-//  val        dec_tlu_debug_stall                    = WireInit(UInt(1.W),0.U)
-//  val  dec_illegal_inst                       = WireInit(UInt(32.W),0.U)
-//  val                      dec_i0_icaf_d            = WireInit(UInt(1.W),0.U)
-//  val                      dec_i0_dbecc_d           = WireInit(UInt(1.W),0.U)
-//  val                      dec_i0_icaf_f1_d         = WireInit(UInt(1.W),0.U)
-//  val                 dec_i0_trigger_match_d   = WireInit(UInt(4.W),0.U)
-//  val                      dec_debug_fence_d        = WireInit(UInt(1.W),0.U)
-//  val                      dec_nonblock_load_wen    = WireInit(UInt(1.W),0.U)
-//  val                 dec_nonblock_load_waddr  = WireInit(UInt(5.W),0.U)
-//  val                      dec_tlu_flush_pause_r    = WireInit(UInt(1.W),0.U)
-//  val                   dec_i0_brp = Wire(new el2_br_pkt_t)
-//  val dec_i0_bp_index = WireInit(UInt(BTB_ADDR_HI.W),0.U)
-//  val dec_i0_bp_fghr = WireInit(UInt(BHT_GHR_SIZE.W),0.U)
-//  val dec_i0_bp_btag = WireInit(UInt(BTB_BTAG_SIZE.W),0.U)
-//
-//  val dec_tlu_i0_pc_r = WireInit(UInt(32.W),0.U)
-//  val dec_tlu_i0_kill_writeb_wb = WireInit(Bool(),0.B)
-//  val dec_tlu_flush_lower_wb    = WireInit(Bool(),0.B)
-//  val dec_tlu_i0_valid_r        = WireInit(Bool(),0.B)
-//
-//  val  dec_pause_state  = WireInit(Bool(),0.B)
-//
-//  val dec_i0_icaf_type_d = WireInit(UInt(2.W),0.U) // i0 instruction access fault type
-//
-//  val dec_tlu_flush_extint =  WireInit(Bool(),0.B)// Fast ext int started
-//
+  //  val               dec_ib0_valid_d    = WireInit(Bool(),0.B)
+  //
+  //  val               dec_pmu_instr_decoded  = WireInit(Bool(),0.B)
+  //  val               dec_pmu_decode_stall   = WireInit(Bool(),0.B)
+  //  val               dec_pmu_presync_stall  = WireInit(Bool(),0.B)
+  //  val               dec_pmu_postsync_stall = WireInit(Bool(),0.B)
+  //
+  //  val dec_tlu_wr_pause_r = WireInit(UInt(1.W),0.U)           // CSR write to pause reg is at R.
+  //
+  //  val dec_i0_rs1_d = WireInit(UInt(5.W),0.U)
+  //  val dec_i0_rs2_d = WireInit(UInt(5.W),0.U)
+  //
+  //  val dec_i0_instr_d = WireInit(UInt(32.W),0.U)
+  //
+  //  val  dec_tlu_pipelining_disable = WireInit(UInt(1.W),0.U)
+  //  val dec_i0_waddr_r = WireInit(UInt(5.W),0.U)
+  //  val        dec_i0_wen_r = WireInit(UInt(5.W),0.U)
+  //  val dec_i0_wdata_r = WireInit(UInt(32.W),0.U)
+  //  val        dec_csr_wen_r = WireInit(UInt(1.W),0.U)      // csr write enable at wb
+  //  val  dec_csr_wraddr_r = WireInit(UInt(12.W),0.U)      // write address for csryes
+  //  val  dec_csr_wrdata_r = WireInit(UInt(32.W),0.U)    // csr write data at wb
+  //
+  //  val dec_csr_rdaddr_d = WireInit(UInt(12.W),0.U)      // read address for csr
+  //  val dec_csr_rddata_d = WireInit(UInt(32.W),0.U)    // csr read data at wb
+  //  val        dec_csr_legal_d = WireInit(Bool(),0.B)              // csr indicates legal operation
+  //
+  //  val        dec_csr_wen_unq_d = WireInit(Bool(),0.B)       // valid csr with write - for csr legal
+  //  val        dec_csr_any_unq_d = WireInit(Bool(),0.B)       // valid csr - for csr legal
+  //  val        dec_csr_stall_int_ff = WireInit(Bool(),0.B)    // csr is mie/mstatus
+  //
+  //  val dec_tlu_packet_r = Wire(new el2_trap_pkt_t)
+  //
+  //  val        dec_i0_pc4_d                           = WireInit(UInt(1.W),0.U)
+  //  val        dec_tlu_presync_d                      = WireInit(UInt(1.W),0.U)
+  //  val        dec_tlu_postsync_d                     = WireInit(UInt(1.W),0.U)
+  //  val        dec_tlu_debug_stall                    = WireInit(UInt(1.W),0.U)
+  //  val  dec_illegal_inst                       = WireInit(UInt(32.W),0.U)
+  //  val                      dec_i0_icaf_d            = WireInit(UInt(1.W),0.U)
+  //  val                      dec_i0_dbecc_d           = WireInit(UInt(1.W),0.U)
+  //  val                      dec_i0_icaf_f1_d         = WireInit(UInt(1.W),0.U)
+  //  val                 dec_i0_trigger_match_d   = WireInit(UInt(4.W),0.U)
+  //  val                      dec_debug_fence_d        = WireInit(UInt(1.W),0.U)
+  //  val                      dec_nonblock_load_wen    = WireInit(UInt(1.W),0.U)
+  //  val                 dec_nonblock_load_waddr  = WireInit(UInt(5.W),0.U)
+  //  val                      dec_tlu_flush_pause_r    = WireInit(UInt(1.W),0.U)
+  //  val                   dec_i0_brp = Wire(new el2_br_pkt_t)
+  //  val dec_i0_bp_index = WireInit(UInt(BTB_ADDR_HI.W),0.U)
+  //  val dec_i0_bp_fghr = WireInit(UInt(BHT_GHR_SIZE.W),0.U)
+  //  val dec_i0_bp_btag = WireInit(UInt(BTB_BTAG_SIZE.W),0.U)
+  //
+  //  val dec_tlu_i0_pc_r = WireInit(UInt(32.W),0.U)
+  //  val dec_tlu_i0_kill_writeb_wb = WireInit(Bool(),0.B)
+  //  val dec_tlu_flush_lower_wb    = WireInit(Bool(),0.B)
+  //  val dec_tlu_i0_valid_r        = WireInit(Bool(),0.B)
+  //
+  //  val  dec_pause_state  = WireInit(Bool(),0.B)
+  //
+  //  val dec_i0_icaf_type_d = WireInit(UInt(2.W),0.U) // i0 instruction access fault type
+  //
+  //  val dec_tlu_flush_extint =  WireInit(Bool(),0.B)// Fast ext int started
+  //
   val               dec_i0_inst_wb1 = WireInit(UInt(32.W),0.U)
   val               dec_i0_pc_wb1 = WireInit(UInt(32.W),0.U)
-    val               dec_tlu_i0_valid_wb1   = WireInit(UInt(1.W),0.U)
-    val               dec_tlu_int_valid_wb1  = WireInit(UInt(1.W),0.U)
+  val               dec_tlu_i0_valid_wb1   = WireInit(UInt(1.W),0.U)
+  val               dec_tlu_int_valid_wb1  = WireInit(UInt(1.W),0.U)
 
-    val               dec_tlu_exc_cause_wb1 = WireInit(UInt(5.W),0.U)
-    val               dec_tlu_mtval_wb1 = WireInit(UInt(32.W),0.U)
-    val               dec_tlu_i0_exc_valid_wb1 = WireInit(Bool(),0.B)
-//
-//  val               div_waddr_wb = WireInit(UInt(5.W),0.U)
-//
-//  val               dec_div_active = WireInit(Bool(),0.B)
+  val               dec_tlu_exc_cause_wb1 = WireInit(UInt(5.W),0.U)
+  val               dec_tlu_mtval_wb1 = WireInit(UInt(32.W),0.U)
+  val               dec_tlu_i0_exc_valid_wb1 = WireInit(Bool(),0.B)
+  //
+  //  val               div_waddr_wb = WireInit(UInt(5.W),0.U)
+  //
+  //  val               dec_div_active = WireInit(Bool(),0.B)
 
 
   //--------------------------------------------------------------------------//
@@ -359,7 +359,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   //instbuff.io <> io // error "Connection between left (el2_dec_ib_ctl_IO(IO io in el2_dec_ib_ctl)) and source (el2_dec_IO("
   //--------------------------------------------------------------------------//
 
-//connections for el2_dec_Ib
+  //connections for el2_dec_Ib
   //inputs
   instbuff.io.dbg_cmd_valid		    := io.dbg_cmd_valid
   instbuff.io.dbg_cmd_write		    := io.dbg_cmd_write
@@ -404,7 +404,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   dontTouch(dec_i0_trigger_match_d)
   //--------------------------------------------------------------------------//
 
-//connections for el2_dec_decode
+  //connections for el2_dec_decode
   // decode.io <> io
   //inputs
   decode.io.dec_tlu_flush_extint               :=  tlu.io.dec_tlu_flush_extint
@@ -463,7 +463,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   decode.io.free_clk                           :=  io.free_clk
   decode.io.active_clk                         :=  io.active_clk
   decode.io.clk_override                       :=  tlu.io.dec_tlu_dec_clk_override
- // decode.io.rst_l                              :=  io.rst_l
+  // decode.io.rst_l                              :=  io.rst_l
   decode.io.scan_mode                          :=  io.scan_mode
   //outputs
   io.dec_extint_stall                  :=   decode.io.dec_extint_stall
@@ -524,7 +524,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   //--------------------------------------------------------------------------//
 
 
-//connections for gprfile
+  //connections for gprfile
   //  gpr.io <> io
   //inputs
   gpr.io.raddr0       := decode.io.dec_i0_rs1_d
@@ -548,13 +548,13 @@ class el2_dec extends Module with param with RequireAsyncReset{
 
 
 
-//connection for dec_tlu
+  //connection for dec_tlu
   // tlu.io <> io
   //inputs
   //tlu.io.clk                                :=  io.clk
   tlu.io.active_clk                         :=  io.active_clk
   tlu.io.free_clk                           :=  io.free_clk
- // tlu.io.rst_l                              :=  io.rst_l
+  // tlu.io.rst_l                              :=  io.rst_l
   tlu.io.scan_mode                          :=  io.scan_mode
   tlu.io.rst_vec                            :=  io.rst_vec
   tlu.io.nmi_int                            :=  io.nmi_int
@@ -704,21 +704,18 @@ class el2_dec extends Module with param with RequireAsyncReset{
 
   //--------------------------------------------------------------------------//
 
+  io.rv_trace_pkt.rv_i_insn_ip := decode.io.dec_i0_inst_wb1
+  io.rv_trace_pkt.rv_i_address_ip := Cat(decode.io.dec_i0_pc_wb1, 0.U)
+  io.rv_trace_pkt.rv_i_valid_ip := Cat(tlu.io.dec_tlu_int_valid_wb1, tlu.io.dec_tlu_i0_valid_wb1 | tlu.io.dec_tlu_i0_exc_valid_wb1)
+  io.rv_trace_pkt.rv_i_exception_ip := Cat(tlu.io.dec_tlu_int_valid_wb1, tlu.io.dec_tlu_i0_exc_valid_wb1)
+  io.rv_trace_pkt.rv_i_ecause_ip := tlu.io.dec_tlu_exc_cause_wb1(4,0)
+  io.rv_trace_pkt.rv_i_interrupt_ip := Cat(tlu.io.dec_tlu_int_valid_wb1, 0.U)
+  io.rv_trace_pkt.rv_i_tval_ip := tlu.io.dec_tlu_mtval_wb1
 
 
   // debug command read data
   io.dec_dbg_rddata := decode.io.dec_i0_wdata_r
-  // trace
-  io.rv_trace_pkt.rv_i_insn_ip      :=    dec_i0_inst_wb1
-  io.rv_trace_pkt.rv_i_address_ip   :=    Cat(dec_i0_pc_wb1(31,1), 0.U(1.W))
-  io.rv_trace_pkt.rv_i_valid_ip     :=    Cat(dec_tlu_int_valid_wb1,  dec_tlu_i0_valid_wb1 | dec_tlu_i0_exc_valid_wb1)
-  io.rv_trace_pkt.rv_i_exception_ip :=    Cat(dec_tlu_int_valid_wb1, dec_tlu_i0_exc_valid_wb1)
-  io.rv_trace_pkt.rv_i_ecause_ip    :=    dec_tlu_exc_cause_wb1  // replicate across ports
-  io.rv_trace_pkt.rv_i_interrupt_ip :=    Cat(dec_tlu_int_valid_wb1,0.U(1.W))
-  io.rv_trace_pkt.rv_i_tval_ip      :=    dec_tlu_mtval_wb1        // replicate across ports
-  // end trace
-
 }
 object dec_main extends App {
-   chisel3.Driver execute(args, () => new el2_dec())
+  println((new chisel3.stage.ChiselStage).emitVerilog( new el2_dec()))
 }

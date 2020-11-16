@@ -2736,7 +2736,7 @@ class el2_dec_decode_csr_read extends Module{
 }
 
 
-class el2_dec_timer_ctl extends Module{
+class el2_dec_timer_ctl extends Module with el2_lib{
 	val io=IO(new el2_dec_timer_ctl_IO)
 	val MITCTL_ENABLE=0
 	val MITCTL_ENABLE_HALTED=1
