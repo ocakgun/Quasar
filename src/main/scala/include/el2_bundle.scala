@@ -189,8 +189,8 @@ class el2_lsu_error_pkt_t extends Bundle {
   val single_ecc_error  = UInt(1.W)
   val inst_type    = UInt(1.W)    //0: Load, 1: Store
   val exc_type     = UInt(1.W)    //0: MisAligned, 1: Access Fault
-  val mscause      = UInt(1.W)
-  val addr         = UInt(1.W)
+  val mscause      = UInt(4.W)
+  val addr         = UInt(32.W)
 }
 
 class el2_dec_pkt_t extends Bundle {
