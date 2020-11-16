@@ -1,5 +1,5 @@
 
-module TEC_RV_ICG(
+module gated_latch(
   (
    input logic SE, EN, CK,
    output Q
