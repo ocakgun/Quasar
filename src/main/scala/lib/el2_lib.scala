@@ -1,6 +1,7 @@
 package lib
 import chisel3._
 import chisel3.util._
+import el2_mem.waleed.{DCCM_ENABLE, ICACHE_ECC, ICACHE_WAYPACK, ICCM_ENABLE, bool2int}
 trait param {
   val BHT_ADDR_HI            = 9
   val BHT_ADDR_LO            = 2
@@ -175,7 +176,6 @@ trait el2_lib extends param{
   object rvsyncss {
     def apply(din:UInt,clk:Clock) =withClock(clk){RegNext(withClock(clk){RegNext(din,0.U)},0.U)}
   }
-
 
   ///////////////////////////////////////////////////////////////////
   def el2_btb_tag_hash(pc : UInt) =
@@ -544,5 +544,7 @@ trait el2_lib extends param{
     }
     Cat(temp.asUInt,din(0))
   }
+
+  //implicit def bool2int(b:Boolean): Int = if (b) 1 else 0
 
 }
