@@ -75,7 +75,7 @@ class el2_br_pkt_t extends Bundle {
   val br_error       = UInt(1.W)
   val br_start_error = UInt(1.W)
   val bank           = UInt(1.W)
-  val prett          = UInt(32.W)     // predicted ret target
+  val prett          = UInt(31.W)     // predicted ret target
   val way            = UInt(1.W)
   val ret            = UInt(1.W)
 }

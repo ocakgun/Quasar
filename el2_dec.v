@@ -8,7 +8,7 @@ module el2_dec_ib_ctl(
   input  [1:0]  io_i0_brp_hist,
   input         io_i0_brp_br_error,
   input         io_i0_brp_br_start_error,
-  input  [31:0] io_i0_brp_prett,
+  input  [30:0] io_i0_brp_prett,
   input         io_i0_brp_way,
   input         io_i0_brp_ret,
   input  [7:0]  io_ifu_i0_bp_index,
@@ -30,7 +30,7 @@ module el2_dec_ib_ctl(
   output [1:0]  io_dec_i0_brp_hist,
   output        io_dec_i0_brp_br_error,
   output        io_dec_i0_brp_br_start_error,
-  output [31:0] io_dec_i0_brp_prett,
+  output [30:0] io_dec_i0_brp_prett,
   output        io_dec_i0_brp_way,
   output        io_dec_i0_brp_ret,
   output [7:0]  io_dec_i0_bp_index,
@@ -856,7 +856,7 @@ module el2_dec_decode_ctl(
   input  [1:0]  io_dec_i0_brp_hist,
   input         io_dec_i0_brp_br_error,
   input         io_dec_i0_brp_br_start_error,
-  input  [31:0] io_dec_i0_brp_prett,
+  input  [30:0] io_dec_i0_brp_prett,
   input         io_dec_i0_brp_way,
   input         io_dec_i0_brp_ret,
   input  [7:0]  io_dec_i0_bp_index,
@@ -2209,7 +2209,7 @@ module el2_dec_decode_ctl(
   assign io_dec_i0_predict_p_d_valid = i0_brp_valid & i0_legal_decode_d; // @[el2_dec_decode_ctl.scala 240:38]
   assign io_dec_i0_predict_p_d_br_error = _T_32 & _T_17; // @[el2_dec_decode_ctl.scala 247:51]
   assign io_dec_i0_predict_p_d_br_start_error = _T_35 & _T_17; // @[el2_dec_decode_ctl.scala 248:51]
-  assign io_dec_i0_predict_p_d_prett = io_dec_i0_brp_prett; // @[el2_dec_decode_ctl.scala 237:38]
+  assign io_dec_i0_predict_p_d_prett = {{1'd0}, io_dec_i0_brp_prett}; // @[el2_dec_decode_ctl.scala 237:38]
   assign io_dec_i0_predict_p_d_pcall = i0_dp_jal & i0_pcall_case; // @[el2_dec_decode_ctl.scala 234:38]
   assign io_dec_i0_predict_p_d_pret = i0_dp_jal & i0_pret_case; // @[el2_dec_decode_ctl.scala 236:38]
   assign io_dec_i0_predict_p_d_pja = i0_dp_jal & i0_pja_case; // @[el2_dec_decode_ctl.scala 235:38]
@@ -12779,7 +12779,7 @@ module el2_dec(
   input         io_i0_brp_br_error,
   input         io_i0_brp_br_start_error,
   input         io_i0_brp_bank,
-  input  [31:0] io_i0_brp_prett,
+  input  [30:0] io_i0_brp_prett,
   input         io_i0_brp_way,
   input         io_i0_brp_ret,
   input  [7:0]  io_ifu_i0_bp_index,
@@ -13017,7 +13017,7 @@ module el2_dec(
   wire [1:0] instbuff_io_i0_brp_hist; // @[el2_dec.scala 353:24]
   wire  instbuff_io_i0_brp_br_error; // @[el2_dec.scala 353:24]
   wire  instbuff_io_i0_brp_br_start_error; // @[el2_dec.scala 353:24]
-  wire [31:0] instbuff_io_i0_brp_prett; // @[el2_dec.scala 353:24]
+  wire [30:0] instbuff_io_i0_brp_prett; // @[el2_dec.scala 353:24]
   wire  instbuff_io_i0_brp_way; // @[el2_dec.scala 353:24]
   wire  instbuff_io_i0_brp_ret; // @[el2_dec.scala 353:24]
   wire [7:0] instbuff_io_ifu_i0_bp_index; // @[el2_dec.scala 353:24]
@@ -13039,7 +13039,7 @@ module el2_dec(
   wire [1:0] instbuff_io_dec_i0_brp_hist; // @[el2_dec.scala 353:24]
   wire  instbuff_io_dec_i0_brp_br_error; // @[el2_dec.scala 353:24]
   wire  instbuff_io_dec_i0_brp_br_start_error; // @[el2_dec.scala 353:24]
-  wire [31:0] instbuff_io_dec_i0_brp_prett; // @[el2_dec.scala 353:24]
+  wire [30:0] instbuff_io_dec_i0_brp_prett; // @[el2_dec.scala 353:24]
   wire  instbuff_io_dec_i0_brp_way; // @[el2_dec.scala 353:24]
   wire  instbuff_io_dec_i0_brp_ret; // @[el2_dec.scala 353:24]
   wire [7:0] instbuff_io_dec_i0_bp_index; // @[el2_dec.scala 353:24]
@@ -13084,7 +13084,7 @@ module el2_dec(
   wire [1:0] decode_io_dec_i0_brp_hist; // @[el2_dec.scala 354:22]
   wire  decode_io_dec_i0_brp_br_error; // @[el2_dec.scala 354:22]
   wire  decode_io_dec_i0_brp_br_start_error; // @[el2_dec.scala 354:22]
-  wire [31:0] decode_io_dec_i0_brp_prett; // @[el2_dec.scala 354:22]
+  wire [30:0] decode_io_dec_i0_brp_prett; // @[el2_dec.scala 354:22]
   wire  decode_io_dec_i0_brp_way; // @[el2_dec.scala 354:22]
   wire  decode_io_dec_i0_brp_ret; // @[el2_dec.scala 354:22]
   wire [7:0] decode_io_dec_i0_bp_index; // @[el2_dec.scala 354:22]
