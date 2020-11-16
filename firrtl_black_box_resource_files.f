@@ -1,1 +1,1 @@
-/home/users/abdulhameed.akram/Documents/Swerv Project/SweRV-Chislified/TEC_RV_ICG.v
+/home/abdulhameedakram/Documents/SweRV-Chislified/gated_latch.v
