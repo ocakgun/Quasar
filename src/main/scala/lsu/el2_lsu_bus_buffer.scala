@@ -369,7 +369,7 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   val obuf_rdrsp_pend_in = (!(obuf_wr_en & !obuf_nosend_in) & obuf_rdrsp_pend & !(bus_rsp_read & (bus_rsp_read_tag === obuf_rdrsp_tag))) |
     ((bus_cmd_sent & !obuf_write) & !io.dec_tlu_force_halt)
   val obuf_tag0 = WireInit(UInt(LSU_BUS_TAG.W), 0.U)
-  val obuf_rdrsp_tag_in = Mux(bus_cmd_sent | !obuf_write, obuf_tag0, obuf_rdrsp_tag)
+  val obuf_rdrsp_tag_in = Mux(bus_cmd_sent & !obuf_write, obuf_tag0, obuf_rdrsp_tag)
   val obuf_addr = WireInit(UInt(32.W), 0.U)
   val obuf_sideeffect = WireInit(Bool(), false.B)
   obuf_nosend_in := (obuf_addr_in(31,3)===obuf_addr(31,3)) & obuf_aligned_in & !obuf_sideeffect & !obuf_write & !obuf_write_in & !io.dec_tlu_external_ldfwd_disable &
