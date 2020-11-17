@@ -8,11 +8,21 @@ import lib._
 class el2_dec_gpr_ctl extends Module with el2_lib with RequireAsyncReset{
 	val io		=IO(new el2_dec_gpr_ctl_IO)
 	val w0v		=Wire(Vec(32,UInt(1.W)))
+	w0v := (0 until 32).map(i => 0.U)
+
 	val w1v		=Wire(Vec(32,UInt(1.W)))
+	w1v := (0 until 32).map(i => 0.U)
+
 	val w2v		=Wire(Vec(32,UInt(1.W)))
+	w2v := (0 until 32).map(i => 0.U)
+
 	val gpr_in	=Wire(Vec(32,UInt(32.W)))
+	gpr_in := (0 until 32).map(i => 0.U)
+
 	val gpr_out 	=Wire(Vec(32,UInt(32.W)))
-	val gpr_wr_en	=Wire(UInt(32.W))	
+	gpr_out := (0 until 32).map(i => 0.U)
+
+	val gpr_wr_en	=WireInit(UInt(32.W),0.U)
 	w0v(0):=0.U
 	w1v(0):=0.U
 	w2v(0):=0.U
@@ -20,15 +30,16 @@ class el2_dec_gpr_ctl extends Module with el2_lib with RequireAsyncReset{
 	gpr_in(0):=0.U
 	io.rd0:=0.U
 	io.rd1:=0.U
-	gpr_wr_en:= (w0v.reverse).reduceRight(Cat(_,_)) | (w1v.reverse).reduceRight(Cat(_,_)) | (w2v.reverse).reduceRight(Cat(_,_))
-     // GPR Write logic 	
+	   // GPR Write logic
      for (j <-1 until 32){
          w0v(j)     := io.wen0  & (io.waddr0===j.asUInt)
          w1v(j)     := io.wen1  & (io.waddr1===j.asUInt)
          w2v(j)     := io.wen2  & (io.waddr2===j.asUInt)       
          gpr_in(j)  :=  (Fill(32,w0v(j)) & io.wd0) | (Fill(32,w1v(j)) & io.wd1) | (Fill(32,w2v(j)) & io.wd2)
 		}
-      // GPR Write Enables for power savings     
+	gpr_wr_en:= (w0v.reverse).reduceRight(Cat(_,_)) | (w1v.reverse).reduceRight(Cat(_,_)) | (w2v.reverse).reduceRight(Cat(_,_))
+
+	// GPR Write Enables for power savings
     for (j <-1 until 32){
  	  gpr_out(j):=rvdffe(gpr_in(j),gpr_wr_en(j),clock,io.scan_mode)
     }

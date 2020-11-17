@@ -270,7 +270,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 
 class el2_dec extends Module with param with RequireAsyncReset{
   val io = IO(new el2_dec_IO)
-  io.dec_i0_pc_d := 0.U
+
 
 
 
@@ -356,6 +356,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   val tlu = Module(new el2_dec_tlu_ctl)
   val dec_trigger = Module(new el2_dec_trigger)
 
+  io.dec_i0_pc_d := instbuff.io.dec_i0_pc_d
   //instbuff.io <> io // error "Connection between left (el2_dec_ib_ctl_IO(IO io in el2_dec_ib_ctl)) and source (el2_dec_IO("
   //--------------------------------------------------------------------------//
 
@@ -378,20 +379,20 @@ class el2_dec extends Module with param with RequireAsyncReset{
   instbuff.io.ifu_i0_instr        := io.ifu_i0_instr
   instbuff.io.ifu_i0_pc           := io.ifu_i0_pc
   //outputs
-  decode.io.dec_ib0_valid_d          := instbuff.io.dec_ib0_valid_d
-  decode.io.dec_i0_icaf_type_d       :=instbuff.io.dec_i0_icaf_type_d
-  decode.io.dec_i0_instr_d           :=instbuff.io.dec_i0_instr_d
-  decode.io.dec_i0_pc_d              :=instbuff.io.dec_i0_pc_d
-  decode.io.dec_i0_pc4_d             :=instbuff.io.dec_i0_pc4_d
-  decode.io.dec_i0_brp               :=instbuff.io.dec_i0_brp
-  decode.io.dec_i0_bp_index          :=instbuff.io.dec_i0_bp_index
-  decode.io.dec_i0_bp_fghr           :=instbuff.io.dec_i0_bp_fghr
-  decode.io.dec_i0_bp_btag           :=instbuff.io.dec_i0_bp_btag
-  decode.io.dec_i0_icaf_d            :=instbuff.io.dec_i0_icaf_d
-  decode.io.dec_i0_icaf_f1_d         :=instbuff.io.dec_i0_icaf_f1_d
-  decode.io.dec_i0_dbecc_d           :=instbuff.io.dec_i0_dbecc_d
+//  decode.io.dec_ib0_valid_d          := instbuff.io.dec_ib0_valid_d
+//  decode.io.dec_i0_icaf_type_d       :=instbuff.io.dec_i0_icaf_type_d
+//  decode.io.dec_i0_instr_d           :=instbuff.io.dec_i0_instr_d
+//  decode.io.dec_i0_pc_d              :=instbuff.io.dec_i0_pc_d
+//  decode.io.dec_i0_pc4_d             :=instbuff.io.dec_i0_pc4_d
+//  decode.io.dec_i0_brp               :=instbuff.io.dec_i0_brp
+//  decode.io.dec_i0_bp_index          :=instbuff.io.dec_i0_bp_index
+//  decode.io.dec_i0_bp_fghr           :=instbuff.io.dec_i0_bp_fghr
+//  decode.io.dec_i0_bp_btag           :=instbuff.io.dec_i0_bp_btag
+//  decode.io.dec_i0_icaf_d            :=instbuff.io.dec_i0_icaf_d
+//  decode.io.dec_i0_icaf_f1_d         :=instbuff.io.dec_i0_icaf_f1_d
+//  decode.io.dec_i0_dbecc_d           :=instbuff.io.dec_i0_dbecc_d
   io.dec_debug_wdata_rs1_d           := instbuff.io.dec_debug_wdata_rs1_d
-  decode.io.dec_debug_fence_d        :=instbuff.io.dec_debug_fence_d
+//  decode.io.dec_debug_fence_d        :=instbuff.io.dec_debug_fence_d
   //--------------------------------------------------------------------------//
 
   //connections for dec_trigger
@@ -448,7 +449,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   decode.io.dec_tlu_flush_pause_r              :=  tlu.io.dec_tlu_flush_pause_r
   decode.io.dec_tlu_presync_d                  :=  tlu.io.dec_tlu_presync_d
   decode.io.dec_tlu_postsync_d                 :=  tlu.io.dec_tlu_postsync_d
-  decode.io.dec_i0_pc4_d                       :=  instbuff.io.dec_i0_pc_d
+  decode.io.dec_i0_pc4_d                       :=  instbuff.io.dec_i0_pc4_d
   decode.io.dec_csr_rddata_d                   :=  tlu.io.dec_csr_rddata_d
   decode.io.dec_csr_legal_d                    :=  tlu.io.dec_csr_legal_d
   decode.io.exu_csr_rs1_x                      :=  io.exu_csr_rs1_x
@@ -471,8 +472,8 @@ class el2_dec extends Module with param with RequireAsyncReset{
   dec_i0_pc_wb1                        :=   decode.io.dec_i0_pc_wb1     //for tracer
   io.dec_i0_rs1_en_d                   :=   decode.io.dec_i0_rs1_en_d
   io.dec_i0_rs2_en_d                   :=   decode.io.dec_i0_rs2_en_d
-  gpr.io.raddr0                        :=   decode.io.dec_i0_rs1_d
-  gpr.io.raddr1                        :=   decode.io.dec_i0_rs2_d
+//  gpr.io.raddr0                        :=   decode.io.dec_i0_rs1_d
+//  gpr.io.raddr1                        :=   decode.io.dec_i0_rs2_d
   io.dec_i0_immed_d                    :=   decode.io.dec_i0_immed_d
   io.dec_i0_br_immed_d                 :=   decode.io.dec_i0_br_immed_d
   io.i0_ap                             :=   decode.io.i0_ap
@@ -480,31 +481,31 @@ class el2_dec extends Module with param with RequireAsyncReset{
   io.dec_i0_alu_decode_d               :=   decode.io.dec_i0_alu_decode_d
   io.dec_i0_rs1_bypass_data_d          :=   decode.io.dec_i0_rs1_bypass_data_d
   io.dec_i0_rs2_bypass_data_d          :=   decode.io.dec_i0_rs2_bypass_data_d
-  gpr.io.waddr0                        :=   decode.io.dec_i0_waddr_r
-  gpr.io.wen0                          :=   decode.io.dec_i0_wen_r
-  gpr.io.wd0                           :=   decode.io.dec_i0_wdata_r
+//  gpr.io.waddr0                        :=   decode.io.dec_i0_waddr_r
+//  gpr.io.wen0                          :=   decode.io.dec_i0_wen_r
+//  gpr.io.wd0                           :=   decode.io.dec_i0_wdata_r
   io.dec_i0_select_pc_d                :=   decode.io.dec_i0_select_pc_d
   io.dec_i0_rs1_bypass_en_d            :=   decode.io.dec_i0_rs1_bypass_en_d
   io.dec_i0_rs2_bypass_en_d            :=   decode.io.dec_i0_rs2_bypass_en_d
   io.lsu_p                             :=   decode.io.lsu_p
   io.mul_p                             :=   decode.io.mul_p
   io.div_p                             :=   decode.io.div_p
-  gpr.io.waddr2                        :=   decode.io.div_waddr_wb
+//  gpr.io.waddr2                        :=   decode.io.div_waddr_wb
   io.dec_div_cancel                    :=   decode.io.dec_div_cancel
   io.dec_lsu_valid_raw_d               :=   decode.io.dec_lsu_valid_raw_d
   io.dec_lsu_offset_d                  :=   decode.io.dec_lsu_offset_d
   io.dec_csr_ren_d                     :=   decode.io.dec_csr_ren_d
-  tlu.io.dec_csr_wen_unq_d             :=   decode.io.dec_csr_wen_unq_d
-  tlu.io.dec_csr_any_unq_d             :=   decode.io.dec_csr_any_unq_d
-  tlu.io.dec_csr_rdaddr_d              :=   decode.io.dec_csr_rdaddr_d
-  tlu.io.dec_csr_wen_r                 :=   decode.io.dec_csr_wen_r
-  tlu.io.dec_csr_wraddr_r              :=   decode.io.dec_csr_wraddr_r
-  tlu.io.dec_csr_wrdata_r              :=   decode.io.dec_csr_wrdata_r
-  tlu.io.dec_csr_stall_int_ff          :=   decode.io.dec_csr_stall_int_ff
-  tlu.io.dec_tlu_i0_valid_r            :=   decode.io.dec_tlu_i0_valid_r
-  tlu.io.dec_tlu_packet_r              :=   decode.io.dec_tlu_packet_r
-  tlu.io.dec_tlu_i0_pc_r               :=   decode.io.dec_tlu_i0_pc_r
-  tlu.io.dec_illegal_inst              :=   decode.io.dec_illegal_inst
+//  tlu.io.dec_csr_wen_unq_d             :=   decode.io.dec_csr_wen_unq_d
+//  tlu.io.dec_csr_any_unq_d             :=   decode.io.dec_csr_any_unq_d
+//  tlu.io.dec_csr_rdaddr_d              :=   decode.io.dec_csr_rdaddr_d
+//  tlu.io.dec_csr_wen_r                 :=   decode.io.dec_csr_wen_r
+//  tlu.io.dec_csr_wraddr_r              :=   decode.io.dec_csr_wraddr_r
+//  tlu.io.dec_csr_wrdata_r              :=   decode.io.dec_csr_wrdata_r
+//  tlu.io.dec_csr_stall_int_ff          :=   decode.io.dec_csr_stall_int_ff
+//  tlu.io.dec_tlu_i0_valid_r            :=   decode.io.dec_tlu_i0_valid_r
+//  tlu.io.dec_tlu_packet_r              :=   decode.io.dec_tlu_packet_r
+//  tlu.io.dec_tlu_i0_pc_r               :=   decode.io.dec_tlu_i0_pc_r
+//  tlu.io.dec_illegal_inst              :=   decode.io.dec_illegal_inst
   io.pred_correct_npc_x                :=   decode.io.pred_correct_npc_x
   io.dec_i0_predict_p_d                :=   decode.io.dec_i0_predict_p_d
   io.i0_predict_fghr_d                 :=   decode.io.i0_predict_fghr_d
@@ -512,15 +513,15 @@ class el2_dec extends Module with param with RequireAsyncReset{
   io.i0_predict_btag_d                 :=   decode.io.i0_predict_btag_d
   io.dec_data_en                       :=   decode.io.dec_data_en
   io.dec_ctl_en                        :=   decode.io.dec_ctl_en
-  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_pmu_instr_decoded
-  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_pmu_decode_stall
-  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_pmu_presync_stall
-  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_pmu_postsync_stall
-  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_nonblock_load_wen
-  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_nonblock_load_waddr
-  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_pause_state
+//  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_pmu_instr_decoded
+//  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_pmu_decode_stall
+//  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_pmu_presync_stall
+//  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_pmu_postsync_stall
+//  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_nonblock_load_wen
+//  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_nonblock_load_waddr
+//  tlu.io.dec_pmu_postsync_stall        :=   decode.io.dec_pause_state
   io.dec_pause_state_cg                :=   decode.io.dec_pause_state_cg
-  tlu.io.dec_div_active                :=   decode.io.dec_div_active
+ // tlu.io.dec_div_active                :=   decode.io.dec_div_active
   //--------------------------------------------------------------------------//
 
 
@@ -643,12 +644,12 @@ class el2_dec extends Module with param with RequireAsyncReset{
   io.dec_tlu_dbg_halted    := tlu.io.dec_tlu_dbg_halted
   io.dec_tlu_debug_mode    := tlu.io.dec_tlu_debug_mode
   io.dec_tlu_resume_ack    := tlu.io.dec_tlu_resume_ack
-  decode.io.dec_tlu_debug_stall    := tlu.io.dec_tlu_debug_stall
+ // decode.io.dec_tlu_debug_stall    := tlu.io.dec_tlu_debug_stall
   io.dec_tlu_flush_noredir_r     := tlu.io.dec_tlu_flush_noredir_r
   io.dec_tlu_mpc_halted_only     := tlu.io.dec_tlu_mpc_halted_only
   io.dec_tlu_flush_leak_one_r    := tlu.io.dec_tlu_flush_leak_one_r
   io.dec_tlu_flush_err_r         := tlu.io.dec_tlu_flush_err_r
-  decode.io.dec_tlu_flush_extint    := tlu.io.dec_tlu_flush_extint
+ // decode.io.dec_tlu_flush_extint    := tlu.io.dec_tlu_flush_extint
   io.dec_tlu_meihap         := tlu.io.dec_tlu_meihap
   io.trigger_pkt_any        := tlu.io.trigger_pkt_any
   io.dec_tlu_ic_diag_pkt    := tlu.io.dec_tlu_ic_diag_pkt
@@ -661,20 +662,20 @@ class el2_dec extends Module with param with RequireAsyncReset{
   io.debug_brkpt_status     := tlu.io.debug_brkpt_status
   io.dec_tlu_meicurpl       := tlu.io.dec_tlu_meicurpl
   io.dec_tlu_meipt          := tlu.io.dec_tlu_meipt
-  decode.io.dec_csr_rddata_d    := tlu.io.dec_csr_rddata_d
-  decode.io.dec_csr_legal_d     := tlu.io.dec_csr_legal_d
+//  decode.io.dec_csr_rddata_d    := tlu.io.dec_csr_rddata_d
+//  decode.io.dec_csr_legal_d     := tlu.io.dec_csr_legal_d
   io.dec_tlu_br0_r_pkt                   := tlu.io.dec_tlu_br0_r_pkt
-  decode.io.dec_tlu_i0_kill_writeb_wb    := tlu.io.dec_tlu_i0_kill_writeb_wb
-  decode.io.dec_tlu_flush_lower_wb       := tlu.io.dec_tlu_flush_lower_wb
+//  decode.io.dec_tlu_i0_kill_writeb_wb    := tlu.io.dec_tlu_i0_kill_writeb_wb
+//  decode.io.dec_tlu_flush_lower_wb       := tlu.io.dec_tlu_flush_lower_wb
   io.dec_tlu_i0_commit_cmt       := tlu.io.dec_tlu_i0_commit_cmt
   io.dec_tlu_i0_kill_writeb_r    := tlu.io.dec_tlu_i0_kill_writeb_r
   io.dec_tlu_flush_lower_r       := tlu.io.dec_tlu_flush_lower_r
   io.dec_tlu_flush_path_r        := tlu.io.dec_tlu_flush_path_r
   io.dec_tlu_fence_i_r           := tlu.io.dec_tlu_fence_i_r
-  decode.io.dec_tlu_wr_pause_r    := tlu.io.dec_tlu_wr_pause_r
-  decode.io.dec_tlu_flush_pause_r := tlu.io.dec_tlu_flush_pause_r
-  decode.io.dec_tlu_presync_d     := tlu.io.dec_tlu_presync_d
-  decode.io.dec_tlu_postsync_d    := tlu.io.dec_tlu_postsync_d
+//  decode.io.dec_tlu_wr_pause_r    := tlu.io.dec_tlu_wr_pause_r
+//  decode.io.dec_tlu_flush_pause_r := tlu.io.dec_tlu_flush_pause_r
+//  decode.io.dec_tlu_presync_d     := tlu.io.dec_tlu_presync_d
+//  decode.io.dec_tlu_postsync_d    := tlu.io.dec_tlu_postsync_d
   io.dec_tlu_mrac_ff        := tlu.io.dec_tlu_mrac_ff
   io.dec_tlu_force_halt     := tlu.io.dec_tlu_force_halt
   io.dec_tlu_perfcnt0       := tlu.io.dec_tlu_perfcnt0
