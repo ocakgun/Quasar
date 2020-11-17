@@ -315,7 +315,7 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   val obuf_wr_wait = (buf_numvld_wrcmd_any===1.U) & (buf_numvld_cmd_any===1.U) & (obuf_wr_timer =/= TIMER_MAX.U) &
     !bus_coalescing_disable & !Mux1H((0 until math.pow(2,LSU_NUM_NBLOAD_WIDTH).asInstanceOf[Int]).map(i=>(CmdPtr0===i.U)->buf_nomerge(i))) &
     !Mux1H((0 until math.pow(2,LSU_NUM_NBLOAD_WIDTH).asInstanceOf[Int]).map(i=>(CmdPtr0===i.U)->buf_sideeffect(i))) & !obuf_force_wr_en
-  val obuf_wr_timer_in = Mux(obuf_wr_en, 0.U(3.W), Mux(buf_numvld_cmd_any.orR & (obuf_wr_timer<TIMER_MAX), obuf_wr_timer+1.U, obuf_wr_timer))
+  val obuf_wr_timer_in = Mux(obuf_wr_en, 0.U(3.W), Mux(buf_numvld_cmd_any.orR & (obuf_wr_timer<TIMER_MAX.U), obuf_wr_timer+1.U, obuf_wr_timer))
   obuf_force_wr_en := io.lsu_busreq_m & !io.lsu_busreq_r & !ibuf_valid & (buf_numvld_cmd_any===1.U) & (io.lsu_addr_m(31,2)=/=Mux1H((0 until math.pow(2,LSU_NUM_NBLOAD_WIDTH).asInstanceOf[Int]).map(i=>(CmdPtr0===i.U)->buf_addr(i)(31,2))))
   val buf_numvld_pend_any = WireInit(UInt(4.W), 0.U)
   val ibuf_buf_byp = ibuf_byp & (buf_numvld_pend_any===0.U) & (!io.lsu_pkt_r.store | io.no_dword_merge_r)

@@ -1108,7 +1108,7 @@ module el2_lsu_bus_buffer(
   wire  _T_1056 = |buf_numvld_cmd_any; // @[el2_lsu_bus_buffer.scala 318:75]
   wire  _T_1057 = obuf_wr_timer < 3'h7; // @[el2_lsu_bus_buffer.scala 318:95]
   wire  _T_1058 = _T_1056 & _T_1057; // @[el2_lsu_bus_buffer.scala 318:79]
-  wire [2:0] _T_1060 = obuf_wr_timer + 3'h1; // @[el2_lsu_bus_buffer.scala 318:121]
+  wire [2:0] _T_1060 = obuf_wr_timer + 3'h1; // @[el2_lsu_bus_buffer.scala 318:123]
   wire  _T_4482 = buf_state_3 == 3'h1; // @[el2_lsu_bus_buffer.scala 577:63]
   wire  _T_4486 = _T_4482 | _T_4463; // @[el2_lsu_bus_buffer.scala 577:74]
   wire  _T_4477 = buf_state_2 == 3'h1; // @[el2_lsu_bus_buffer.scala 577:63]
