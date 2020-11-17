@@ -1,1 +1,1 @@
-/home/waleedbinehsan/Desktop/SweRV-Chislified-master/el2_mem.sv
+/home/waleedbinehsan/Desktop/SweRV-Chislified-master/dmi_wrapper.sv
