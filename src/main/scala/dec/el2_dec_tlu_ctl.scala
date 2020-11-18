@@ -1477,7 +1477,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
   val force_halt_ctr_f			      = WireInit(UInt(32.W),0.U) 
   val mdccmect_inc                = WireInit(UInt(27.W),0.U) 
   val miccmect_inc                = WireInit(UInt(27.W),0.U) 
-  val fw_halted                   = WireInit(UInt(1.W),0.U)  
+  //val fw_halted                   = WireInit(UInt(1.W),0.U)
   val micect_inc                  = WireInit(UInt(27.W),0.U) 
   val mdseac_en                   = WireInit(UInt(1.W),0.U) 
   val mie                         = WireInit(UInt(6.W),0.U)
@@ -1534,8 +1534,8 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val set_mie_pmu_fw_halt = !mpmc_b_ns & io.fw_halt_req
 
  val mstatus_ns = Mux1H(Seq(
-   (!wr_mstatus_r & io.exc_or_int_valid_r).asBool -> Cat(io.mstatus(MSTATUS_MIE)),
-   (wr_mstatus_r & io.exc_or_int_valid_r).asBool -> Cat(io.dec_csr_wrdata_r(3)),
+   (!wr_mstatus_r & io.exc_or_int_valid_r).asBool -> Cat(io.mstatus(MSTATUS_MIE),0.U),
+   (wr_mstatus_r & io.exc_or_int_valid_r).asBool -> Cat(io.dec_csr_wrdata_r(3),0.U),
    (io.mret_r & !io.exc_or_int_valid_r).asBool -> Cat(1.U, io.mstatus(1)),
    (set_mie_pmu_fw_halt).asBool -> Cat(io.mstatus(1), 1.U),
    (wr_mstatus_r & !io.exc_or_int_valid_r).asBool -> Cat(io.dec_csr_wrdata_r(7), io.dec_csr_wrdata_r(3)),
@@ -1602,7 +1602,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  
  val mcyclel_inc                 = WireInit(UInt(33.W),0.U)
  mcyclel_inc := mcyclel + Cat(0.U(31.W), mcyclel_cout_in)
- val mcyclel_ns = Mux(wr_mcyclel_r.asBool, io.dec_csr_wrdata_r, mcyclel_inc)
+ val mcyclel_ns = Mux(wr_mcyclel_r.asBool, io.dec_csr_wrdata_r, mcyclel_inc(31,0))
  val mcyclel_cout = mcyclel_inc(32).asBool
  mcyclel := rvdffe(mcyclel_ns, (wr_mcyclel_r | mcyclel_cout_in.asUInt).asBool, clock, io.scan_mode)
  val mcyclel_cout_f = withClock(io.free_clk) {RegNext((mcyclel_cout & !wr_mcycleh_r),0.U)}
@@ -1638,7 +1638,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val minstretl_cout = minstretl_inc(32)
  val minstret_enable = (i0_valid_no_ebreak_ecall_r | wr_minstretl_r).asBool
 
- val minstretl_ns = Mux(wr_minstretl_r.asBool, io.dec_csr_wrdata_r , minstretl_inc)
+ val minstretl_ns = Mux(wr_minstretl_r.asBool, io.dec_csr_wrdata_r , minstretl_inc(31,0))
  minstretl := rvdffe(minstretl_ns,minstret_enable.asBool,clock,io.scan_mode)
  val minstret_enable_f = withClock(io.free_clk){RegNext(minstret_enable,0.U)}
  val minstretl_cout_f  = withClock(io.free_clk){RegNext((minstretl_cout & ~wr_minstreth_r),0.U)}
@@ -1919,12 +1919,13 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  // allow the cycle of the dbg halt flush that contains the wr_mpmc_r to
  // set the io.mstatus bit potentially, use delayed version of internal dbg halt.
  io.fw_halt_req := wr_mpmc_r & io.dec_csr_wrdata_r(0) & ~io.internal_dbg_halt_mode_f2 & ~io.ext_int_freeze_d1
-
- val fw_halted_ns = (io.fw_halt_req | fw_halted) & ~set_mie_pmu_fw_halt
+ val fw_halted_ns = WireInit(UInt(1.W),0.U)
+ val fw_halted = withClock(io.free_clk){RegNext(fw_halted_ns,0.U)}
+ fw_halted_ns := (io.fw_halt_req | fw_halted) & ~set_mie_pmu_fw_halt
  mpmc_b_ns := Mux(wr_mpmc_r.asBool, ~io.dec_csr_wrdata_r(1), ~mpmc)
 
  mpmc_b := withClock(io.csr_wr_clk){RegNext(mpmc_b_ns,0.U)}
- fw_halted := withClock(io.free_clk){RegNext(fw_halted_ns,0.U)}
+
 
  mpmc := ~mpmc_b
 
