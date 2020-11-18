@@ -52,7 +52,7 @@ class el2_swerv_bundle extends Bundle with  el2_lib{
   val dccm_rd_data_lo = Input(UInt(DCCM_FDATA_WIDTH.W))
   val dccm_rd_data_hi = Input(UInt(DCCM_FDATA_WIDTH.W))
 
-  val iccm_rw_addr = Output(UInt(ICCM_BITS.W))
+  val iccm_rw_addr = Output(UInt((ICCM_BITS-1).W))
   val iccm_wren = Output(Bool())
   val iccm_rden = Output(Bool())
   val iccm_wr_size = Output(UInt(3.W))
@@ -144,7 +144,7 @@ class el2_swerv_bundle extends Bundle with  el2_lib{
   val ifu_axi_awprot = Output(UInt(3.W))
   val ifu_axi_awqos = Output(UInt(4.W))
   val ifu_axi_wvalid = Output(Bool())
-  val ifu_axi_wready = Output(Bool())
+  val ifu_axi_wready = Input(Bool())
   val ifu_axi_wdata = Output(UInt(64.W))
   val ifu_axi_wstrb = Output(UInt(8.W))
   val ifu_axi_wlast = Output(Bool())
@@ -851,7 +851,7 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   io.dma_hreadyout := 0.U
   io.dma_hresp := 0.U
 
-  io.ifu_axi_wready := 0.U
+  //io.ifu_axi_wready := 0.U
 
   io.dma_hresp := 0.U //dbg.io.dma_hresp
 
