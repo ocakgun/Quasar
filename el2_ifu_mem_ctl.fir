@@ -1,12 +1,12 @@
 ;buildInfoPackage: chisel3, version: 3.3.1, scalaVersion: 2.12.11, sbtVersion: 1.3.10
 circuit el2_ifu_mem_ctl : 
-  extmodule TEC_RV_ICG : 
+  extmodule gated_latch : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr : 
@@ -14,7 +14,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -24,13 +24,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_1 : 
+  extmodule gated_latch_1 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_1 : 
@@ -38,7 +38,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_1 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_1 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -48,13 +48,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_2 : 
+  extmodule gated_latch_2 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_2 : 
@@ -62,7 +62,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_2 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_2 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -72,13 +72,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_3 : 
+  extmodule gated_latch_3 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_3 : 
@@ -86,7 +86,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_3 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_3 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -96,13 +96,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_4 : 
+  extmodule gated_latch_4 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_4 : 
@@ -110,7 +110,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_4 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_4 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -120,13 +120,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_5 : 
+  extmodule gated_latch_5 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_5 : 
@@ -134,7 +134,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_5 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_5 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -144,13 +144,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_6 : 
+  extmodule gated_latch_6 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_6 : 
@@ -158,7 +158,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_6 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_6 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -168,13 +168,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_7 : 
+  extmodule gated_latch_7 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_7 : 
@@ -182,7 +182,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_7 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_7 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -192,13 +192,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_8 : 
+  extmodule gated_latch_8 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_8 : 
@@ -206,7 +206,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_8 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_8 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -216,13 +216,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_9 : 
+  extmodule gated_latch_9 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_9 : 
@@ -230,7 +230,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_9 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_9 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -240,13 +240,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_10 : 
+  extmodule gated_latch_10 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_10 : 
@@ -254,7 +254,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_10 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_10 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -264,13 +264,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_11 : 
+  extmodule gated_latch_11 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_11 : 
@@ -278,7 +278,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_11 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_11 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -288,13 +288,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_12 : 
+  extmodule gated_latch_12 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_12 : 
@@ -302,7 +302,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_12 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_12 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -312,13 +312,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_13 : 
+  extmodule gated_latch_13 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_13 : 
@@ -326,7 +326,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_13 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_13 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -336,13 +336,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_14 : 
+  extmodule gated_latch_14 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_14 : 
@@ -350,7 +350,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_14 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_14 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -360,13 +360,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_15 : 
+  extmodule gated_latch_15 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_15 : 
@@ -374,7 +374,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_15 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_15 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -384,13 +384,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_16 : 
+  extmodule gated_latch_16 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_16 : 
@@ -398,7 +398,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_16 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_16 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -408,13 +408,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_17 : 
+  extmodule gated_latch_17 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_17 : 
@@ -422,7 +422,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_17 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_17 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -432,13 +432,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_18 : 
+  extmodule gated_latch_18 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_18 : 
@@ -446,7 +446,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_18 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_18 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -456,13 +456,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_19 : 
+  extmodule gated_latch_19 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_19 : 
@@ -470,7 +470,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_19 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_19 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -480,13 +480,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_20 : 
+  extmodule gated_latch_20 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_20 : 
@@ -494,7 +494,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_20 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_20 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -504,13 +504,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_21 : 
+  extmodule gated_latch_21 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_21 : 
@@ -518,7 +518,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_21 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_21 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -528,13 +528,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_22 : 
+  extmodule gated_latch_22 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_22 : 
@@ -542,7 +542,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_22 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_22 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -552,13 +552,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_23 : 
+  extmodule gated_latch_23 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_23 : 
@@ -566,7 +566,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_23 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_23 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -576,13 +576,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_24 : 
+  extmodule gated_latch_24 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_24 : 
@@ -590,7 +590,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_24 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_24 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -600,13 +600,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_25 : 
+  extmodule gated_latch_25 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_25 : 
@@ -614,7 +614,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_25 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_25 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -624,13 +624,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_26 : 
+  extmodule gated_latch_26 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_26 : 
@@ -638,7 +638,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_26 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_26 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -648,13 +648,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_27 : 
+  extmodule gated_latch_27 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_27 : 
@@ -662,7 +662,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_27 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_27 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -672,13 +672,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_28 : 
+  extmodule gated_latch_28 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_28 : 
@@ -686,7 +686,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_28 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_28 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -696,13 +696,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_29 : 
+  extmodule gated_latch_29 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_29 : 
@@ -710,7 +710,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_29 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_29 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -720,13 +720,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_30 : 
+  extmodule gated_latch_30 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_30 : 
@@ -734,7 +734,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_30 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_30 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -744,13 +744,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_31 : 
+  extmodule gated_latch_31 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_31 : 
@@ -758,7 +758,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_31 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_31 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -768,13 +768,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_32 : 
+  extmodule gated_latch_32 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_32 : 
@@ -782,7 +782,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_32 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_32 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -792,13 +792,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_33 : 
+  extmodule gated_latch_33 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_33 : 
@@ -806,7 +806,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_33 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_33 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -816,13 +816,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_34 : 
+  extmodule gated_latch_34 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_34 : 
@@ -830,7 +830,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_34 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_34 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -840,13 +840,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_35 : 
+  extmodule gated_latch_35 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_35 : 
@@ -854,7 +854,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_35 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_35 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -864,13 +864,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_36 : 
+  extmodule gated_latch_36 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_36 : 
@@ -878,7 +878,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_36 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_36 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -888,13 +888,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_37 : 
+  extmodule gated_latch_37 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_37 : 
@@ -902,7 +902,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_37 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_37 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -912,13 +912,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_38 : 
+  extmodule gated_latch_38 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_38 : 
@@ -926,7 +926,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_38 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_38 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -936,13 +936,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_39 : 
+  extmodule gated_latch_39 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_39 : 
@@ -950,7 +950,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_39 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_39 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -960,13 +960,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_40 : 
+  extmodule gated_latch_40 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_40 : 
@@ -974,7 +974,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_40 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_40 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -984,13 +984,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_41 : 
+  extmodule gated_latch_41 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_41 : 
@@ -998,7 +998,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_41 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_41 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1008,13 +1008,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_42 : 
+  extmodule gated_latch_42 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_42 : 
@@ -1022,7 +1022,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_42 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_42 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1032,13 +1032,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_43 : 
+  extmodule gated_latch_43 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_43 : 
@@ -1046,7 +1046,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_43 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_43 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1056,13 +1056,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_44 : 
+  extmodule gated_latch_44 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_44 : 
@@ -1070,7 +1070,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_44 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_44 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1080,13 +1080,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_45 : 
+  extmodule gated_latch_45 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_45 : 
@@ -1094,7 +1094,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_45 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_45 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1104,13 +1104,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_46 : 
+  extmodule gated_latch_46 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_46 : 
@@ -1118,7 +1118,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_46 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_46 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1128,13 +1128,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_47 : 
+  extmodule gated_latch_47 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_47 : 
@@ -1142,7 +1142,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_47 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_47 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1152,13 +1152,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_48 : 
+  extmodule gated_latch_48 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_48 : 
@@ -1166,7 +1166,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_48 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_48 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1176,13 +1176,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_49 : 
+  extmodule gated_latch_49 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_49 : 
@@ -1190,7 +1190,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_49 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_49 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1200,13 +1200,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_50 : 
+  extmodule gated_latch_50 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_50 : 
@@ -1214,7 +1214,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_50 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_50 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1224,13 +1224,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_51 : 
+  extmodule gated_latch_51 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_51 : 
@@ -1238,7 +1238,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_51 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_51 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1248,13 +1248,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_52 : 
+  extmodule gated_latch_52 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_52 : 
@@ -1262,7 +1262,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_52 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_52 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1272,13 +1272,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_53 : 
+  extmodule gated_latch_53 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_53 : 
@@ -1286,7 +1286,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_53 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_53 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1296,13 +1296,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_54 : 
+  extmodule gated_latch_54 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_54 : 
@@ -1310,7 +1310,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_54 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_54 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1320,13 +1320,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_55 : 
+  extmodule gated_latch_55 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_55 : 
@@ -1334,7 +1334,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_55 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_55 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1344,13 +1344,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_56 : 
+  extmodule gated_latch_56 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_56 : 
@@ -1358,7 +1358,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_56 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_56 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1368,13 +1368,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_57 : 
+  extmodule gated_latch_57 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_57 : 
@@ -1382,7 +1382,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_57 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_57 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1392,13 +1392,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_58 : 
+  extmodule gated_latch_58 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_58 : 
@@ -1406,7 +1406,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_58 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_58 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1416,13 +1416,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_59 : 
+  extmodule gated_latch_59 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_59 : 
@@ -1430,7 +1430,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_59 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_59 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1440,13 +1440,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_60 : 
+  extmodule gated_latch_60 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_60 : 
@@ -1454,7 +1454,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_60 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_60 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1464,13 +1464,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_61 : 
+  extmodule gated_latch_61 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_61 : 
@@ -1478,7 +1478,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_61 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_61 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1488,13 +1488,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_62 : 
+  extmodule gated_latch_62 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_62 : 
@@ -1502,7 +1502,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_62 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_62 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1512,13 +1512,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_63 : 
+  extmodule gated_latch_63 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_63 : 
@@ -1526,7 +1526,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_63 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_63 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1536,13 +1536,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_64 : 
+  extmodule gated_latch_64 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_64 : 
@@ -1550,7 +1550,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_64 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_64 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1560,13 +1560,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_65 : 
+  extmodule gated_latch_65 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_65 : 
@@ -1574,7 +1574,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_65 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_65 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1584,13 +1584,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_66 : 
+  extmodule gated_latch_66 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_66 : 
@@ -1598,7 +1598,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_66 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_66 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1608,13 +1608,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_67 : 
+  extmodule gated_latch_67 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_67 : 
@@ -1622,7 +1622,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_67 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_67 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1632,13 +1632,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_68 : 
+  extmodule gated_latch_68 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_68 : 
@@ -1646,7 +1646,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_68 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_68 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1656,13 +1656,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_69 : 
+  extmodule gated_latch_69 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_69 : 
@@ -1670,7 +1670,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_69 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_69 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1680,13 +1680,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_70 : 
+  extmodule gated_latch_70 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_70 : 
@@ -1694,7 +1694,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_70 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_70 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1704,13 +1704,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_71 : 
+  extmodule gated_latch_71 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_71 : 
@@ -1718,7 +1718,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_71 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_71 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1728,13 +1728,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_72 : 
+  extmodule gated_latch_72 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_72 : 
@@ -1742,7 +1742,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_72 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_72 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1752,13 +1752,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_73 : 
+  extmodule gated_latch_73 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_73 : 
@@ -1766,7 +1766,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_73 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_73 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1776,13 +1776,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_74 : 
+  extmodule gated_latch_74 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_74 : 
@@ -1790,7 +1790,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_74 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_74 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1800,13 +1800,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_75 : 
+  extmodule gated_latch_75 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_75 : 
@@ -1814,7 +1814,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_75 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_75 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1824,13 +1824,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_76 : 
+  extmodule gated_latch_76 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_76 : 
@@ -1838,7 +1838,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_76 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_76 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1848,13 +1848,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_77 : 
+  extmodule gated_latch_77 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_77 : 
@@ -1862,7 +1862,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_77 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_77 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1872,13 +1872,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_78 : 
+  extmodule gated_latch_78 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_78 : 
@@ -1886,7 +1886,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_78 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_78 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1896,13 +1896,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_79 : 
+  extmodule gated_latch_79 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_79 : 
@@ -1910,7 +1910,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_79 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_79 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1920,13 +1920,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_80 : 
+  extmodule gated_latch_80 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_80 : 
@@ -1934,7 +1934,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_80 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_80 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1944,13 +1944,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_81 : 
+  extmodule gated_latch_81 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_81 : 
@@ -1958,7 +1958,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_81 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_81 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1968,13 +1968,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_82 : 
+  extmodule gated_latch_82 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_82 : 
@@ -1982,7 +1982,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_82 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_82 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -1992,13 +1992,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_83 : 
+  extmodule gated_latch_83 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_83 : 
@@ -2006,7 +2006,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_83 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_83 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -2016,13 +2016,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_84 : 
+  extmodule gated_latch_84 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_84 : 
@@ -2030,7 +2030,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_84 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_84 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -2040,13 +2040,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_85 : 
+  extmodule gated_latch_85 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_85 : 
@@ -2054,7 +2054,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_85 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_85 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -2064,13 +2064,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_86 : 
+  extmodule gated_latch_86 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_86 : 
@@ -2078,7 +2078,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_86 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_86 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -2088,13 +2088,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_87 : 
+  extmodule gated_latch_87 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_87 : 
@@ -2102,7 +2102,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_87 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_87 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -2112,13 +2112,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_88 : 
+  extmodule gated_latch_88 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_88 : 
@@ -2126,7 +2126,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_88 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_88 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -2136,13 +2136,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_89 : 
+  extmodule gated_latch_89 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_89 : 
@@ -2150,7 +2150,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_89 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_89 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -2160,13 +2160,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_90 : 
+  extmodule gated_latch_90 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_90 : 
@@ -2174,7 +2174,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_90 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_90 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -2184,13 +2184,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_91 : 
+  extmodule gated_latch_91 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_91 : 
@@ -2198,7 +2198,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_91 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_91 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -2208,13 +2208,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_92 : 
+  extmodule gated_latch_92 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_92 : 
@@ -2222,7 +2222,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_92 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_92 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -2232,13 +2232,13 @@ circuit el2_ifu_mem_ctl :
     clkhdr.EN <= io.en @[el2_lib.scala 477:18]
     clkhdr.SE <= io.scan_mode @[el2_lib.scala 478:18]
     
-  extmodule TEC_RV_ICG_93 : 
+  extmodule gated_latch_93 : 
     output Q : Clock
     input CK : Clock
     input EN : UInt<1>
     input SE : UInt<1>
     
-    defname = TEC_RV_ICG
+    defname = gated_latch
     
     
   module rvclkhdr_93 : 
@@ -2246,7 +2246,7 @@ circuit el2_ifu_mem_ctl :
     input reset : Reset
     output io : {l1clk : Clock, flip clk : Clock, flip en : UInt<1>, flip scan_mode : UInt<1>}
     
-    inst clkhdr of TEC_RV_ICG_93 @[el2_lib.scala 474:26]
+    inst clkhdr of gated_latch_93 @[el2_lib.scala 474:26]
     clkhdr.SE is invalid
     clkhdr.EN is invalid
     clkhdr.CK is invalid
@@ -15622,52 +15622,52 @@ circuit el2_ifu_mem_ctl :
     node _T_9783 = orr(_T_9782) @[el2_ifu_mem_ctl.scala 841:213]
     node _T_9784 = cat(io.ifc_fetch_addr_bf, UInt<1>("h00")) @[Cat.scala 29:58]
     node _T_9785 = or(_T_9784, UInt<31>("h07fffffff")) @[el2_ifu_mem_ctl.scala 842:62]
-    node _T_9786 = or(UInt<1>("h00"), UInt<31>("h07fffffff")) @[el2_ifu_mem_ctl.scala 842:118]
+    node _T_9786 = or(UInt<1>("h00"), UInt<31>("h07fffffff")) @[el2_ifu_mem_ctl.scala 842:126]
     node _T_9787 = eq(_T_9785, _T_9786) @[el2_ifu_mem_ctl.scala 842:93]
     node _T_9788 = and(UInt<1>("h01"), _T_9787) @[el2_ifu_mem_ctl.scala 842:27]
     node _T_9789 = or(_T_9783, _T_9788) @[el2_ifu_mem_ctl.scala 841:216]
     node _T_9790 = cat(io.ifc_fetch_addr_bf, UInt<1>("h00")) @[Cat.scala 29:58]
     node _T_9791 = or(_T_9790, UInt<30>("h03fffffff")) @[el2_ifu_mem_ctl.scala 843:62]
-    node _T_9792 = or(UInt<32>("h0c0000000"), UInt<30>("h03fffffff")) @[el2_ifu_mem_ctl.scala 843:118]
+    node _T_9792 = or(UInt<32>("h0c0000000"), UInt<30>("h03fffffff")) @[el2_ifu_mem_ctl.scala 843:126]
     node _T_9793 = eq(_T_9791, _T_9792) @[el2_ifu_mem_ctl.scala 843:93]
     node _T_9794 = and(UInt<1>("h01"), _T_9793) @[el2_ifu_mem_ctl.scala 843:27]
-    node _T_9795 = or(_T_9789, _T_9794) @[el2_ifu_mem_ctl.scala 842:150]
+    node _T_9795 = or(_T_9789, _T_9794) @[el2_ifu_mem_ctl.scala 842:158]
     node _T_9796 = cat(io.ifc_fetch_addr_bf, UInt<1>("h00")) @[Cat.scala 29:58]
     node _T_9797 = or(_T_9796, UInt<29>("h01fffffff")) @[el2_ifu_mem_ctl.scala 844:62]
-    node _T_9798 = or(UInt<32>("h0a0000000"), UInt<29>("h01fffffff")) @[el2_ifu_mem_ctl.scala 844:118]
+    node _T_9798 = or(UInt<32>("h0a0000000"), UInt<29>("h01fffffff")) @[el2_ifu_mem_ctl.scala 844:126]
     node _T_9799 = eq(_T_9797, _T_9798) @[el2_ifu_mem_ctl.scala 844:93]
     node _T_9800 = and(UInt<1>("h01"), _T_9799) @[el2_ifu_mem_ctl.scala 844:27]
-    node _T_9801 = or(_T_9795, _T_9800) @[el2_ifu_mem_ctl.scala 843:150]
+    node _T_9801 = or(_T_9795, _T_9800) @[el2_ifu_mem_ctl.scala 843:158]
     node _T_9802 = cat(io.ifc_fetch_addr_bf, UInt<1>("h00")) @[Cat.scala 29:58]
     node _T_9803 = or(_T_9802, UInt<28>("h0fffffff")) @[el2_ifu_mem_ctl.scala 845:62]
-    node _T_9804 = or(UInt<32>("h080000000"), UInt<28>("h0fffffff")) @[el2_ifu_mem_ctl.scala 845:118]
+    node _T_9804 = or(UInt<32>("h080000000"), UInt<28>("h0fffffff")) @[el2_ifu_mem_ctl.scala 845:126]
     node _T_9805 = eq(_T_9803, _T_9804) @[el2_ifu_mem_ctl.scala 845:93]
     node _T_9806 = and(UInt<1>("h01"), _T_9805) @[el2_ifu_mem_ctl.scala 845:27]
-    node _T_9807 = or(_T_9801, _T_9806) @[el2_ifu_mem_ctl.scala 844:150]
+    node _T_9807 = or(_T_9801, _T_9806) @[el2_ifu_mem_ctl.scala 844:158]
     node _T_9808 = cat(io.ifc_fetch_addr_bf, UInt<1>("h00")) @[Cat.scala 29:58]
     node _T_9809 = or(_T_9808, UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 846:62]
-    node _T_9810 = or(UInt<1>("h00"), UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 846:118]
+    node _T_9810 = or(UInt<1>("h00"), UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 846:126]
     node _T_9811 = eq(_T_9809, _T_9810) @[el2_ifu_mem_ctl.scala 846:93]
     node _T_9812 = and(UInt<1>("h00"), _T_9811) @[el2_ifu_mem_ctl.scala 846:27]
-    node _T_9813 = or(_T_9807, _T_9812) @[el2_ifu_mem_ctl.scala 845:150]
+    node _T_9813 = or(_T_9807, _T_9812) @[el2_ifu_mem_ctl.scala 845:158]
     node _T_9814 = cat(io.ifc_fetch_addr_bf, UInt<1>("h00")) @[Cat.scala 29:58]
     node _T_9815 = or(_T_9814, UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 847:62]
-    node _T_9816 = or(UInt<1>("h00"), UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 847:118]
+    node _T_9816 = or(UInt<1>("h00"), UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 847:126]
     node _T_9817 = eq(_T_9815, _T_9816) @[el2_ifu_mem_ctl.scala 847:93]
     node _T_9818 = and(UInt<1>("h00"), _T_9817) @[el2_ifu_mem_ctl.scala 847:27]
-    node _T_9819 = or(_T_9813, _T_9818) @[el2_ifu_mem_ctl.scala 846:150]
+    node _T_9819 = or(_T_9813, _T_9818) @[el2_ifu_mem_ctl.scala 846:158]
     node _T_9820 = cat(io.ifc_fetch_addr_bf, UInt<1>("h00")) @[Cat.scala 29:58]
     node _T_9821 = or(_T_9820, UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 848:62]
-    node _T_9822 = or(UInt<1>("h00"), UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 848:118]
+    node _T_9822 = or(UInt<1>("h00"), UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 848:126]
     node _T_9823 = eq(_T_9821, _T_9822) @[el2_ifu_mem_ctl.scala 848:93]
     node _T_9824 = and(UInt<1>("h00"), _T_9823) @[el2_ifu_mem_ctl.scala 848:27]
-    node _T_9825 = or(_T_9819, _T_9824) @[el2_ifu_mem_ctl.scala 847:150]
+    node _T_9825 = or(_T_9819, _T_9824) @[el2_ifu_mem_ctl.scala 847:158]
     node _T_9826 = cat(io.ifc_fetch_addr_bf, UInt<1>("h00")) @[Cat.scala 29:58]
     node _T_9827 = or(_T_9826, UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 849:62]
-    node _T_9828 = or(UInt<1>("h00"), UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 849:118]
+    node _T_9828 = or(UInt<1>("h00"), UInt<32>("h0ffffffff")) @[el2_ifu_mem_ctl.scala 849:126]
     node _T_9829 = eq(_T_9827, _T_9828) @[el2_ifu_mem_ctl.scala 849:93]
     node _T_9830 = and(UInt<1>("h00"), _T_9829) @[el2_ifu_mem_ctl.scala 849:27]
-    node ifc_region_acc_okay = or(_T_9825, _T_9830) @[el2_ifu_mem_ctl.scala 848:150]
+    node ifc_region_acc_okay = or(_T_9825, _T_9830) @[el2_ifu_mem_ctl.scala 848:158]
     node _T_9831 = eq(io.ifc_iccm_access_bf, UInt<1>("h00")) @[el2_ifu_mem_ctl.scala 850:40]
     node _T_9832 = eq(ifc_region_acc_okay, UInt<1>("h00")) @[el2_ifu_mem_ctl.scala 850:65]
     node _T_9833 = and(_T_9831, _T_9832) @[el2_ifu_mem_ctl.scala 850:63]

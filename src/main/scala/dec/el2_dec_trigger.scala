@@ -16,5 +16,5 @@ class el2_dec_trigger extends Module with el2_lib {
 
 }
 object dec_trig extends App {
-  println((new chisel3.stage.ChiselStage).emitVerilog((new el2_dec_trigger())))
+  chisel3.Driver execute(args, () => new el2_dec_trigger())
 }

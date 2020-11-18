@@ -8,7 +8,7 @@ module rvclkhdr(
   wire  clkhdr_CK; // @[el2_lib.scala 474:26]
   wire  clkhdr_EN; // @[el2_lib.scala 474:26]
   wire  clkhdr_SE; // @[el2_lib.scala 474:26]
-  TEC_RV_ICG clkhdr ( // @[el2_lib.scala 474:26]
+  gated_latch clkhdr ( // @[el2_lib.scala 474:26]
     .Q(clkhdr_Q),
     .CK(clkhdr_CK),
     .EN(clkhdr_EN),

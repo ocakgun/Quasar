@@ -216,10 +216,10 @@ trait el2_lib extends param{
 
   ///////////////////////////////////////////////////////////////////
   // RV range
-  def rvrangecheck(CCM_SADR:Long, CCM_SIZE:Int, addr:UInt) = {
+  def rvrangecheck(CCM_SADR:Int, CCM_SIZE:Int, addr:UInt) = {
     val REGION_BITS = 4;
     val MASK_BITS = 10 + log2Ceil(CCM_SIZE)
-    val start_addr = CCM_SADR.U(32.W)
+    val start_addr = aslong(CCM_SADR).U(32.W)
     val region = start_addr(31,32-REGION_BITS)
     val in_region = addr(31,(32-REGION_BITS)) === region
     val in_range = if(CCM_SIZE==48)
