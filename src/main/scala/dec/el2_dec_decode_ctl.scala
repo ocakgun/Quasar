@@ -492,7 +492,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
                       csr_set_x   ->  (csr_rddata_x |  csr_mask_x),
                       csr_write_x ->  (                csr_mask_x)))
   // pause instruction
-  val clear_pause = (io.dec_tlu_flush_lower_r & !io.dec_tlu_flush_pause_r) | (pause_state & (write_csr_data === 0.U(31.W)))        // if 0 or 1 then exit pause state - 1 cycle pause
+  val clear_pause = (io.dec_tlu_flush_lower_r & !io.dec_tlu_flush_pause_r) | (pause_state & (write_csr_data === Cat(Fill(31,0.U),write_csr_data(0))))        // if 0 or 1 then exit pause state - 1 cycle pause
   pause_state_in := (io.dec_tlu_wr_pause_r | pause_state) & !clear_pause
   pause_state := withClock(data_gate_clk){RegNext(pause_state_in, 0.U)}
   io.dec_pause_state := pause_state
@@ -647,8 +647,8 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   i0_d_c.load               :=  i0_dp.load & i0_legal_decode_d
   i0_d_c.alu                :=  i0_dp.alu  & i0_legal_decode_d
 
-  val i0_x_c = withClock(io.active_clk){RegEnable(i0_d_c, i0_x_ctl_en.asBool)}
-  val i0_r_c = withClock(io.active_clk){RegEnable(i0_x_c, i0_r_ctl_en.asBool)}
+  val i0_x_c = withClock(io.active_clk){RegEnable(i0_d_c, 0.U.asTypeOf(i0_d_c), i0_x_ctl_en.asBool)}
+  val i0_r_c = withClock(io.active_clk){RegEnable(i0_x_c, 0.U.asTypeOf(i0_x_c), i0_r_ctl_en.asBool)}
   i0_pipe_en := Cat(io.dec_i0_decode_d,withClock(io.active_clk){RegNext(i0_pipe_en(3,1), init=0.U)})
 
   i0_x_ctl_en               := (i0_pipe_en(3,2).orR | io.clk_override)
