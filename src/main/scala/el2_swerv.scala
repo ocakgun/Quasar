@@ -323,7 +323,7 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   val dbg = Module(new el2_dbg)
   val exu = Module(new el2_exu)
   val lsu = Module(new el2_lsu)
-  val pic_ctl_inst = Module(new el2_pic_ctrl)
+  val pic_ctrl_inst = Module(new el2_pic_ctrl)
   val dma_ctrl = Module(new el2_dma_ctrl)
   //val lsu_axi4_to_ahb = Module(new axi4_to_ahb)
   //val ifu_axi4_to_ahb = Module(new axi4_to_ahb)
@@ -475,11 +475,11 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   dec.io.ifu_i0_pc := ifu.io.ifu_i0_pc
   dec.io.ifu_i0_pc4 := ifu.io.ifu_i0_pc4
   dec.io.exu_i0_pc_x := exu.io.exu_i0_pc_x
-  dec.io.mexintpend := pic_ctl_inst.io.mexintpend
+  dec.io.mexintpend := pic_ctrl_inst.io.mexintpend
   dec.io.soft_int := io.soft_int
-  dec.io.pic_claimid := pic_ctl_inst.io.claimid
-  dec.io.pic_pl := pic_ctl_inst.io.pl
-  dec.io.mhwakeup := pic_ctl_inst.io.mhwakeup
+  dec.io.pic_claimid := pic_ctrl_inst.io.claimid
+  dec.io.pic_pl := pic_ctrl_inst.io.pl
+  dec.io.mhwakeup := pic_ctrl_inst.io.mhwakeup
   dec.io.ifu_ic_debug_rd_data := ifu.io.ifu_ic_debug_rd_data
   dec.io.ifu_ic_debug_rd_data_valid := ifu.io.ifu_ic_debug_rd_data_valid
   dec.io.dbg_halt_req := dbg.io.dbg_halt_req
@@ -640,21 +640,21 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
 
 
   // PIC lets go
-  pic_ctl_inst.io.scan_mode := io.scan_mode
-  pic_ctl_inst.reset := io.core_rst_l
-  pic_ctl_inst.io.free_clk := free_clk
-  pic_ctl_inst.io.active_clk := active_clk
-  pic_ctl_inst.io.clk_override := dec.io.dec_tlu_pic_clk_override
-  pic_ctl_inst.io.extintsrc_req := io.extintsrc_req
-  pic_ctl_inst.io.picm_rdaddr := lsu.io.picm_rdaddr
-  pic_ctl_inst.io.picm_wraddr := lsu.io.picm_wraddr
-  pic_ctl_inst.io.picm_wr_data := lsu.io.picm_wr_data
-  pic_ctl_inst.io.picm_wren := lsu.io.picm_wren
-  pic_ctl_inst.io.picm_rden := lsu.io.picm_rden
-  pic_ctl_inst.io.picm_mken := lsu.io.picm_mken
-  pic_ctl_inst.io.meicurpl := dec.io.dec_tlu_meicurpl
-  pic_ctl_inst.io.meipt := dec.io.dec_tlu_meipt
-  lsu.io.picm_rd_data := pic_ctl_inst.io.picm_rd_data
+  pic_ctrl_inst.io.scan_mode := io.scan_mode
+  pic_ctrl_inst.reset := io.core_rst_l
+  pic_ctrl_inst.io.free_clk := free_clk
+  pic_ctrl_inst.io.active_clk := active_clk
+  pic_ctrl_inst.io.clk_override := dec.io.dec_tlu_pic_clk_override
+  pic_ctrl_inst.io.extintsrc_req := io.extintsrc_req
+  pic_ctrl_inst.io.picm_rdaddr := lsu.io.picm_rdaddr
+  pic_ctrl_inst.io.picm_wraddr := lsu.io.picm_wraddr
+  pic_ctrl_inst.io.picm_wr_data := lsu.io.picm_wr_data
+  pic_ctrl_inst.io.picm_wren := lsu.io.picm_wren
+  pic_ctrl_inst.io.picm_rden := lsu.io.picm_rden
+  pic_ctrl_inst.io.picm_mken := lsu.io.picm_mken
+  pic_ctrl_inst.io.meicurpl := dec.io.dec_tlu_meicurpl
+  pic_ctrl_inst.io.meipt := dec.io.dec_tlu_meipt
+  lsu.io.picm_rd_data := pic_ctrl_inst.io.picm_rd_data
 
 
 

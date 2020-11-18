@@ -1205,6 +1205,10 @@
   },
   {
     "class":"firrtl.transforms.DontTouchAnnotation",
+    "target":"~el2_swerv|el2_exu>i0_rs2_d"
+  },
+  {
+    "class":"firrtl.transforms.DontTouchAnnotation",
     "target":"~el2_swerv|el2_dec_trigger>io_dec_i0_trigger_match_d"
   },
   {
