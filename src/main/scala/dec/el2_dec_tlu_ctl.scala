@@ -2398,7 +2398,7 @@ for(i <- 0 until 4) {io.trigger_pkt_any(i).tdata2 := mtdata2_t(i)}
                    (mhpme_vec(i) === MHPME_IBUS_STALL      ).asBool -> io.ifu_pmu_bus_busy,
                    (mhpme_vec(i) === MHPME_DBUS_STALL      ).asBool -> io.lsu_pmu_bus_busy,
                    (mhpme_vec(i) === MHPME_INT_DISABLED    ).asBool -> (~io.mstatus(MSTATUS_MIE)),
-                   (mhpme_vec(i) === MHPME_INT_STALLED     ).asBool -> (~io.mstatus(MSTATUS_MIE) & (io.mip(5,0) & mie(5,0))),
+                   (mhpme_vec(i) === MHPME_INT_STALLED     ).asBool -> (~io.mstatus(MSTATUS_MIE) & (io.mip(5,0) & mie(5,0).orR)),
                    (mhpme_vec(i) === MHPME_INST_BITMANIP   ).asBool -> (pmu_i0_itype_qual === BITMANIPU),
                    (mhpme_vec(i) === MHPME_DBUS_LOAD       ).asBool -> (io.tlu_i0_commit_cmt & io.lsu_pmu_load_external_r),
                    (mhpme_vec(i) === MHPME_DBUS_STORE      ).asBool -> (io.tlu_i0_commit_cmt & io.lsu_pmu_store_external_r),
