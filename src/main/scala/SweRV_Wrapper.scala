@@ -399,13 +399,8 @@ class SweRV_Wrapper extends Module with el2_lib with RequireAsyncReset {
   mem.io.ic_debug_wr_en := swerv.io.ic_debug_wr_en
   mem.io.ic_debug_tag_array := swerv.io.ic_debug_tag_array
   mem.io.ic_debug_way := swerv.io.ic_debug_way
-  mem.io.rst_l := reset.asBool()
-  mem.io.clk := clock.asBool()
-
-
-
-
-
+  mem.io.rst_l := reset
+  mem.io.clk := clock
   mem.io.scan_mode := io.scan_mode
   // Memory outputs
   swerv.io.dbg_rst_l := io.dbg_rst_l

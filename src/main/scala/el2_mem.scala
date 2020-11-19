@@ -3,8 +3,8 @@ import chisel3._
 import chisel3.util.HasBlackBoxResource
 import lib._
 class Mem_bundle extends Bundle with el2_lib {
-  val clk = Input(Bool())
-  val rst_l = Input(Bool())
+  val clk = Input(Clock())
+  val rst_l = Input(AsyncReset())
   val dccm_clk_override = Input(Bool())
   val icm_clk_override = Input(Bool())
   val dec_tlu_core_ecc_disable = Input(Bool())
