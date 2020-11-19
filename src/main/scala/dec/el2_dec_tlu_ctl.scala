@@ -1668,7 +1668,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  mscratch := rvdffe(io.dec_csr_wrdata_r,wr_mscratch_r.asBool,clock,io.scan_mode)
 
 
- // ----------------------------------------------------------------------
+ // ---------------------------meivt-------------------------------------------
  // MEPC (RW)
  // [31:1] : Exception PC
 
@@ -2031,7 +2031,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val wr_meihap_r = wr_meicpct_r
 
  val meihap = rvdffe(io.pic_claimid,wr_meihap_r.asBool,clock,io.scan_mode)
- io.dec_tlu_meihap := Cat(meivt, meihap,0.U(2.W))
+ io.dec_tlu_meihap := Cat(meivt, meihap)
 
  // ----------------------------------------------------------------------
  // MEICURPL (R/W)
