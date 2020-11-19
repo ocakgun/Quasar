@@ -2297,7 +2297,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
                        io.dec_csr_wrdata_r(7,6), tdata_opcode, io.dec_csr_wrdata_r(1), tdata_load)
 
  // If the DMODE bit is set, tdata1 can only be updated in debug_mode
- val wr_mtdata1_t_r = VecInit.tabulate(4)(i =>  io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MTDATA1) & (mtsel === 0.U(2.W)) & (~io.mtdata1_t(i)(MTDATA1_DMODE) | io.dbg_tlu_halted_f))
+ val wr_mtdata1_t_r = VecInit.tabulate(4)(i =>  io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MTDATA1) & (mtsel === i.U(2.W)) & (~io.mtdata1_t(i)(MTDATA1_DMODE) | io.dbg_tlu_halted_f))
  val mtdata1_t_ns = VecInit.tabulate(4)(i => Mux(wr_mtdata1_t_r(i).asBool, tdata_wrdata_r, Cat(io.mtdata1_t(i)(9), io.update_hit_bit_r(i) | io.mtdata1_t(i)(8), io.mtdata1_t(i)(7,0))))
 
 for(i <- 0 until 4) { io.mtdata1_t(i) := withClock(io.active_clk){RegNext(mtdata1_t_ns(i),0.U)}}
