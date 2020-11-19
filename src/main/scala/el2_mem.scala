@@ -3,7 +3,7 @@ import chisel3._
 import chisel3.util.HasBlackBoxResource
 import lib._
 class Mem_bundle extends Bundle with el2_lib {
-  val clk = Input(Clock())
+  val clk = Input(Bool())
   val rst_l = Input(Bool())
   val dccm_clk_override = Input(Bool())
   val icm_clk_override = Input(Bool())
@@ -16,13 +16,17 @@ class Mem_bundle extends Bundle with el2_lib {
   val dccm_rd_addr_hi = Input(UInt(DCCM_BITS.W))
   val dccm_wr_data_lo = Input(UInt(DCCM_FDATA_WIDTH.W))
   val dccm_wr_data_hi = Input(UInt(DCCM_FDATA_WIDTH.W))
-  val iccm_rw_addr = Input(UInt(ICCM_BITS.W))
+  val dccm_rd_data_lo = Output(UInt(DCCM_FDATA_WIDTH.W))
+
+  val iccm_rw_addr = Input(UInt((ICCM_BITS-1).W))
   val iccm_buf_correct_ecc = Input(Bool())
   val iccm_correction_state = Input(Bool())
   val iccm_wren = Input(Bool())
   val iccm_rden = Input(Bool())
   val iccm_wr_size = Input(UInt(3.W))
   val iccm_wr_data = Input(UInt(78.W))
+
+
   val ic_rw_addr = Input(UInt(31.W))
   val ic_tag_valid = Input(UInt(ICACHE_NUM_WAYS.W))
   val ic_wr_en = Input(UInt(ICACHE_NUM_WAYS.W))
@@ -31,23 +35,25 @@ class Mem_bundle extends Bundle with el2_lib {
   val ic_sel_premux_data = Input(Bool())
   val ic_wr_data = Input(Vec(ICACHE_BANKS_WAY, UInt(71.W)))
   val ic_debug_wr_data = Input(UInt(71.W))
-  val ic_debug_addr = Input(UInt(ICACHE_INDEX_HI.W))
+
+  val ic_debug_addr = Input(UInt((ICACHE_INDEX_HI-2).W))
   val ic_debug_rd_en = Input(Bool())
   val ic_debug_wr_en = Input(Bool())
   val ic_debug_tag_array = Input(Bool())
   val ic_debug_way = Input(UInt(ICACHE_NUM_WAYS.W))
   val scan_mode = Input(Bool())
-  val dccm_rd_data_lo = Output(UInt(DCCM_FDATA_WIDTH.W))
-  val dccm_rd_data_hi = Output(UInt(DCCM_FDATA_WIDTH.W))
-  val iccm_rd_data = Output(UInt(64.W))
+
   val iccm_rd_data_ecc = Output(UInt(78.W))
-  val ic_debug_rd_data = Output(UInt(71.W))
+  val dccm_rd_data_hi = Output(UInt(DCCM_FDATA_WIDTH.W))
   val ic_rd_data = Output(UInt(64.W))
   val ictag_debug_rd_data = Output(UInt(26.W))
   val ic_eccerr = Output(UInt(ICACHE_BANKS_WAY.W))
   val ic_parerr = Output(UInt(ICACHE_BANKS_WAY.W))
   val ic_rd_hit = Output(UInt(ICACHE_NUM_WAYS.W))
   val ic_tag_perr = Output(Bool())
+  val ic_debug_rd_data = Output(UInt(71.W))
+  val iccm_rd_data = Output(UInt(64.W))
+
 }
 object waleed extends el2_lib {
   class el2_mem extends BlackBox(Map("DCCM_BITS" -> DCCM_BITS,

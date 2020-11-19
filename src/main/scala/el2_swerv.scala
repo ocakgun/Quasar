@@ -8,7 +8,7 @@ import lib._
 import include._
 import dbg._
 class el2_swerv_bundle extends Bundle with  el2_lib{
-  val dbg_rst_l = Input(Bool())
+  val dbg_rst_l = Input(AsyncReset())
   val rst_vec = Input(UInt(31.W))
   val nmi_int = Input(Bool())
   val nmi_vec = Input(UInt(31.W))
@@ -595,7 +595,7 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   dbg.io.sb_axi_rdata := io.sb_axi_rdata
   dbg.io.sb_axi_rresp := io.sb_axi_rresp
   dbg.io.dbg_bus_clk_en := io.dbg_bus_clk_en
-  dbg.io.dbg_rst_l := io.dbg_rst_l
+  dbg.io.dbg_rst_l := io.dbg_rst_l.asBool()
   dbg.io.clk_override := dec.io.dec_tlu_misc_clk_override
   dbg.io.scan_mode := io.scan_mode
 
