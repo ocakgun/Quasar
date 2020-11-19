@@ -4,7 +4,6 @@ import chisel3.util._
 import lib._
 import include._
 import el2_inst_pkt_t._
-//import lib.beh_ib_func._
 trait CSR_VAL {
 
 	val MSTATUS_MIE		=0
