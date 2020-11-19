@@ -60,7 +60,7 @@ object waleed extends el2_lib {
     "DCCM_FDATA_WIDTH" -> DCCM_FDATA_WIDTH,
     "ICCM_BITS" -> ICCM_BITS,
     "ICACHE_NUM_WAYS" -> ICACHE_NUM_WAYS,
-    "ICACHE_BANKS_WAYS" -> ICACHE_BANKS_WAY,
+    "ICACHE_BANKS_WAY" -> ICACHE_BANKS_WAY,
     "ICACHE_INDEX_HI" -> ICACHE_INDEX_HI,
     "DCCM_ENABLE" -> bool2int(DCCM_ENABLE),
     "ICACHE_ENABLE" -> bool2int(ICCM_ENABLE),
@@ -69,6 +69,7 @@ object waleed extends el2_lib {
     "ICACHE_DATA_INDEX_LO" -> ICACHE_DATA_INDEX_LO,
     "ICACHE_TAG_LO" -> ICACHE_TAG_LO,
     "ICACHE_BANK_LO" -> ICACHE_BANK_LO,
+    "ICACHE_BANK_HI" -> ICACHE_BANK_HI,
     "ICACHE_WAYPACK" -> bool2int(ICACHE_WAYPACK),
     "ICACHE_ECC" -> bool2int(ICACHE_ECC),
     "ICACHE_DATA_DEPTH" -> ICACHE_DATA_DEPTH,
@@ -83,7 +84,6 @@ object waleed extends el2_lib {
     "ICCM_BANK_BITS" -> ICCM_BANK_BITS,
     "DCCM_BYTE_WIDTH" -> DCCM_BYTE_WIDTH,
     "DCCM_BANK_BITS" -> DCCM_BANK_BITS,
-    "DCCM_WIDTH_BITS" -> DCCM_WIDTH_BITS,
     "DCCM_SIZE" -> DCCM_SIZE,
     "DCCM_NUM_BANKS" -> DCCM_NUM_BANKS)) with HasBlackBoxResource {
     val io = IO(new Mem_bundle)

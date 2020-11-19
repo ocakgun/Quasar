@@ -13,7 +13,7 @@ class dmi_wrapper extends BlackBox with HasBlackBoxResource{
     val tdoEnable      = Output(UInt(1.W))
     val core_rst_n     = Input(AsyncReset())
     val core_clk       = Input(Clock())
-    val jtag_id        = Input(UInt(32.W))
+    val jtag_id        = Input(UInt(31.W))
     val rd_data        = Input(UInt(32.W))
     val reg_wr_data    = Output(UInt(32.W))
     val reg_wr_addr    = Output(UInt(7.W))

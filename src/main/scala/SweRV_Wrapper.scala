@@ -3,7 +3,7 @@ import el2_mem._
 import chisel3.util._
 import dmi._
 import lib._
-class SweRV_Wrapper extends Module with el2_lib with RequireAsyncReset {
+class el2_swerv_wrapper extends Module with el2_lib with RequireAsyncReset {
   val io = IO(new Bundle{
     val dbg_rst_l = Input(AsyncReset())
     val rst_vec = Input(UInt(31.W))
@@ -701,5 +701,5 @@ class SweRV_Wrapper extends Module with el2_lib with RequireAsyncReset {
 
 }
 object SWERV_Wrp extends App {
-  println((new chisel3.stage.ChiselStage).emitVerilog(new SweRV_Wrapper()))
+  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_swerv_wrapper()))
 }
