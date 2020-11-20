@@ -1600,7 +1600,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
 
  
  val mcyclel_inc                 = WireInit(UInt(33.W),0.U)
- mcyclel_inc := mcyclel + Cat(0.U(31.W), mcyclel_cout_in)
+ mcyclel_inc := mcyclel +& Cat(0.U(31.W), mcyclel_cout_in)
  val mcyclel_ns = Mux(wr_mcyclel_r.asBool, io.dec_csr_wrdata_r, mcyclel_inc(31,0))
  val mcyclel_cout = mcyclel_inc(32).asBool
  mcyclel := rvdffe(mcyclel_ns, (wr_mcyclel_r | mcyclel_cout_in.asUInt).asBool, clock, io.scan_mode)
@@ -1633,7 +1633,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
 
  val wr_minstretl_r = io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === MINSTRETL)
 
- minstretl_inc := minstretl + Cat(0.U(31.W),i0_valid_no_ebreak_ecall_r)
+ minstretl_inc := minstretl +& Cat(0.U(31.W),i0_valid_no_ebreak_ecall_r)
  val minstretl_cout = minstretl_inc(32)
  val minstret_enable = (i0_valid_no_ebreak_ecall_r | wr_minstretl_r).asBool
 
