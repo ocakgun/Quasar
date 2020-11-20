@@ -186,6 +186,7 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   val buf_write_in = WireInit(UInt(DEPTH.W), 0.U)
   val buf_unsign = WireInit(UInt(DEPTH.W), 0.U)
   val buf_error = WireInit(UInt(DEPTH.W), 0.U)
+  val CmdPtr1 = WireInit(UInt(DEPTH_LOG2.W), 0.U)
 
   val ibuf_data = WireInit(UInt(32.W), 0.U)
   io.ld_byte_hit_buf_lo := (0 until 4).map(i => (ld_byte_hitvecfn_lo(i).orR | ld_byte_ibuf_hit_lo(i)).asUInt).reverse.reduce(Cat(_, _))
@@ -349,9 +350,9 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   val obuf_merge_en = WireInit(Bool(), false.B)
   val obuf_merge_in = obuf_merge_en
   val obuf_tag0_in = Mux(ibuf_buf_byp, WrPtr0_r, CmdPtr0)
-  val Cmdptr1 = WireInit(UInt(DEPTH_LOG2.W), 0.U)
+  //val Cmdptr1 = WireInit(UInt(DEPTH_LOG2.W), 0.U)
 
-  val obuf_tag1_in = Mux(ibuf_buf_byp, WrPtr1_r, Cmdptr1)
+  val obuf_tag1_in = Mux(ibuf_buf_byp, WrPtr1_r, CmdPtr1)
   val obuf_cmd_done = WireInit(Bool(), false.B)
   val bus_wcmd_sent = WireInit(Bool(), false.B)
   val obuf_cmd_done_in = !(obuf_wr_en | obuf_rst) & (obuf_cmd_done | bus_wcmd_sent)
@@ -377,21 +378,21 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   val obuf_byteen0_in = Mux(ibuf_buf_byp, Mux(io.lsu_addr_r(2), Cat(ldst_byteen_lo_r, 0.U(4.W)), Cat(0.U(4.W), ldst_byteen_lo_r)),
     Mux(indexing(buf_addr, CmdPtr0)(2).asBool(), Cat(indexing(buf_byteen, CmdPtr0), 0.U(4.W)), Cat(0.U(4.W),indexing(buf_byteen, CmdPtr0))))
   val obuf_byteen1_in = Mux(ibuf_buf_byp, Mux(io.end_addr_r(2), Cat(ldst_byteen_hi_r, 0.U(4.W)), Cat(0.U(4.W), ldst_byteen_hi_r)),
-    Mux(indexing(buf_addr, Cmdptr1)(2).asBool(), Cat(indexing(buf_byteen, Cmdptr1), 0.U(4.W)), Cat(0.U(4.W),indexing(buf_byteen, Cmdptr1))))
+    Mux(indexing(buf_addr, CmdPtr1)(2).asBool(), Cat(indexing(buf_byteen, CmdPtr1), 0.U(4.W)), Cat(0.U(4.W),indexing(buf_byteen, CmdPtr1))))
 
   val obuf_data0_in = Mux(ibuf_buf_byp, Mux(io.lsu_addr_r(2), Cat(store_data_lo_r, 0.U(32.W)), Cat(0.U(32.W), store_data_lo_r)),
     Mux(indexing(buf_addr, CmdPtr0)(2).asBool(), Cat(indexing(buf_data, CmdPtr0), 0.U(32.W)), Cat(0.U(32.W),indexing(buf_data, CmdPtr0))))
   val obuf_data1_in = Mux(ibuf_buf_byp, Mux(io.lsu_addr_r(2), Cat(store_data_hi_r, 0.U(32.W)), Cat(0.U(32.W), store_data_hi_r)),
-    Mux(indexing(buf_addr, Cmdptr1)(2).asBool(), Cat(indexing(buf_data, Cmdptr1), 0.U(32.W)), Cat(0.U(32.W),indexing(buf_data, Cmdptr1))))
+    Mux(indexing(buf_addr, CmdPtr1)(2).asBool(), Cat(indexing(buf_data, CmdPtr1), 0.U(32.W)), Cat(0.U(32.W),indexing(buf_data, CmdPtr1))))
   val obuf_byteen_in = (0 until 8).map(i=>(obuf_byteen0_in(i) | (obuf_merge_en & obuf_byteen1_in(i))).asUInt).reverse.reduce(Cat(_,_))
   val obuf_data_in = (0 until 8).map(i=>Mux(obuf_merge_en & obuf_byteen1_in(i), obuf_data1_in((8*i)+7, 8*i), obuf_data0_in((8*i)+7, 8*i))).reverse.reduce(Cat(_,_))
 
   val buf_dualhi = Wire(Vec(DEPTH, Bool()))
   buf_dualhi := buf_dualhi.map(i=> false.B)
-  obuf_merge_en := ((CmdPtr0 =/= Cmdptr1) & found_cmdptr0 & found_cmdptr1 & (indexing(buf_state, CmdPtr0) === cmd_C) & (indexing(buf_state, Cmdptr1) === cmd_C) &
+  obuf_merge_en := ((CmdPtr0 =/= CmdPtr1) & found_cmdptr0 & found_cmdptr1 & (indexing(buf_state, CmdPtr0) === cmd_C) & (indexing(buf_state, CmdPtr1) === cmd_C) &
     !indexing(buf_cmd_state_bus_en.map(_.asUInt).reverse.reduce(Cat(_,_)), CmdPtr0) & !indexing(buf_sideeffect, CmdPtr0) &
-    ((indexing(buf_write, CmdPtr0) & indexing(buf_write, Cmdptr1) &
-      (indexing(buf_addr, CmdPtr0)(31,3)===indexing(buf_addr, Cmdptr1)(31,3)) & !bus_coalescing_disable & !BUILD_AXI_NATIVE.B) |
+    ((indexing(buf_write, CmdPtr0) & indexing(buf_write, CmdPtr1) &
+      (indexing(buf_addr, CmdPtr0)(31,3)===indexing(buf_addr, CmdPtr1)(31,3)) & !bus_coalescing_disable & !BUILD_AXI_NATIVE.B) |
       (!indexing(buf_write, CmdPtr0) & indexing(buf_dual.map(_.asUInt).reverse.reduce(Cat(_,_)), CmdPtr0) & !indexing(buf_dualhi.map(_.asUInt).reverse.reduce(Cat(_,_)), CmdPtr0) & indexing(buf_samedw.map(_.asUInt).reverse.reduce(Cat(_,_)), CmdPtr0)))) |
     (ibuf_buf_byp & ldst_samedw_r & io.ldst_dual_r)
 
@@ -439,7 +440,7 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   def Enc8x3(in: UInt) : UInt = Cat(in(4)|in(5)|in(6)|in(7), in(2)|in(3)|in(6)|in(7), in(1)|in(3)|in(5)|in(7))
 
 
-  val CmdPtr1 = WireInit(UInt(DEPTH_LOG2.W), 0.U)
+
   val RspPtr = WireInit(UInt(DEPTH_LOG2.W), 0.U)
   CmdPtr0 := Enc8x3(Cat(Fill(8-DEPTH, 0.U),CmdPtr0Dec))
 
