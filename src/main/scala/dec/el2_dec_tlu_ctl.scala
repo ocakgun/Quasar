@@ -2362,10 +2362,9 @@ for(i <- 0 until 4) {io.trigger_pkt_any(i).tdata2 := mtdata2_t(i)}
                    (mhpme_vec(i) === MHPME_INST_DIV        ).asBool -> (io.dec_tlu_packet_r.pmu_divide  & io.tlu_i0_commit_cmt),
                    (mhpme_vec(i) === MHPME_INST_LOAD       ).asBool -> (pmu_i0_itype_qual === LOAD),
                    (mhpme_vec(i) === MHPME_INST_STORE      ).asBool -> (pmu_i0_itype_qual === STORE),
-                   (mhpme_vec(i) === MHPME_INST_MALOAD     ).asBool -> ((pmu_i0_itype_qual === LOAD) & io.dec_tlu_packet_r.pmu_lsu_misaligned
-                                                                (mhpme_vec(i) === MHPME_INST_MASTORE) & (pmu_i0_itype_qual === STORE) &
-                                                                io.dec_tlu_packet_r.pmu_lsu_misaligned.asBool),
-                   (mhpme_vec(i) === MHPME_INST_ALU).asBool      ->  (pmu_i0_itype_qual === ALU),
+                   (mhpme_vec(i) === MHPME_INST_MALOAD     ).asBool -> (pmu_i0_itype_qual === LOAD & io.dec_tlu_packet_r.pmu_lsu_misaligned),
+                   (mhpme_vec(i) === MHPME_INST_MASTORE	   ).asBool -> (pmu_i0_itype_qual === STORE & io.dec_tlu_packet_r.pmu_lsu_misaligned.asBool),
+                   (mhpme_vec(i) === MHPME_INST_ALU	).asBool ->  (pmu_i0_itype_qual === ALU),
                    (mhpme_vec(i) === MHPME_INST_CSRREAD ).asBool ->  (pmu_i0_itype_qual === CSRREAD),
                    (mhpme_vec(i) === MHPME_INST_CSRWRITE).asBool ->  (pmu_i0_itype_qual === CSRWRITE),
                    (mhpme_vec(i) === MHPME_INST_CSRRW   ).asBool ->  (pmu_i0_itype_qual === CSRRW),
