@@ -6335,7 +6335,7 @@ circuit el2_lsu_bus_buffer :
     node _T_4867 = neq(io.lsu_axi_bresp, UInt<1>("h00")) @[el2_lsu_bus_buffer.scala 618:60]
     node _T_4868 = and(bus_rsp_write, _T_4867) @[el2_lsu_bus_buffer.scala 618:40]
     bus_rsp_write_error <= _T_4868 @[el2_lsu_bus_buffer.scala 618:23]
-    node _T_4869 = neq(io.lsu_axi_bresp, UInt<1>("h00")) @[el2_lsu_bus_buffer.scala 619:58]
+    node _T_4869 = neq(io.lsu_axi_rresp, UInt<1>("h00")) @[el2_lsu_bus_buffer.scala 619:58]
     node _T_4870 = and(bus_rsp_read, _T_4869) @[el2_lsu_bus_buffer.scala 619:38]
     bus_rsp_read_error <= _T_4870 @[el2_lsu_bus_buffer.scala 619:22]
     bus_rsp_rdata <= io.lsu_axi_rdata @[el2_lsu_bus_buffer.scala 620:17]

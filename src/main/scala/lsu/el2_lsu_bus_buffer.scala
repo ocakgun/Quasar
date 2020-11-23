@@ -616,7 +616,7 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   bus_rsp_read_tag := io.lsu_axi_rid
   bus_rsp_write_tag := io.lsu_axi_bid
   bus_rsp_write_error := bus_rsp_write & (io.lsu_axi_bresp =/= 0.U)
-  bus_rsp_read_error := bus_rsp_read & (io.lsu_axi_bresp =/= 0.U)
+  bus_rsp_read_error := bus_rsp_read & (io.lsu_axi_rresp =/= 0.U)
   bus_rsp_rdata := io.lsu_axi_rdata
 
   // AXI Command signals
