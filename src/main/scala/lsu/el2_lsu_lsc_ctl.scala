@@ -274,8 +274,3 @@ class  el2_lsu_lsc_ctl extends Module with RequireAsyncReset with el2_lib
       ((Fill(32,io.lsu_pkt_r.word))  & lsu_ld_datafn_corr_r(31,0))
   }
 }
-
-object lsu_lsc_ctl extends App{
-  println("Generate Verilog")
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_lsu_lsc_ctl()))
-}

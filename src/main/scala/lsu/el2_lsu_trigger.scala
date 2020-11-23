@@ -20,8 +20,3 @@ class el2_lsu_trigger extends Module with RequireAsyncReset with el2_lib {
     rvmaskandmatch(io.trigger_pkt_any(i).tdata2, lsu_match_data(i), io.trigger_pkt_any(i).match_pkt.asBool())).reverse.reduce(Cat(_,_))
 
 }
-
-object main_trigger extends App{
-  println("Generate Verilog")
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_lsu_trigger()))
-}

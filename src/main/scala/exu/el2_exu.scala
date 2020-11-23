@@ -294,7 +294,3 @@ class el2_exu_IO extends Bundle with param{
   val		exu_div_result			=Output(UInt(32.W))                         // Divide result
   val		exu_div_wren			=Output(UInt(1.W))                          // Divide write enable to GPR
 }
-
-object exu_gen extends App{
-  println(chisel3.Driver.emitVerilog(new el2_exu()))
-}

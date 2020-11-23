@@ -338,7 +338,3 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   io.iccm_correction_state := mem_ctl_ch.io.iccm_correction_state
   io.ic_premux_data := mem_ctl_ch.io.ic_premux_data
 }
-
-object ifu_comp extends App {
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_ifu()))
-}

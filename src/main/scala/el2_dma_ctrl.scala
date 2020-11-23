@@ -551,6 +551,3 @@ class el2_dma_ctrl extends Module with el2_lib with RequireAsyncReset {
   bus_rsp_valid 		    := (io.dma_axi_bvalid | io.dma_axi_rvalid)
   bus_rsp_sent 			    := ((io.dma_axi_bvalid & io.dma_axi_bready) | (io.dma_axi_rvalid & io.dma_axi_rready))
 }
-object dma extends App{
-  chisel3.Driver.emitVerilog(new el2_dma_ctrl)
-}

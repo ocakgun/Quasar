@@ -308,9 +308,3 @@ class  el2_lsu_dccm_ctl extends Module with RequireAsyncReset with el2_lib
     io.lsu_dccm_rden_r := 0.U}
 
 }
-
-object dccm_ctl extends App{
-  println("Generate Verilog")
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_lsu_dccm_ctl()))
-}
-

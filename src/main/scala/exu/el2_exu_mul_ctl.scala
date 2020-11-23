@@ -40,7 +40,3 @@ class el2_exu_mul_ctl extends Module with RequireAsyncReset with el2_lib {
   prod_x := rs1_x  *  rs2_x
   io.result_x := Mux1H (Seq(!low_x.asBool -> prod_x(63,32), low_x.asBool -> prod_x(31,0)))
 }
-object mul_main extends App{
-  println("Generate Verilog")
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_exu_mul_ctl()))
-}

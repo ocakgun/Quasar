@@ -474,7 +474,3 @@ class el2_dbg extends Module with el2_lib with RequireAsyncReset {
     Fill(64, (sbcs_reg(19, 17) === "h2".U)) & ((io.sb_axi_rdata(63, 0) >> 32.U * sbaddress0_reg(2)) & "hffff_ffff".U(64.W)) |
     Fill(64, (sbcs_reg(19, 17) === "h3".U)) & io.sb_axi_rdata(63, 0)
 }
-
-object debug extends App {
-  chisel3.Driver.emitVerilog(new el2_dbg)
-}

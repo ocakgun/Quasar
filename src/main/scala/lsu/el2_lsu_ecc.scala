@@ -158,7 +158,3 @@ class el2_lsu_ecc extends Module with el2_lib with RequireAsyncReset {
   io.sec_data_lo_r_ff := rvdffe(io.sec_data_lo_r, io.ld_single_ecc_error_r,clock,io.scan_mode)
 
 }
-object eccmain extends App{
-  println("Generate Verilog")
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_lsu_ecc()))
-}

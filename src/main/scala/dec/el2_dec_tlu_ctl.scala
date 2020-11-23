@@ -2866,7 +2866,3 @@ class el2_dec_timer_ctl_IO extends Bundle{
   val dec_timer_t0_pulse		=Output(UInt(1.W)) 	// timer0 int
   val dec_timer_t1_pulse		=Output(UInt(1.W)) 	// timer1 int
 }
-
-object tlu_gen extends App{
-  println(chisel3.Driver.emitVerilog(new el2_dec_tlu_ctl))
-}

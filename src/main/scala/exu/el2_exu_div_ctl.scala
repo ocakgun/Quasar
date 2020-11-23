@@ -219,7 +219,3 @@ class el2_exu_div_ctl extends Module with RequireAsyncReset with el2_lib {
   m_ff := rvdffe(Cat(!io.dp.unsign & io.divisor(31), io.divisor), io.dp.valid.asBool,clock,io.scan_mode)
 
 }
-object div_main extends App{
-  println("Generate Verilog")
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_exu_div_ctl()))
-}

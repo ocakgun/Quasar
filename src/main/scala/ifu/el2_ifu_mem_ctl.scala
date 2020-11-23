@@ -852,7 +852,3 @@ class el2_ifu_mem_ctl extends Module with el2_lib {
   ifc_region_acc_fault_memory_f := withClock(io.free_clk){RegNext(ifc_region_acc_fault_memory_bf, false.B)}
 
 }
-object ifu_mem extends App {
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_ifu_mem_ctl()))
-}
-

@@ -127,8 +127,3 @@ class el2_exu_alu_ctl extends Module with el2_lib with RequireAsyncReset{
   io.predict_p_out.ataken    :=  actual_taken; // send a control signal telling it branch taken or not
   io.predict_p_out.hist      :=  newhist
 }
-
-object alu extends App{
-  chisel3.Driver execute(args, () =>new el2_exu_alu_ctl())
-}
-

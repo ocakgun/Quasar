@@ -270,11 +270,4 @@ class el2_lsu_stbuf extends Module with el2_lib with RequireAsyncReset {
   val stbuf_fwdpipe3_hi = Mux(ld_byte_rhit_hi(2),ld_fwddata_rpipe_hi(23,16),stbuf_fwddata_hi_pre_m(23,16))
   val stbuf_fwdpipe4_hi = Mux(ld_byte_rhit_hi(3),ld_fwddata_rpipe_hi(31,24),stbuf_fwddata_hi_pre_m(31,24))
   io.stbuf_fwddata_hi_m := Cat(stbuf_fwdpipe4_hi,stbuf_fwdpipe3_hi,stbuf_fwdpipe2_hi,stbuf_fwdpipe1_hi)
-
-
-
-}
-object stbmain extends App{
-  println("Generate Verilog")
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_lsu_stbuf()))
 }

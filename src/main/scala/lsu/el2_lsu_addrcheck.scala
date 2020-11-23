@@ -120,7 +120,3 @@ class el2_lsu_addrcheck extends Module with RequireAsyncReset with el2_lib
 
   withClock(io.lsu_c2_m_clk){io.is_sideeffects_m := RegNext(is_sideeffects_d,0.U)} //TBD for clock and reset
 }
-object address_checker extends App{
-  println("Generate Verilog")
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_lsu_addrcheck()))
-}

@@ -819,7 +819,3 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
     (!io.dec_extint_stall & i0_dp.lsu & i0_dp.load).asBool  ->     i0(31,20),
     (!io.dec_extint_stall & i0_dp.lsu & i0_dp.store).asBool ->     Cat(i0(31,25),i0(11,7))))
 }
-
-object dec_decode extends App{
-  chisel3.Driver.emitVerilog(new el2_dec_decode_ctl)
-}

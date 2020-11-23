@@ -111,8 +111,3 @@ class el2_ifu_iccm_mem extends Module with el2_lib with RequireAsyncReset {
   io.iccm_rd_data_ecc := Cat(Mux1H((0 until ICCM_NUM_BANKS).map(i=>(iccm_rd_addr_lo_q(ICCM_BANK_HI-1,1)===i.U)->iccm_bank_dout_fn(if(i==3) 0 else i+1)(38,0))),
     Mux1H((0 until ICCM_NUM_BANKS).map(i=>(iccm_rd_addr_lo_q(ICCM_BANK_HI-1,1)===i.U)->iccm_bank_dout_fn(i)(38,0))))
 }
-
-
-object ifu_iccm extends App {
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_ifu_iccm_mem()))
-}

@@ -15,6 +15,3 @@ class el2_dec_trigger extends Module with el2_lib {
   io.dec_i0_trigger_match_d :=  (0 until 4).map(j =>io.trigger_pkt_any(j).execute & io.trigger_pkt_any(j).m & rvmaskandmatch(io.trigger_pkt_any(j).tdata2, dec_i0_match_data(j), io.trigger_pkt_any(j).match_pkt.asBool())).reverse.reduce(Cat(_,_))
 
 }
-object dec_trig extends App {
-  chisel3.Driver execute(args, () => new el2_dec_trigger())
-}

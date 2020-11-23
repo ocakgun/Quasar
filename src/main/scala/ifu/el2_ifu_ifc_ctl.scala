@@ -142,8 +142,3 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
   io.ifc_fetch_addr_f := rvdffe(io.ifc_fetch_addr_bf, io.exu_flush_final|io.ifc_fetch_req_f, clock, io.scan_mode)
   //rvdffe(io.ifc_fetch_addr_bf,(io.exu_flush_final|io.ifc_fetch_req_f).asBool,clock,io.scan_mode)
 }
-
-object ifu_ifc extends App {
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_ifu_ifc_ctl()))
-}
-

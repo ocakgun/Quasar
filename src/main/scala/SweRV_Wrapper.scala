@@ -701,5 +701,5 @@ class el2_swerv_wrapper extends Module with el2_lib with RequireAsyncReset {
 
 }
 object SWERV_Wrp extends App {
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_swerv_wrapper()))
+  (new chisel3.stage.ChiselStage).emitVerilog(new el2_swerv_wrapper())
 }

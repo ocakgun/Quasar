@@ -671,8 +671,3 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   io.lsu_busreq_r := withClock(io.lsu_c2_r_clk){RegNext(io.lsu_busreq_m & !io.flush_r & !io.ld_full_hit_m, false.B)}
   lsu_nonblock_load_valid_r := withClock(io.lsu_c2_r_clk){RegNext(io.lsu_nonblock_load_valid_m, false.B)}
 }
-
-object BusBufmain extends App{
-  println("Generate Verilog")
-  println((new chisel3.stage.ChiselStage).emitVerilog((new el2_lsu_bus_buffer())))
-}

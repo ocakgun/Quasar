@@ -326,8 +326,3 @@ class  el2_lsu_bus_intf extends Module with RequireAsyncReset with el2_lib {
     ldst_byteen_r     := RegNext(ldst_byteen_m, init = 0.U(4.W))
   }
 }
-
-object BusIntfMain extends App{
-  println("Generate Verilog")
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_lsu_bus_intf()))
-}

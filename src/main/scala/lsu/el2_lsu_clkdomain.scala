@@ -97,7 +97,3 @@ class el2_lsu_clkdomain extends Module  with RequireAsyncReset with el2_lib{
   io.lsu_free_c2_clk     := rvclkhdr(clock,lsu_free_c2_clken.asBool,io.scan_mode)
 
 }
-object cgcmain extends App{
-  println("Generate Verilog")
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_lsu_clkdomain()))
-}

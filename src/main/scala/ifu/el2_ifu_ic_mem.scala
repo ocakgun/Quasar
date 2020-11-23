@@ -271,7 +271,3 @@ class EL2_IC_DATA extends Module with el2_lib {
 
   io.ic_parerr := Cat(ic_parerr_bank(0).reduce(_|_) & bank_check_en(0), ic_parerr_bank(1).reduce(_|_) & bank_check_en(1))
 }
-
-object ifu_ic extends App {
-  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_ifu_ic_mem()))
-}

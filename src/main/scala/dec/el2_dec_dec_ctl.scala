@@ -119,7 +119,3 @@ class el2_dec_dec_ctl extends Module with el2_lib{
     pattern(List(-14,-12,-6,-4,-3,-2,1,0)) |
     pattern(List(-6,4,-3,2,1,0))
 }
-
-object dec_dec_ctl extends App {
-  chisel3.Driver execute(args, () => new el2_dec_dec_ctl())
-}
