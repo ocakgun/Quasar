@@ -1943,7 +1943,7 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
 
  micect := rvdffe(micect_ns,(wr_micect_r | io.ic_perr_r_d1).asBool,clock,io.scan_mode)
 
- mice_ce_req := ("hffffffff".U(32.W) << micect(31,27)).orR & Cat(0.U(5.W), micect(26,0))
+ mice_ce_req := (("hffffffff".U(32.W) << micect(31,27)) & Cat(0.U(5.W), micect(26,0))).orR
 
  // ----------------------------------------------------------------------
  // MICCMECT (ICCM error counter/threshold)
@@ -1957,8 +1957,9 @@ val wr_mcycleh_r                = WireInit(UInt(1.W), 0.U)
  val miccmect_ns        = Mux(wr_miccmect_r.asBool, Cat(csr_sat, io.dec_csr_wrdata_r(26,0)) , Cat(miccmect(31,27), miccmect_inc))
 
  miccmect := rvdffe(miccmect_ns,(wr_miccmect_r | io.iccm_sbecc_r_d1 | io.iccm_dma_sb_error).asBool,clock,io.scan_mode)
- miccme_ce_req := (("hffffffff".U(32.W) << miccmect(31,27)) & Cat(0.U(5.W), miccmect(26,0))).orR
 
+miccme_ce_req := (("hffffffff".U(32.W) << miccmect(31,27)) & Cat(0.U(5.W), miccmect(26,0))).orR
+//miccme_ce_req := (Bits("hffffffff".U(32.W)) << miccmect(31,27) & Cat(0.U(5.W), miccmect(26,0))).orR
  // ----------------------------------------------------------------------
  // MDCCMECT (DCCM error counter/threshold)
  // [31:27] : DCCM parity error threshold
