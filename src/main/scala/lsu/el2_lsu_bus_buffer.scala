@@ -607,7 +607,7 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   bus_addr_match_pending := Mux1H((0 until DEPTH).map(i=>(buf_state(i)===resp_C)->
     (BUILD_AXI_NATIVE.B & obuf_valid & (obuf_addr(31,3)===buf_addr(i)(31,3)) & !((obuf_tag0===i.U) | (obuf_merge & (obuf_tag1===i.U))))))
 
-  bus_cmd_ready := Mux(obuf_write, Mux(obuf_cmd_done | obuf_data_done, Mux(obuf_cmd_done, io.lsu_axi_wready, io.lsu_axi_awready), io.lsu_axi_awready & io.lsu_axi_awready), io.lsu_axi_arready)
+  bus_cmd_ready := Mux(obuf_write, Mux(obuf_cmd_done | obuf_data_done, Mux(obuf_cmd_done, io.lsu_axi_wready, io.lsu_axi_awready), io.lsu_axi_awready & io.lsu_axi_wready), io.lsu_axi_arready)
   bus_wcmd_sent := io.lsu_axi_awvalid & io.lsu_axi_awready
   bus_wdata_sent := io.lsu_axi_wvalid & io.lsu_axi_wready
   bus_cmd_sent := ((obuf_cmd_done | bus_wcmd_sent) & (obuf_data_done | bus_wdata_sent)) | (io.lsu_axi_arvalid & io.lsu_axi_arready)
@@ -670,4 +670,7 @@ class  el2_lsu_bus_buffer extends Module with RequireAsyncReset with el2_lib {
   WrPtr1_r := withClock(io.lsu_c2_r_clk){RegNext(WrPtr1_m, 0.U)}
   io.lsu_busreq_r := withClock(io.lsu_c2_r_clk){RegNext(io.lsu_busreq_m & !io.flush_r & !io.ld_full_hit_m, false.B)}
   lsu_nonblock_load_valid_r := withClock(io.lsu_c2_r_clk){RegNext(io.lsu_nonblock_load_valid_m, false.B)}
+}
+object bus_buffer extends App {
+  (new chisel3.stage.ChiselStage).emitVerilog(new el2_lsu_bus_buffer())
 }
