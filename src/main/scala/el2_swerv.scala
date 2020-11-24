@@ -858,3 +858,6 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   io.dmi_reg_rdata := 0.U
 
 }
+object swerv extends App {
+  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_swerv()))
+}
