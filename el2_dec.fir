@@ -17048,7 +17048,7 @@ circuit el2_dec :
     decode.io.dec_tlu_wr_pause_r <= tlu.io.dec_tlu_wr_pause_r @[el2_dec.scala 342:48]
     decode.io.dec_tlu_pipelining_disable <= tlu.io.dec_tlu_pipelining_disable @[el2_dec.scala 343:48]
     decode.io.lsu_trigger_match_m <= io.lsu_trigger_match_m @[el2_dec.scala 344:48]
-    decode.io.lsu_pmu_misaligned_m <= io.lsu_pmu_bus_misaligned @[el2_dec.scala 345:48]
+    decode.io.lsu_pmu_misaligned_m <= io.lsu_pmu_misaligned_m @[el2_dec.scala 345:48]
     decode.io.dec_tlu_debug_stall <= tlu.io.dec_tlu_debug_stall @[el2_dec.scala 346:48]
     decode.io.dec_tlu_flush_leak_one_r <= tlu.io.dec_tlu_flush_leak_one_r @[el2_dec.scala 347:48]
     decode.io.dec_debug_fence_d <= instbuff.io.dec_debug_fence_d @[el2_dec.scala 348:48]

@@ -342,7 +342,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   decode.io.dec_tlu_wr_pause_r                 :=  tlu.io.dec_tlu_wr_pause_r
   decode.io.dec_tlu_pipelining_disable         :=  tlu.io.dec_tlu_pipelining_disable
   decode.io.lsu_trigger_match_m                :=  io.lsu_trigger_match_m
-  decode.io.lsu_pmu_misaligned_m               :=  io.lsu_pmu_bus_misaligned
+  decode.io.lsu_pmu_misaligned_m               :=  io.lsu_pmu_misaligned_m
   decode.io.dec_tlu_debug_stall                :=  tlu.io.dec_tlu_debug_stall
   decode.io.dec_tlu_flush_leak_one_r           :=  tlu.io.dec_tlu_flush_leak_one_r
   decode.io.dec_debug_fence_d                  :=  instbuff.io.dec_debug_fence_d
