@@ -41,10 +41,10 @@ class el2_dec_ib_ctl extends Module with param{
   val dcsr            = io.dbg_cmd_addr(11,0)
 
   val ib0_debug_in    =Mux1H(Seq(
-			debug_read_gpr.asBool  	->  Cat(Fill(12,0.U(1.W)),dreg,"b110000000110011".U),
-			debug_write_gpr.asBool 	->  Cat("b00000000000000000110".U,dreg,"b0110011".U),
-			debug_read_csr.asBool	->  Cat(dcsr,"b00000010000001110011".U),
-			debug_write_csr.asBool 	->  Cat(dcsr,"b00000001000001110011".U)
+		        debug_read_gpr.asBool  	->  Cat(Fill(12,0.U(1.W)),dreg,"b110000000110011".U),
+			debug_write_gpr.asBool 	->  Cat("b00000000000000000110".U(20.W),dreg,"b0110011".U(7.W)),
+			debug_read_csr.asBool	->  Cat(dcsr,"b00000010000001110011".U(20.W)),
+			debug_write_csr.asBool 	->  Cat(dcsr,"b00000001000001110011".U(20.W))
 			))
 
   // machine is in halted state, pipe empty, write will always happen next cycle
