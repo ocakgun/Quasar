@@ -238,11 +238,11 @@ trait el2_lib extends param{
   ///////////////////////////////////////////////////////////////////
   def rvmaskandmatch(mask:UInt, data:UInt, masken:Bool):UInt={
     val matchvec = Wire(Vec(data.getWidth,UInt(1.W)))
-    val masken_or_fullmask = masken & ~mask.andR
+    val masken_or_fullmask = masken & ~(mask.andR)
     matchvec(0)  :=  masken_or_fullmask | (mask(0) === data(0)).asUInt
     for(i <- 1 to data.getWidth-1)
       matchvec(i) := Mux(mask(i-1,0).andR & masken_or_fullmask,"b1".U,(mask(i) === data(i)).asUInt)
-    matchvec.asUInt
+    matchvec.asUInt.andR
   }
 
   ///////////////////////////////////////////////////////////////////
