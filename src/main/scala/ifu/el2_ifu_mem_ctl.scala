@@ -242,7 +242,7 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
       miss_state_en := (bus_ifu_wr_en_ff & last_beat) | io.exu_flush_final | io.dec_tlu_force_halt
     }
   }
-  miss_state := RegEnable(miss_nxtstate, 0.U, miss_state_en.asBool)
+  miss_state := withClock(io.free_clk){RegEnable(miss_nxtstate, 0.U, miss_state_en.asBool)}
   val crit_byp_hit_f = WireInit(Bool(), 0.U)
   val way_status_mb_scnd_ff = WireInit(UInt(ICACHE_STATUS_BITS.W), 0.U)
   val way_status = WireInit(UInt(ICACHE_STATUS_BITS.W), 0.U)
@@ -305,8 +305,8 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val scnd_miss_req_q = WireInit(Bool(), false.B)
   val reset_ic_ff = WireInit(Bool(), false.B)
   val reset_ic_in = miss_pending & !scnd_miss_req_q &  (reset_all_tags |  reset_ic_ff)
-  reset_ic_ff := RegNext(reset_ic_in)
-  val fetch_uncacheable_ff = RegNext(io.ifc_fetch_uncacheable_bf, 0.U)
+  reset_ic_ff := withClock(io.free_clk){RegNext(reset_ic_in)}
+  val fetch_uncacheable_ff = withClock(io.active_clk){RegNext(io.ifc_fetch_uncacheable_bf, 0.U)}
   ifu_fetch_addr_int_f := withClock(fetch_bf_f_c1_clk){RegNext(io.ifc_fetch_addr_bf, 0.U)}
   val vaddr_f = ifu_fetch_addr_int_f(ICACHE_BEAT_ADDR_HI-1, 0)
   uncacheable_miss_ff := withClock(fetch_bf_f_c1_clk){RegNext(uncacheable_miss_in, 0.U)}
@@ -499,7 +499,7 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
       perr_sel_invalidate := io.dec_tlu_flush_lower_wb & io.dec_tlu_force_halt
     }
     is(ecc_wff_C){
-      perr_nxtstate := Mux(((io.dec_tlu_flush_err_wb & io.dec_tlu_flush_lower_wb ) | io.dec_tlu_force_halt).asBool(), err_idle_C, ecc_cor_C)
+      perr_nxtstate := Mux(((!io.dec_tlu_flush_err_wb & io.dec_tlu_flush_lower_wb ) | io.dec_tlu_force_halt).asBool(), err_idle_C, ecc_cor_C)
       perr_state_en := io.dec_tlu_flush_lower_wb | io.dec_tlu_force_halt
     }
     is(dma_sb_err_C){

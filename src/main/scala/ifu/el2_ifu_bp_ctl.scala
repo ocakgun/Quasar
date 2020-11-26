@@ -131,7 +131,7 @@ class el2_ifu_bp_ctl extends Module with el2_lib with RequireAsyncReset {
   val exu_flush_final_d1 = withClock(io.active_clk) {RegNext(io.exu_flush_final, init = 0.U)}
 
   // If there is a flush from the lower pipe wait until the flush gets deasserted from the (decode) side
-  leak_one_f := (io.dec_tlu_flush_leak_one_wb & io.dec_tlu_flush_lower_wb) | (leak_one_f_d1 & io.dec_tlu_flush_lower_wb)
+  leak_one_f := (io.dec_tlu_flush_leak_one_wb & io.dec_tlu_flush_lower_wb) | (leak_one_f_d1 & !io.dec_tlu_flush_lower_wb)
 
   // For a tag to match the branch should be valid tag should match and a fetch request should be generated
   // Also there should be no bank conflict or leak-one
