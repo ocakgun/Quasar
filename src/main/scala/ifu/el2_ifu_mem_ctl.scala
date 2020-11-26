@@ -350,7 +350,7 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   io.ic_error_start := ((if(ICACHE_ECC)io.ic_eccerr.orR()else io.ic_parerr.orR()) & ic_act_hit_f) | ic_rd_parity_final_err
   val ic_debug_tag_val_rd_out = WireInit(Bool(), 0.U)
   val ic_debug_ict_array_sel_ff = WireInit(Bool(), 0.U)
-  val ifu_ic_debug_rd_data_in = Mux(ic_debug_ict_array_sel_ff.asBool, if(ICACHE_ECC) Cat(0.U(2.W),io.ictag_debug_rd_data(25,21),0.U(32.W),io.ictag_debug_rd_data(20,0), 0.U(7-ICACHE_STATUS_BITS), way_status, 0.U(3.W),ic_debug_tag_val_rd_out)
+  val ifu_ic_debug_rd_data_in = Mux(ic_debug_ict_array_sel_ff.asBool, if(ICACHE_ECC) Cat(0.U(2.W),io.ictag_debug_rd_data(25,21),0.U(32.W),io.ictag_debug_rd_data(20,0), 0.U((7-ICACHE_STATUS_BITS).W), way_status, 0.U(3.W),ic_debug_tag_val_rd_out)
   else Cat(0.U(6.W),io.ictag_debug_rd_data(21),0.U(32.W),io.ictag_debug_rd_data(20,0),0.U(7-ICACHE_STATUS_BITS),way_status ,0.U(3.W) ,ic_debug_tag_val_rd_out) ,
     io.ic_debug_rd_data)
   io.ifu_ic_debug_rd_data := withClock(debug_data_clk){RegNext(ifu_ic_debug_rd_data_in, 0.U)}

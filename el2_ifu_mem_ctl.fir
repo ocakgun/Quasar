@@ -4168,7 +4168,7 @@ circuit el2_ifu_mem_ctl :
     node _T_1202 = bits(io.ictag_debug_rd_data, 25, 21) @[el2_ifu_mem_ctl.scala 353:121]
     node _T_1203 = bits(io.ictag_debug_rd_data, 20, 0) @[el2_ifu_mem_ctl.scala 353:161]
     node _T_1204 = cat(UInt<3>("h00"), ic_debug_tag_val_rd_out) @[Cat.scala 29:58]
-    node _T_1205 = cat(UInt<1>("h00"), way_status) @[Cat.scala 29:58]
+    node _T_1205 = cat(UInt<6>("h00"), way_status) @[Cat.scala 29:58]
     node _T_1206 = cat(_T_1205, _T_1204) @[Cat.scala 29:58]
     node _T_1207 = cat(UInt<32>("h00"), _T_1203) @[Cat.scala 29:58]
     node _T_1208 = cat(UInt<2>("h00"), _T_1202) @[Cat.scala 29:58]

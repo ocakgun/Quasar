@@ -3121,7 +3121,7 @@ module el2_ifu_mem_ctl(
   wire [1:0] _T_9744 = ic_debug_way_ff & _T_9743; // @[el2_ifu_mem_ctl.scala 820:67]
   wire [1:0] _T_9745 = ic_tag_valid_unq & _T_9744; // @[el2_ifu_mem_ctl.scala 820:48]
   wire  ic_debug_tag_val_rd_out = |_T_9745; // @[el2_ifu_mem_ctl.scala 820:115]
-  wire [65:0] _T_1210 = {2'h0,io_ictag_debug_rd_data[25:21],32'h0,io_ictag_debug_rd_data[20:0],1'h0,way_status,3'h0,ic_debug_tag_val_rd_out}; // @[Cat.scala 29:58]
+  wire [70:0] _T_1210 = {2'h0,io_ictag_debug_rd_data[25:21],32'h0,io_ictag_debug_rd_data[20:0],6'h0,way_status,3'h0,ic_debug_tag_val_rd_out}; // @[Cat.scala 29:58]
   reg [70:0] _T_1211; // @[el2_ifu_mem_ctl.scala 356:63]
   wire  _T_1249 = ~ifu_byp_data_err_new; // @[el2_ifu_mem_ctl.scala 372:98]
   wire  sel_byp_data = _T_1253 & _T_1249; // @[el2_ifu_mem_ctl.scala 372:96]
@@ -11684,7 +11684,7 @@ end // initial
     if (reset) begin
       _T_1211 <= 71'h0;
     end else if (ic_debug_ict_array_sel_ff) begin
-      _T_1211 <= {{5'd0}, _T_1210};
+      _T_1211 <= _T_1210;
     end else begin
       _T_1211 <= io_ic_debug_rd_data;
     end
