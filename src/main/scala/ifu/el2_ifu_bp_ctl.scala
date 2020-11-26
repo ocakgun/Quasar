@@ -39,7 +39,6 @@ class el2_ifu_bp_ctl extends Module with el2_lib with RequireAsyncReset {
     val ifu_bp_valid_f = Output(UInt(2.W))
     val ifu_bp_poffset_f = Output(UInt(12.W))
     val scan_mode = Input(Bool())
-    val test = Output(UInt())
   })
 
   val TAG_START = 16+BTB_BTAG_SIZE
@@ -65,7 +64,7 @@ class el2_ifu_bp_ctl extends Module with el2_lib with RequireAsyncReset {
   val btb_bank0_rd_data_way1_p1_f = WireInit(UInt((TAG_START+1).W), 0.U)
   val eoc_mask = WireInit(Bool(), 0.U)
   val btb_lru_b0_f = WireInit(UInt(LRU_SIZE.W), init = 0.U)
-  io.test := btb_lru_b0_f
+
   val dec_tlu_way_wb = WireInit(Bool(), 0.U)
   /////////////////////////////////////////////////////////
   // Misprediction packet

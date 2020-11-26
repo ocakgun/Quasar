@@ -561,7 +561,7 @@ class el2_ifu_mem_ctl extends Module with el2_lib {
   ifu_bus_cmd_valid := withClock(busclk_force){RegNext(ifc_bus_ic_req_ff_in, 0.U)}
   val bus_cmd_sent = WireInit(Bool(), false.B)
   val bus_cmd_req_in = (ic_act_miss_f | bus_cmd_req_hold) & !bus_cmd_sent & !io.dec_tlu_force_halt
-  bus_cmd_sent := withClock(io.free_clk){RegNext(bus_cmd_req_in, false.B)}
+  bus_cmd_req_hold := withClock(io.free_clk){RegNext(bus_cmd_req_in, false.B)}
   // AXI Read-Channel
   io.ifu_axi_arvalid := ifu_bus_cmd_valid
   io.ifu_axi_arid := bus_rd_addr_count & Fill(IFU_BUS_TAG, ifu_bus_cmd_valid)
