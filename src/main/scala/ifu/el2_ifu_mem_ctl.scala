@@ -130,7 +130,7 @@ class mem_ctl_bundle extends Bundle with el2_lib{
   val scan_mode = Input(Bool())
 
 }
-class el2_ifu_mem_ctl extends Module with el2_lib {
+class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val io = IO(new mem_ctl_bundle)
   io.ifu_axi_wvalid := 0.U
   io.ifu_axi_wdata := 0.U
@@ -661,7 +661,7 @@ class el2_ifu_mem_ctl extends Module with el2_lib {
   val iccm_dma_rvalid_temp = if(ICCM_ENABLE) withClock(io.free_clk){RegNext(iccm_dma_rvalid_in, false.B)} else 0.U
   io.iccm_dma_rvalid := iccm_dma_rvalid_temp
   val iccm_dma_ecc_error = if(ICCM_ENABLE) withClock(io.free_clk){RegNext(iccm_dma_ecc_error_in, false.B)} else 0.U
-  io.iccm_dma_ecc_error := iccm_dma_ecc_error_in
+  io.iccm_dma_ecc_error := iccm_dma_ecc_error
   val iccm_dma_rdata_temp = if(ICCM_ENABLE) withClock(io.free_clk){RegNext(iccm_dma_rdata_in, 0.U)} else 0.U
   io.iccm_dma_rdata := iccm_dma_rdata_temp
   val iccm_ecc_corr_index_ff = WireInit(UInt((ICCM_BITS-2).W), 0.U)
@@ -838,15 +838,15 @@ class el2_ifu_mem_ctl extends Module with el2_lib {
   ic_debug_ict_array_sel_ff := withClock(debug_c1_clk){RegNext(ic_debug_ict_array_sel_in, 0.U)}
   ic_debug_rd_en_ff := withClock(io.free_clk){RegNext(io.ic_debug_rd_en, false.B)}
   io.ifu_ic_debug_rd_data_valid := withClock(io.free_clk){RegEnable(ic_debug_rd_en_ff, 0.U, ic_debug_rd_en_ff.asBool)}
-  val ifc_region_acc_okay = Cat(INST_ACCESS_ENABLE0.U,INST_ACCESS_ENABLE1.U,INST_ACCESS_ENABLE2.U,INST_ACCESS_ENABLE3.U,INST_ACCESS_ENABLE4.U,INST_ACCESS_ENABLE5.U,INST_ACCESS_ENABLE6.U,INST_ACCESS_ENABLE7.U).orR() |
-    INST_ACCESS_ENABLE0.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK0).U) === (aslong(INST_ACCESS_ADDR0).U | aslong(INST_ACCESS_MASK0).U)) |
-    INST_ACCESS_ENABLE1.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK1).U) === (aslong(INST_ACCESS_ADDR1).U | aslong(INST_ACCESS_MASK1).U)) |
-    INST_ACCESS_ENABLE2.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK2).U) === (aslong(INST_ACCESS_ADDR2).U | aslong(INST_ACCESS_MASK2).U)) |
-    INST_ACCESS_ENABLE3.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK3).U) === (aslong(INST_ACCESS_ADDR3).U | aslong(INST_ACCESS_MASK3).U)) |
-    INST_ACCESS_ENABLE4.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK4).U) === (aslong(INST_ACCESS_ADDR4).U | aslong(INST_ACCESS_MASK4).U)) |
-    INST_ACCESS_ENABLE5.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK5).U) === (aslong(INST_ACCESS_ADDR5).U | aslong(INST_ACCESS_MASK5).U)) |
-    INST_ACCESS_ENABLE6.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK6).U) === (aslong(INST_ACCESS_ADDR6).U | aslong(INST_ACCESS_MASK6).U)) |
-    INST_ACCESS_ENABLE7.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK7).U) === (aslong(INST_ACCESS_ADDR7).U | aslong(INST_ACCESS_MASK7).U))
+  val ifc_region_acc_okay = !(Cat(INST_ACCESS_ENABLE0.U,INST_ACCESS_ENABLE1.U,INST_ACCESS_ENABLE2.U,INST_ACCESS_ENABLE3.U,INST_ACCESS_ENABLE4.U,INST_ACCESS_ENABLE5.U,INST_ACCESS_ENABLE6.U,INST_ACCESS_ENABLE7.U).orR()) |
+      (INST_ACCESS_ENABLE0.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK0).U) === (aslong(INST_ACCESS_ADDR0).U | aslong(INST_ACCESS_MASK0).U))) |
+      (INST_ACCESS_ENABLE1.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK1).U) === (aslong(INST_ACCESS_ADDR1).U | aslong(INST_ACCESS_MASK1).U))) |
+      (INST_ACCESS_ENABLE2.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK2).U) === (aslong(INST_ACCESS_ADDR2).U | aslong(INST_ACCESS_MASK2).U))) |
+      (INST_ACCESS_ENABLE3.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK3).U) === (aslong(INST_ACCESS_ADDR3).U | aslong(INST_ACCESS_MASK3).U))) |
+      (INST_ACCESS_ENABLE4.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK4).U) === (aslong(INST_ACCESS_ADDR4).U | aslong(INST_ACCESS_MASK4).U))) |
+      (INST_ACCESS_ENABLE5.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK5).U) === (aslong(INST_ACCESS_ADDR5).U | aslong(INST_ACCESS_MASK5).U))) |
+      (INST_ACCESS_ENABLE6.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK6).U) === (aslong(INST_ACCESS_ADDR6).U | aslong(INST_ACCESS_MASK6).U))) |
+      (INST_ACCESS_ENABLE7.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK7).U) === (aslong(INST_ACCESS_ADDR7).U | aslong(INST_ACCESS_MASK7).U)))
   val ifc_region_acc_fault_memory_bf = !io.ifc_iccm_access_bf & !ifc_region_acc_okay & io.ifc_fetch_req_bf
   ifc_region_acc_fault_final_bf := io.ifc_region_acc_fault_bf | ifc_region_acc_fault_memory_bf
   ifc_region_acc_fault_memory_f := withClock(io.free_clk){RegNext(ifc_region_acc_fault_memory_bf, false.B)}
