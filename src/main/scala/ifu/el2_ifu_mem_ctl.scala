@@ -178,13 +178,12 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val bus_ifu_wr_en_ff = WireInit(Bool(), false.B)
   val last_beat = WireInit(Bool(), false.B)
   val last_data_recieved_ff = WireInit(Bool(), false.B)
-  //val flush_final_f = WireInit(Bool(), 0.U)
   val stream_eol_f = WireInit(Bool(), false.B)
   val ic_miss_under_miss_f = WireInit(Bool(), false.B)
   val ic_ignore_2nd_miss_f = WireInit(Bool(), false.B)
   val ic_debug_rd_en_ff = WireInit(Bool(), false.B)
   val debug_data_clk = rvclkhdr(clock, ic_debug_rd_en_ff, io.scan_mode)
-  val flush_final_f = RegNext(io.exu_flush_final, 0.U)
+  val flush_final_f = withClock(io.free_clk){RegNext(io.exu_flush_final, 0.U)}
   val fetch_bf_f_c1_clken = io.ifc_fetch_req_bf_raw | ifc_fetch_req_f | miss_pending | io.exu_flush_final | scnd_miss_req
   val debug_c1_clken = io.ic_debug_rd_en | io.ic_debug_wr_en
   val debug_c1_clk = rvclkhdr(clock, debug_c1_clken, io.scan_mode)
@@ -320,7 +319,7 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   tagv_mb_ff := withClock(fetch_bf_f_c1_clk){RegNext(tagv_mb_in, 0.U)}
   val stream_miss_f = WireInit(Bool(), 0.U)
   val ifc_fetch_req_qual_bf  = io.ifc_fetch_req_bf  & !((miss_state===crit_wrd_rdy_C) & flush_final_f) & !stream_miss_f
-  val ifc_fetch_req_f_raw = RegNext(ifc_fetch_req_qual_bf, 0.U)
+  val ifc_fetch_req_f_raw = withClock(io.active_clk){RegNext(ifc_fetch_req_qual_bf, 0.U)}
   ifc_fetch_req_f := ifc_fetch_req_f_raw & !io.exu_flush_final
   ifc_iccm_access_f := withClock(fetch_bf_f_c1_clk){RegNext(io.ifc_iccm_access_bf, 0.U)}
   val ifc_region_acc_fault_final_bf = WireInit(Bool(), 0.U)
