@@ -144,10 +144,10 @@ class el2_ifu_bp_ctl extends Module with el2_lib with RequireAsyncReset {
 
   // Similar to above matches
   val tag_match_way0_p1_f = btb_bank0_rd_data_way0_p1_f(BV) & (btb_bank0_rd_data_way0_p1_f(TAG_START,17) === fetch_rd_tag_p1_f) &
-    !(dec_tlu_way_wb_f & branch_error_bank_conflict_f) & io.ifc_fetch_req_f & !leak_one_f
+    !(dec_tlu_way_wb_f & branch_error_bank_conflict_p1_f) & io.ifc_fetch_req_f & !leak_one_f
   // Similar to above matches
   val tag_match_way1_p1_f = btb_bank0_rd_data_way1_p1_f(BV) & (btb_bank0_rd_data_way1_p1_f(TAG_START,17) === fetch_rd_tag_p1_f) &
-    !(dec_tlu_way_wb_f & branch_error_bank_conflict_f) & io.ifc_fetch_req_f & !leak_one_f
+    !(dec_tlu_way_wb_f & branch_error_bank_conflict_p1_f) & io.ifc_fetch_req_f & !leak_one_f
 
   // Reordering to avoid multiple hit
   val tag_match_way0_expanded_f = Cat(tag_match_way0_f &  (btb_bank0_rd_data_way0_f(BOFF) ^ btb_bank0_rd_data_way0_f(PC4)),

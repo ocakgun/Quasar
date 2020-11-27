@@ -4245,7 +4245,7 @@ circuit el2_ifu_mem_ctl :
     ic_byp_data_only_new <= UInt<1>("h00")
     node _T_1256 = or(fetch_req_iccm_f, sel_ic_data) @[el2_ifu_mem_ctl.scala 376:81]
     node _T_1257 = or(sel_byp_data, _T_1256) @[el2_ifu_mem_ctl.scala 376:47]
-    node _T_1258 = bits(_T_1257, 0, 0) @[el2_ifu_mem_ctl.scala 376:140]
+    node _T_1258 = bits(_T_1257, 0, 0) @[el2_ifu_mem_ctl.scala 376:144]
     node _T_1259 = bits(fetch_req_iccm_f, 0, 0) @[Bitwise.scala 72:15]
     node _T_1260 = mux(_T_1259, UInt<64>("h0ffffffffffffffff"), UInt<64>("h00")) @[Bitwise.scala 72:12]
     node _T_1261 = and(_T_1260, io.iccm_rd_data) @[el2_ifu_mem_ctl.scala 378:69]
