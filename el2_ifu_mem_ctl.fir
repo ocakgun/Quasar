@@ -2778,7 +2778,7 @@ circuit el2_ifu_mem_ctl :
     node _T_298 = and(miss_pending, _T_297) @[el2_ifu_mem_ctl.scala 306:34]
     node _T_299 = or(reset_all_tags, reset_ic_ff) @[el2_ifu_mem_ctl.scala 306:72]
     node reset_ic_in = and(_T_298, _T_299) @[el2_ifu_mem_ctl.scala 306:53]
-    reg _T_300 : UInt, io.free_clk @[el2_ifu_mem_ctl.scala 307:48]
+    reg _T_300 : UInt, io.free_clk with : (reset => (reset, UInt<1>("h00"))) @[el2_ifu_mem_ctl.scala 307:48]
     _T_300 <= reset_ic_in @[el2_ifu_mem_ctl.scala 307:48]
     reset_ic_ff <= _T_300 @[el2_ifu_mem_ctl.scala 307:15]
     reg fetch_uncacheable_ff : UInt<1>, io.active_clk with : (reset => (reset, UInt<1>("h00"))) @[el2_ifu_mem_ctl.scala 308:62]
@@ -2790,7 +2790,7 @@ circuit el2_ifu_mem_ctl :
     reg _T_302 : UInt<1>, rvclkhdr_2.io.l1clk with : (reset => (reset, UInt<1>("h00"))) @[el2_ifu_mem_ctl.scala 311:62]
     _T_302 <= uncacheable_miss_in @[el2_ifu_mem_ctl.scala 311:62]
     uncacheable_miss_ff <= _T_302 @[el2_ifu_mem_ctl.scala 311:23]
-    reg _T_303 : UInt, rvclkhdr_2.io.l1clk @[el2_ifu_mem_ctl.scala 312:49]
+    reg _T_303 : UInt, rvclkhdr_2.io.l1clk with : (reset => (reset, UInt<1>("h00"))) @[el2_ifu_mem_ctl.scala 312:49]
     _T_303 <= imb_in @[el2_ifu_mem_ctl.scala 312:49]
     imb_ff <= _T_303 @[el2_ifu_mem_ctl.scala 312:10]
     wire miss_addr : UInt<26>

@@ -7083,6 +7083,9 @@ initial begin
     ic_miss_buff_data_valid = 8'h0;
   end
   if (reset) begin
+    imb_ff = 31'h0;
+  end
+  if (reset) begin
     last_data_recieved_ff = 1'h0;
   end
   if (reset) begin
@@ -7501,6 +7504,9 @@ initial begin
   end
   if (reset) begin
     tagv_mb_ff = 2'h0;
+  end
+  if (reset) begin
+    reset_ic_ff = 1'h0;
   end
   if (reset) begin
     fetch_uncacheable_ff = 1'h0;
@@ -8450,16 +8456,6 @@ end // initial
 `FIRRTL_AFTER_INITIAL
 `endif
 `endif // SYNTHESIS
-  always @(posedge rvclkhdr_2_io_l1clk) begin
-    if (scnd_miss_req) begin
-      imb_ff <= imb_scnd_ff;
-    end else if (!(sel_hold_imb)) begin
-      imb_ff <= io_ifc_fetch_addr_bf;
-    end
-  end
-  always @(posedge io_free_clk) begin
-    reset_ic_ff <= _T_298 & _T_299;
-  end
   always @(posedge io_free_clk or posedge reset) begin
     if (reset) begin
       flush_final_f <= 1'h0;
@@ -8707,6 +8703,15 @@ end // initial
       ic_miss_buff_data_valid <= 8'h0;
     end else begin
       ic_miss_buff_data_valid <= {_T_1357,ic_miss_buff_data_valid_in_0};
+    end
+  end
+  always @(posedge rvclkhdr_2_io_l1clk or posedge reset) begin
+    if (reset) begin
+      imb_ff <= 31'h0;
+    end else if (scnd_miss_req) begin
+      imb_ff <= imb_scnd_ff;
+    end else if (!(sel_hold_imb)) begin
+      imb_ff <= io_ifc_fetch_addr_bf;
     end
   end
   always @(posedge io_free_clk or posedge reset) begin
@@ -9695,6 +9700,13 @@ end // initial
       tagv_mb_ff <= _T_290;
     end else if (!(miss_pending)) begin
       tagv_mb_ff <= _T_295;
+    end
+  end
+  always @(posedge io_free_clk or posedge reset) begin
+    if (reset) begin
+      reset_ic_ff <= 1'h0;
+    end else begin
+      reset_ic_ff <= _T_298 & _T_299;
     end
   end
   always @(posedge io_active_clk or posedge reset) begin

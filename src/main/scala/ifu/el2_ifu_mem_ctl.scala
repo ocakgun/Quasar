@@ -304,12 +304,12 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val scnd_miss_req_q = WireInit(Bool(), false.B)
   val reset_ic_ff = WireInit(Bool(), false.B)
   val reset_ic_in = miss_pending & !scnd_miss_req_q &  (reset_all_tags |  reset_ic_ff)
-  reset_ic_ff := withClock(io.free_clk){RegNext(reset_ic_in)}
+  reset_ic_ff := withClock(io.free_clk){RegNext(reset_ic_in, false.B)}
   val fetch_uncacheable_ff = withClock(io.active_clk){RegNext(io.ifc_fetch_uncacheable_bf, 0.U)}
   ifu_fetch_addr_int_f := withClock(fetch_bf_f_c1_clk){RegNext(io.ifc_fetch_addr_bf, 0.U)}
   val vaddr_f = ifu_fetch_addr_int_f(ICACHE_BEAT_ADDR_HI-1, 0)
   uncacheable_miss_ff := withClock(fetch_bf_f_c1_clk){RegNext(uncacheable_miss_in, 0.U)}
-  imb_ff := withClock(fetch_bf_f_c1_clk){RegNext(imb_in)}
+  imb_ff := withClock(fetch_bf_f_c1_clk){RegNext(imb_in, 0.U)}
   val miss_addr = WireInit(UInt((31-ICACHE_BEAT_ADDR_HI).W), 0.U)
   val miss_addr_in = Mux(!miss_pending, imb_ff(30, ICACHE_BEAT_ADDR_HI),
     Mux(scnd_miss_req_q.asBool, imb_scnd_ff(30, ICACHE_BEAT_ADDR_HI), miss_addr))
