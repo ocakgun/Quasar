@@ -334,7 +334,7 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val ifu_ic_rw_int_addr = Mux1H(Seq(sel_mb_addr -> Cat(imb_ff(30,ICACHE_BEAT_ADDR_HI) , ic_wr_addr_bits_hi_3 , imb_ff(1,0)),
                                     !sel_mb_addr -> io.ifc_fetch_addr_bf))
   val bus_ifu_wr_en_ff_q = WireInit(Bool(), false.B)
-  val sel_mb_status_addr = miss_pending & write_ic_16_bytes & !uncacheable_miss_ff & last_beat & bus_ifu_wr_en_ff_q
+  val sel_mb_status_addr = (miss_pending & write_ic_16_bytes & !uncacheable_miss_ff & last_beat & bus_ifu_wr_en_ff_q) | reset_tag_valid_for_miss
   val ifu_status_wr_addr = Mux(sel_mb_status_addr, Cat(imb_ff(30, ICACHE_BEAT_ADDR_HI),ic_wr_addr_bits_hi_3, imb_ff(1,0)), ifu_fetch_addr_int_f)
   io.ic_rw_addr := ifu_ic_rw_int_addr
   sel_mb_addr_ff := withClock(io.free_clk){RegNext(sel_mb_addr, 0.U)}

@@ -379,16 +379,16 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   ifu.io.ic_rd_hit := io.ic_rd_hit
   ifu.io.ic_tag_perr := io.ic_tag_perr
   ifu.io.iccm_rd_data := io.iccm_rd_data
-  ifu.io.exu_mp_pkt <> exu.io.exu_mp_pkt
+  ifu.io.exu_mp_pkt := exu.io.exu_mp_pkt
   ifu.io.exu_mp_eghr := exu.io.exu_mp_eghr
   ifu.io.exu_mp_fghr := exu.io.exu_mp_fghr
   ifu.io.exu_mp_index := exu.io.exu_mp_index
   ifu.io.exu_mp_btag := exu.io.exu_mp_btag
-  ifu.io.dec_tlu_br0_r_pkt <> dec.io.dec_tlu_br0_r_pkt
+  ifu.io.dec_tlu_br0_r_pkt := dec.io.dec_tlu_br0_r_pkt
   ifu.io.exu_i0_br_fghr_r := exu.io.exu_i0_br_fghr_r
   ifu.io.exu_i0_br_index_r := exu.io.exu_i0_br_index_r
   ifu.io.dec_tlu_flush_lower_wb := dec.io.dec_tlu_flush_lower_r
-  ifu.io.dec_tlu_ic_diag_pkt <> dec.io.dec_tlu_ic_diag_pkt
+  ifu.io.dec_tlu_ic_diag_pkt := dec.io.dec_tlu_ic_diag_pkt
 
   // Lets start with Dec
   dec.reset := io.core_rst_l
