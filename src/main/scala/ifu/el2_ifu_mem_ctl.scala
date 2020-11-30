@@ -373,8 +373,14 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val sel_iccm_data = fetch_req_iccm_f
 
   val ic_byp_data_only_new = WireInit(UInt(80.W), 0.U)
-  val ic_final_data = Mux1H(Seq((sel_byp_data | (if(ICCM_ICACHE) (sel_iccm_data | sel_ic_data) else if(ICACHE_ONLY) sel_ic_data else 0.U)).asBool->
-    (if(ICCM_ICACHE) io.ic_rd_data else ic_byp_data_only_new(63,0))))
+  val final_data_sel1 = VecInit(sel_byp_data | sel_iccm_data | sel_ic_data, sel_byp_data, sel_byp_data | sel_ic_data, sel_byp_data)
+  val final_data_sel2 = VecInit(true.B, sel_iccm_data, true.B, true.B)
+  val final_data_out1 = VecInit(io.ic_rd_data, ic_byp_data_only_new, io.ic_rd_data, ic_byp_data_only_new)
+  val final_data_out2 = VecInit(1.U, io.iccm_rd_data, 1.U, 1.U)
+  val ic_final_data = if(ICCM_ICACHE) Fill(64, sel_byp_data | sel_iccm_data | sel_ic_data) & io.ic_rd_data else
+      if (ICCM_ONLY) (Fill(64, sel_byp_data) & ic_byp_data_only_new) | (Fill(64, sel_iccm_data) & io.iccm_rd_data) else
+      if (ICACHE_ONLY) Fill(64, sel_byp_data | sel_ic_data) & io.ic_rd_data else
+      if (NO_ICCM_NO_ICACHE) Fill(64, sel_byp_data) & ic_byp_data_only_new else 0.U
   val ic_premux_data_temp = if(ICCM_ICACHE) (Fill(64,sel_iccm_data) & io.iccm_rd_data) | (Fill(64, sel_byp_data) & ic_byp_data_only_new)
   else if(ICACHE_ONLY) Fill(64, sel_byp_data) & ic_byp_data_only_new else 0.U
   val ic_sel_premux_data_temp = if(ICCM_ICACHE) sel_iccm_data | sel_byp_data else if(ICACHE_ONLY) sel_byp_data else 0.U
