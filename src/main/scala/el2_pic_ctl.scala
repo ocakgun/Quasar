@@ -411,3 +411,8 @@ class el2_pic_ctrl extends Module with RequireAsyncReset with el2_lib {
   }
 
 }
+
+object pic_main extends App{
+  println("Generating Verilog...")
+  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_pic_ctrl()))
+}

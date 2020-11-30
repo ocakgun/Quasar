@@ -79,3 +79,7 @@ class ahb_to_axi4 extends Module with el2_lib with RequireAsyncReset {
   io.ahb_hreadyout := 0.U
   io.ahb_hresp := 0.U
 }
+object AHB_main extends App {
+  println("Generate Verilog")
+  println((new chisel3.stage.ChiselStage).emitVerilog(new ahb_to_axi4()))
+}

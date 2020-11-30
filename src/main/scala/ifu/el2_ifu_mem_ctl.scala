@@ -441,11 +441,12 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val ic_miss_buff_data_error_bypass = Mux1H((0 until ICACHE_NUM_BEATS).map(i=>(bypass_index(ICACHE_BEAT_ADDR_HI-1,2)===i.U).asBool->ic_miss_buff_data_error(i)))
   val ic_miss_buff_data_error_bypass_inc = Mux1H((0 until ICACHE_NUM_BEATS).map(i=>(byp_fetch_index_inc===i.U).asBool->ic_miss_buff_data_error(i)))
 
-
-  when(ifu_fetch_addr_int_f(1)&ifu_fetch_addr_int_f(0)){
-    ifu_byp_data_err_new := ic_miss_buff_data_error_bypass
-  } otherwise{ifu_byp_data_err_new := ic_miss_buff_data_error_bypass | ic_miss_buff_data_error_bypass_inc}
-
+    ifu_byp_data_err_new := (!ifu_fetch_addr_int_f(1) & !ifu_fetch_addr_int_f(0) & ic_miss_buff_data_error(byp_fetch_index(ICACHE_BEAT_ADDR_HI-1,2))) |
+      (!ifu_fetch_addr_int_f(1) &  ifu_fetch_addr_int_f(0) & ic_miss_buff_data_error(byp_fetch_index(ICACHE_BEAT_ADDR_HI-1,2))) |
+      (!ifu_fetch_addr_int_f(1) &  ifu_fetch_addr_int_f(0) & ic_miss_buff_data_error(byp_fetch_index(ICACHE_BEAT_ADDR_HI-1,2))) |
+      ( ifu_fetch_addr_int_f(1) & !ifu_fetch_addr_int_f(0) & ic_miss_buff_data_error(byp_fetch_index(ICACHE_BEAT_ADDR_HI-1,2))) |
+      (ifu_fetch_addr_int_f(1) & ifu_fetch_addr_int_f(0) & (ic_miss_buff_data_error(byp_fetch_index(ICACHE_BEAT_ADDR_HI-1,2)) |
+        ic_miss_buff_data_error(byp_fetch_index_inc(ICACHE_BEAT_ADDR_HI-3,0))))
   val ic_byp_data_only_pre_new = Mux(!ifu_fetch_addr_int_f(1).asBool,
     Cat(Mux1H((0 until 2*ICACHE_NUM_BEATS).map(i=>(byp_fetch_index_inc_0===i.U).asBool->ic_miss_buff_data(i)(15,0))), Mux1H((0 until 2*ICACHE_NUM_BEATS).map(i=>(byp_fetch_index_1===i.U).asBool->ic_miss_buff_data(i)(31,0))), Mux1H((0 until 2*ICACHE_NUM_BEATS).map(i=>(byp_fetch_index_0===i.U).asBool->ic_miss_buff_data(i)(31,0)))),
     Cat(Mux1H((0 until 2*ICACHE_NUM_BEATS).map(i=>(byp_fetch_index_inc_1===i.U).asBool->ic_miss_buff_data(i)(15,0))), Mux1H((0 until 2*ICACHE_NUM_BEATS).map(i=>(byp_fetch_index_inc_0===i.U).asBool->ic_miss_buff_data(i)(31,0))), Mux1H((0 until 2*ICACHE_NUM_BEATS).map(i=>(byp_fetch_index_1===i.U).asBool->ic_miss_buff_data(i)(31,0)))))

@@ -329,7 +329,7 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   //val ifu_axi4_to_ahb = Module(new axi4_to_ahb)
   //val sb_axi4_to_ahb = Module(new axi4_to_ahb)
 
-  io.core_rst_l := (!(reset.asBool() & (dbg.io.dbg_core_rst_l.asBool() | io.scan_mode))).asAsyncReset()
+  io.core_rst_l := (reset.asBool() & (dbg.io.dbg_core_rst_l.asBool() | io.scan_mode)).asAsyncReset()
   val active_state = (!dec.io.dec_pause_state_cg | dec.io.dec_tlu_flush_lower_r) | dec.io.dec_tlu_misc_clk_override
   val free_clk = rvclkhdr(clock, true.B, io.scan_mode)
   val active_clk = rvclkhdr(clock, active_state, io.scan_mode)
@@ -858,6 +858,9 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   io.dmi_reg_rdata := 0.U
 
 }
-object swerv extends App {
+
+object SWERV extends App {
   println((new chisel3.stage.ChiselStage).emitVerilog(new el2_swerv()))
 }
+
+

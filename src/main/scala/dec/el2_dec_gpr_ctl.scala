@@ -64,3 +64,6 @@ class el2_dec_gpr_ctl_IO extends Bundle{
   val 	rd1=Output(UInt(32.W))
   val     scan_mode=Input(Bool())
 }
+object gpr_gen extends App{
+  println(chisel3.Driver.emitVerilog(new el2_dec_gpr_ctl))
+}

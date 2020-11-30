@@ -96,12 +96,12 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val lsu_idle_any            = Input(Bool())     // lsu idle for halting
 
-  val i0_brp                  = Input(new el2_br_pkt_t)         // branch packet
+  val i0_brp                  = Flipped(Valid(new el2_br_pkt_t))         // branch packet
   val ifu_i0_bp_index         = Input(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W))      // BP index
   val ifu_i0_bp_fghr          = Input(UInt(BHT_GHR_SIZE.W))     // BP FGHR
   val ifu_i0_bp_btag          = Input(UInt(BTB_BTAG_SIZE.W))    // BP tag
 
-  val lsu_error_pkt_r               = Input(new el2_lsu_error_pkt_t) // LSU exception/error packet
+  val lsu_error_pkt_r               = Flipped(Valid(new el2_lsu_error_pkt_t)) // LSU exception/error packet
   val lsu_single_ecc_error_incr     = Input(Bool())// LSU inc SB error counter
 
   val lsu_imprecise_error_load_any  = Input(Bool())  // LSU imprecise load bus error
@@ -206,9 +206,9 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_i0_rs1_bypass_data_d  = Output(UInt(32.W)) // rs1 bypass data
   val dec_i0_rs2_bypass_data_d  = Output(UInt(32.W)) // rs2 bypass data
 
-  val lsu_p                     = Output(new el2_lsu_pkt_t) // lsu packet
-  val mul_p                     = Output(new el2_mul_pkt_t) // mul packet
-  val div_p                     = Output(new el2_div_pkt_t) // div packet
+  val lsu_p                     = Valid(new el2_lsu_pkt_t) // lsu packet
+  val mul_p                     = Valid(new el2_mul_pkt_t) // mul packet
+  val div_p                     = Valid(new el2_div_pkt_t) // div packet
   val dec_div_cancel            = Output(Bool()) // cancel divide operation
 
   val dec_lsu_offset_d          = Output(UInt(12.W)) // 12b offset for load/store addresses
@@ -223,14 +223,14 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val pred_correct_npc_x  = Output(UInt(31.W))       // npc if prediction is correct at e2 stage
 
-  val dec_tlu_br0_r_pkt  = Output(new el2_br_tlu_pkt_t)    // slot 0 branch predictor update packet
+  val dec_tlu_br0_r_pkt  = Valid(new el2_br_tlu_pkt_t)    // slot 0 branch predictor update packet
 
   val dec_tlu_perfcnt0   = Output(Bool())      // toggles when slot0 perf counter 0 has an event inc
   val dec_tlu_perfcnt1   = Output(Bool())      // toggles when slot0 perf counter 1 has an event inc
   val dec_tlu_perfcnt2   = Output(Bool())      // toggles when slot0 perf counter 2 has an event inc
   val dec_tlu_perfcnt3   = Output(Bool())      // toggles when slot0 perf counter 3 has an event inc
 
-  val dec_i0_predict_p_d = Output(new el2_predict_pkt_t)      // prediction packet to alus
+  val dec_i0_predict_p_d = Valid(new el2_predict_pkt_t)      // prediction packet to alus
   val i0_predict_fghr_d  = Output(UInt(BHT_GHR_SIZE.W))   // DEC predict fghr
   val i0_predict_index_d = Output(UInt((BHT_ADDR_HI-BHT_ADDR_LO+1).W))   // DEC predict index
   val i0_predict_btag_d  = Output(UInt(BTB_BTAG_SIZE.W))   // DEC predict branch tag
@@ -598,4 +598,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
 
   // debug command read data
   io.dec_dbg_rddata := decode.io.dec_i0_wdata_r
+}
+object dec_main extends App {
+  println((new chisel3.stage.ChiselStage).emitVerilog( new el2_dec()))
 }
