@@ -70,9 +70,9 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
 
   // TODO: Make an assertion for the 1H-Mux under here
   io.ifc_fetch_addr_bf := Mux1H(Seq(io.exu_flush_final.asBool -> io.exu_flush_path_final,  // Replay PC
-    sel_last_addr_bf.asBool -> io.ifc_fetch_addr_f,         // Hold the current PC
-    sel_btb_addr_bf.asBool -> io.ifu_bp_btb_target_f,       // Take the predicted PC
-    sel_next_addr_bf.asBool -> fetch_addr_next))            // PC+4
+        sel_last_addr_bf.asBool -> io.ifc_fetch_addr_f,         // Hold the current PC
+        sel_btb_addr_bf.asBool -> io.ifu_bp_btb_target_f,       // Take the predicted PC
+        sel_next_addr_bf.asBool -> fetch_addr_next))            // PC+4
 
   val address_upper = io.ifc_fetch_addr_f(30,1)+1.U
   fetch_addr_next_0 := !(address_upper(ICACHE_TAG_INDEX_LO-2) ^ io.ifc_fetch_addr_f(ICACHE_TAG_INDEX_LO-1)) & io.ifc_fetch_addr_f(0)
@@ -143,5 +143,5 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
   //rvdffe(io.ifc_fetch_addr_bf,(io.exu_flush_final|io.ifc_fetch_req_f).asBool,clock,io.scan_mode)
 }
 object ifc_ctl extends App {
-  (new chisel3.stage.ChiselStage).emitVerilog(new el2_ifu_ifc_ctl())
+  println((new chisel3.stage.ChiselStage).emitVerilog(new el2_ifu_ifc_ctl()))
 }

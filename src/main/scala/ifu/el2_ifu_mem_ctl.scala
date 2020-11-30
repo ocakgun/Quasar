@@ -473,8 +473,6 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   ic_miss_buff_half := Cat(Mux1H((0 until 2*ICACHE_NUM_BEATS).map(i=>(Cat(other_tag,1.U)===i.U).asBool->ic_miss_buff_data(i))),
     Mux1H((0 until 2*ICACHE_NUM_BEATS).map(i=>(Cat(other_tag,0.U)===i.U).asBool->ic_miss_buff_data(i))))
 
-
-
   ic_rd_parity_final_err := io.ic_tag_perr & sel_ic_data & !(ifc_region_acc_fault_final_f | ifc_bus_acc_fault_f)
   val ifu_ic_rw_int_addr_ff = WireInit(UInt((ICACHE_INDEX_HI-ICACHE_TAG_INDEX_LO+1).W), 0.U)
 
@@ -676,7 +674,7 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val ic_fetch_val_shift_right = ic_fetch_val_int_f << ifu_fetch_addr_int_f(0)
   val iccm_rdmux_data = io.iccm_rd_data_ecc
 
-  val iccm_ecc_word_enable = (0 until 2).map(i=>((ic_fetch_val_shift_right((2*i+1),(2*i)) & !io.exu_flush_final & sel_iccm_data) | iccm_dma_rvalid_in) & !io.dec_tlu_core_ecc_disable).reverse.reduce(Cat(_,_))
+  val iccm_ecc_word_enable = (0 until 2).map(i=>((ic_fetch_val_shift_right((2*i+1),(2*i)).orR & !io.exu_flush_final & sel_iccm_data) | iccm_dma_rvalid_in) & !io.dec_tlu_core_ecc_disable).reverse.reduce(Cat(_,_))
   val ecc_decoded = (0 until 2).map(i=>rvecc_decode(iccm_ecc_word_enable(i), iccm_rdmux_data((39*i+31),(39*i)), iccm_rdmux_data((39*i+38),(39*i+32)), 0.U))
   val iccm_corrected_ecc = Wire(Vec(2, UInt(7.W)))
   iccm_corrected_ecc := VecInit(ecc_decoded(0)._1,ecc_decoded(1)._1)
