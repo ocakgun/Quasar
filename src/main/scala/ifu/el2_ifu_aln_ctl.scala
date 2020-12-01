@@ -3,7 +3,9 @@ import lib._
 import chisel3._
 import chisel3.util._
 import include._
-
+class dec_aln extends Bundle{
+  val dec_i0_decode_d = Input(Bool())
+}
 class el2_ifu_aln_ctl extends Module with el2_lib with RequireAsyncReset {
   val io = IO(new Bundle{
     val scan_mode = Input(Bool())
@@ -22,7 +24,7 @@ class el2_ifu_aln_ctl extends Module with el2_lib with RequireAsyncReset {
     val ifu_bp_valid_f          = Input(UInt(2.W))
     val ifu_bp_ret_f            = Input(UInt(2.W))
     val exu_flush_final         = Input(Bool())
-    val dec_i0_decode_d         = Input(Bool())
+    val dec_aln                 = new dec_aln
     val ifu_fetch_data_f        = Input(UInt(32.W))
     val ifu_fetch_val           = Input(UInt(2.W))
     val ifu_fetch_pc            = Input(UInt(31.W))
@@ -405,7 +407,7 @@ class el2_ifu_aln_ctl extends Module with el2_lib with RequireAsyncReset {
 
   decompressed.io.din := aligndata
 
-  val i0_shift = io.dec_i0_decode_d & ~error_stall
+  val i0_shift = io.dec_aln.dec_i0_decode_d & ~error_stall
 
   io.ifu_pmu_instr_aligned := i0_shift
 

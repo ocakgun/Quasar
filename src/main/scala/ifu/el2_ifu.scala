@@ -5,7 +5,7 @@ import chisel3.util._
 import lib._
 import include._
 class ifu_dec extends Bundle{
-  val dec_i0_decode_d = Input(Bool())
+  val dec_aln = new dec_aln
   val dec_mem_ctrl = new dec_mem_ctrl
   val dec_ifc = new dec_ifc
   val dec_bp = new dec_bp
@@ -16,16 +16,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
     val active_clk = Input(Clock())
     val exu_flush_final = Input(Bool())
     val ifu_dec = new ifu_dec
-  //  val dec_tlu_i0_commit_cmt = Input(Bool())
-//    val dec_tlu_flush_err_wb = Input(Bool())
-//    val dec_tlu_flush_noredir_wb = Input(Bool())
     val exu_flush_path_final = Input(UInt(31.W))
-//    val dec_tlu_mrac_ff = Input(UInt(32.W))
-//    val dec_tlu_fence_i_wb = Input(Bool())
-//    val dec_tlu_flush_leak_one_wb = Input(Bool())
-//    val dec_tlu_bpred_disable = Input(Bool())
-//    val dec_tlu_core_ecc_disable = Input(Bool())
-//    val dec_tlu_force_halt = Input(Bool())
     // AXI Write Channel
     val ifu_axi_awvalid = Output(Bool())
     val ifu_axi_awid = Output(UInt(IFU_BUS_TAG.W))
@@ -189,7 +180,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   aln_ctl_ch.io.ifu_bp_valid_f := bp_ctl_ch.io.ifu_bp_valid_f
   aln_ctl_ch.io.ifu_bp_ret_f := bp_ctl_ch.io.ifu_bp_ret_f
   aln_ctl_ch.io.exu_flush_final := io.exu_flush_final
-  aln_ctl_ch.io.dec_i0_decode_d := io.ifu_dec.dec_i0_decode_d
+  aln_ctl_ch.io.dec_aln := io.ifu_dec.dec_aln
   aln_ctl_ch.io.ifu_fetch_data_f := mem_ctl_ch.io.ic_data_f
   aln_ctl_ch.io.ifu_fetch_val := mem_ctl_ch.io.ifu_fetch_val
   aln_ctl_ch.io.ifu_fetch_pc := ifc_ctl_ch.io.ifc_fetch_addr_f
