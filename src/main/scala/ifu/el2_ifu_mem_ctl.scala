@@ -695,7 +695,7 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val iccm_rd_ecc_single_err_hold_in = (io.iccm_rd_ecc_single_err | iccm_rd_ecc_single_err_ff) & !io.exu_flush_final
   iccm_error_start := io.iccm_rd_ecc_single_err
   val iccm_rw_addr_f = WireInit(UInt((ICCM_BITS-2).W), 0.U)
-  val iccm_ecc_corr_index_in = Mux(iccm_single_ecc_error(0).asBool(), iccm_rw_addr_f+1.U, iccm_rw_addr_f)
+  val iccm_ecc_corr_index_in = Mux(iccm_single_ecc_error(0).asBool(), iccm_rw_addr_f, iccm_rw_addr_f + 1.U)
   iccm_rw_addr_f := withClock(io.free_clk){RegNext(io.iccm_rw_addr(ICCM_BITS-2,1), 0.U)}
   iccm_rd_ecc_single_err_ff := withClock(io.free_clk){RegNext(iccm_rd_ecc_single_err_hold_in, false.B)}
   iccm_ecc_corr_data_ff := withClock(io.free_clk){RegEnable(Cat(iccm_corrected_ecc_f_mux, iccm_corrected_data_f_mux), 0.U, iccm_ecc_write_status.asBool())}

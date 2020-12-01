@@ -3796,7 +3796,7 @@ module el2_ifu_mem_ctl(
   wire  iccm_ecc_write_status = _T_3922 | io_iccm_dma_sb_error; // @[el2_ifu_mem_ctl.scala 694:127]
   wire  _T_3923 = io_iccm_rd_ecc_single_err | iccm_rd_ecc_single_err_ff; // @[el2_ifu_mem_ctl.scala 695:67]
   reg [13:0] iccm_rw_addr_f; // @[el2_ifu_mem_ctl.scala 699:51]
-  wire [13:0] _T_3928 = iccm_rw_addr_f + 14'h1; // @[el2_ifu_mem_ctl.scala 698:85]
+  wire [13:0] _T_3928 = iccm_rw_addr_f + 14'h1; // @[el2_ifu_mem_ctl.scala 698:102]
   wire [38:0] _T_3932 = {iccm_corrected_ecc_f_mux,iccm_corrected_data_f_mux}; // @[Cat.scala 29:58]
   wire  _T_3937 = ~io_ifc_fetch_uncacheable_bf; // @[el2_ifu_mem_ctl.scala 703:41]
   wire  _T_3938 = io_ifc_fetch_req_bf & _T_3937; // @[el2_ifu_mem_ctl.scala 703:39]
@@ -11805,9 +11805,9 @@ end // initial
       iccm_ecc_corr_index_ff <= 14'h0;
     end else if (iccm_ecc_write_status) begin
       if (iccm_single_ecc_error[0]) begin
-        iccm_ecc_corr_index_ff <= _T_3928;
-      end else begin
         iccm_ecc_corr_index_ff <= iccm_rw_addr_f;
+      end else begin
+        iccm_ecc_corr_index_ff <= _T_3928;
       end
     end
   end

@@ -7978,9 +7978,9 @@ circuit el2_ifu_mem_ctl :
     iccm_rw_addr_f <= UInt<1>("h00")
     node _T_3925 = bits(iccm_single_ecc_error, 0, 0) @[el2_ifu_mem_ctl.scala 698:57]
     node _T_3926 = bits(_T_3925, 0, 0) @[el2_ifu_mem_ctl.scala 698:67]
-    node _T_3927 = add(iccm_rw_addr_f, UInt<1>("h01")) @[el2_ifu_mem_ctl.scala 698:85]
-    node _T_3928 = tail(_T_3927, 1) @[el2_ifu_mem_ctl.scala 698:85]
-    node iccm_ecc_corr_index_in = mux(_T_3926, _T_3928, iccm_rw_addr_f) @[el2_ifu_mem_ctl.scala 698:35]
+    node _T_3927 = add(iccm_rw_addr_f, UInt<1>("h01")) @[el2_ifu_mem_ctl.scala 698:102]
+    node _T_3928 = tail(_T_3927, 1) @[el2_ifu_mem_ctl.scala 698:102]
+    node iccm_ecc_corr_index_in = mux(_T_3926, iccm_rw_addr_f, _T_3928) @[el2_ifu_mem_ctl.scala 698:35]
     node _T_3929 = bits(io.iccm_rw_addr, 14, 1) @[el2_ifu_mem_ctl.scala 699:67]
     reg _T_3930 : UInt, io.free_clk with : (reset => (reset, UInt<1>("h00"))) @[el2_ifu_mem_ctl.scala 699:51]
     _T_3930 <= _T_3929 @[el2_ifu_mem_ctl.scala 699:51]
