@@ -505,7 +505,7 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
     is(ic_wff_C){
       perr_nxtstate := err_idle_C
       perr_state_en := io.dec_mem_ctrl.dec_tlu_flush_lower_wb | io.dec_mem_ctrl.dec_tlu_force_halt
-      perr_sel_invalidate := io.dec_mem_ctrl.dec_tlu_flush_lower_wb & io.dec_mem_ctrl.dec_tlu_force_halt
+      perr_sel_invalidate := io.dec_mem_ctrl.dec_tlu_flush_lower_wb & io.dec_mem_ctrl.dec_tlu_flush_err_wb
     }
     is(ecc_wff_C){
       perr_nxtstate := Mux(((!io.dec_mem_ctrl.dec_tlu_flush_err_wb & io.dec_mem_ctrl.dec_tlu_flush_lower_wb ) | io.dec_mem_ctrl.dec_tlu_force_halt).asBool(), err_idle_C, ecc_cor_C)
