@@ -445,7 +445,6 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val byp_fetch_index_inc_1 = Cat(byp_fetch_index_inc, 1.U)
   val ic_miss_buff_data_error_bypass = Mux1H((0 until ICACHE_NUM_BEATS).map(i=>(bypass_index(ICACHE_BEAT_ADDR_HI-1,2)===i.U).asBool->ic_miss_buff_data_error(i)))
   val ic_miss_buff_data_error_bypass_inc = Mux1H((0 until ICACHE_NUM_BEATS).map(i=>(byp_fetch_index_inc===i.U).asBool->ic_miss_buff_data_error(i)))
-
     ifu_byp_data_err_new := (!ifu_fetch_addr_int_f(1) & !ifu_fetch_addr_int_f(0) & ic_miss_buff_data_error(byp_fetch_index(ICACHE_BEAT_ADDR_HI-1,2))) |
       (!ifu_fetch_addr_int_f(1) &  ifu_fetch_addr_int_f(0) & ic_miss_buff_data_error(byp_fetch_index(ICACHE_BEAT_ADDR_HI-1,2))) |
       (!ifu_fetch_addr_int_f(1) &  ifu_fetch_addr_int_f(0) & ic_miss_buff_data_error(byp_fetch_index(ICACHE_BEAT_ADDR_HI-1,2))) |
@@ -846,7 +845,7 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   ic_debug_way_ff := withClock(debug_c1_clk){RegNext(io.ic_debug_way, 0.U)}
   ic_debug_ict_array_sel_ff := withClock(debug_c1_clk){RegNext(ic_debug_ict_array_sel_in, 0.U)}
   ic_debug_rd_en_ff := withClock(io.free_clk){RegNext(io.ic_debug_rd_en, false.B)}
-  io.ifu_ic_debug_rd_data_valid := withClock(io.free_clk){RegEnable(ic_debug_rd_en_ff, 0.U, ic_debug_rd_en_ff.asBool)}
+  io.ifu_ic_debug_rd_data_valid := withClock(io.free_clk){RegNext(ic_debug_rd_en_ff, 0.U)}
   val ifc_region_acc_okay = !(Cat(INST_ACCESS_ENABLE0.U,INST_ACCESS_ENABLE1.U,INST_ACCESS_ENABLE2.U,INST_ACCESS_ENABLE3.U,INST_ACCESS_ENABLE4.U,INST_ACCESS_ENABLE5.U,INST_ACCESS_ENABLE6.U,INST_ACCESS_ENABLE7.U).orR()) |
       (INST_ACCESS_ENABLE0.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK0).U) === (aslong(INST_ACCESS_ADDR0).U | aslong(INST_ACCESS_MASK0).U))) |
       (INST_ACCESS_ENABLE1.U & ((Cat(io.ifc_fetch_addr_bf, 0.U) | aslong(INST_ACCESS_MASK1).U) === (aslong(INST_ACCESS_ADDR1).U | aslong(INST_ACCESS_MASK1).U))) |
