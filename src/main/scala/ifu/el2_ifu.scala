@@ -4,22 +4,28 @@ import chisel3.internal.naming.chiselName
 import chisel3.util._
 import lib._
 import include._
+class ifu_dec extends Bundle{
+  val dec_i0_decode_d = Input(Bool())
+  val dec_mem_ctrl = new dec_mem_ctrl
+  val dec_ifc = new dec_ifc
+  val dec_bp = new dec_bp
+}
 class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   val io = IO(new Bundle{
     val free_clk = Input(Clock())
     val active_clk = Input(Clock())
-    val dec_i0_decode_d = Input(Bool())
     val exu_flush_final = Input(Bool())
-    val dec_tlu_i0_commit_cmt = Input(Bool())
-    val dec_tlu_flush_err_wb = Input(Bool())
-    val dec_tlu_flush_noredir_wb = Input(Bool())
+    val ifu_dec = new ifu_dec
+  //  val dec_tlu_i0_commit_cmt = Input(Bool())
+//    val dec_tlu_flush_err_wb = Input(Bool())
+//    val dec_tlu_flush_noredir_wb = Input(Bool())
     val exu_flush_path_final = Input(UInt(31.W))
-    val dec_tlu_mrac_ff = Input(UInt(32.W))
-    val dec_tlu_fence_i_wb = Input(Bool())
-    val dec_tlu_flush_leak_one_wb = Input(Bool())
-    val dec_tlu_bpred_disable = Input(Bool())
-    val dec_tlu_core_ecc_disable = Input(Bool())
-    val dec_tlu_force_halt = Input(Bool())
+//    val dec_tlu_mrac_ff = Input(UInt(32.W))
+//    val dec_tlu_fence_i_wb = Input(Bool())
+//    val dec_tlu_flush_leak_one_wb = Input(Bool())
+//    val dec_tlu_bpred_disable = Input(Bool())
+//    val dec_tlu_core_ecc_disable = Input(Bool())
+//    val dec_tlu_force_halt = Input(Bool())
     // AXI Write Channel
     val ifu_axi_awvalid = Output(Bool())
     val ifu_axi_awid = Output(UInt(IFU_BUS_TAG.W))
@@ -132,12 +138,12 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
     val exu_mp_fghr = Input(UInt(BHT_GHR_SIZE.W))
     val exu_mp_index = Input(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W)) // Misprediction index
     val exu_mp_btag = Input(UInt(BTB_BTAG_SIZE.W))
-    val dec_tlu_br0_r_pkt = Flipped(Valid(new el2_br_tlu_pkt_t))
+   // val dec_tlu_br0_r_pkt = Flipped(Valid(new el2_br_tlu_pkt_t))
     val exu_i0_br_fghr_r = Input(UInt(BHT_GHR_SIZE.W)) // Updated GHR from the exu
     val exu_i0_br_index_r = Input(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W))
-    val dec_tlu_flush_lower_wb = Input(Bool())
+   // val dec_tlu_flush_lower_wb = Input(Bool())
     val ifu_i0_cinst = Output(UInt(16.W))
-    val dec_tlu_ic_diag_pkt = Input(new el2_cache_debug_pkt_t)
+   // val dec_tlu_ic_diag_pkt = Input(new el2_cache_debug_pkt_t)
     val ifu_ic_debug_rd_data_valid = Output(Bool())
     val iccm_buf_correct_ecc = Output(Bool())
     val iccm_correction_state = Output(Bool())
@@ -154,7 +160,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   ifc_ctl_ch.io.ic_hit_f := mem_ctl_ch.io.ic_hit_f
   ifc_ctl_ch.io.ifu_fb_consume1 := aln_ctl_ch.io.ifu_fb_consume1
   ifc_ctl_ch.io.ifu_fb_consume2 := aln_ctl_ch.io.ifu_fb_consume2
-  ifc_ctl_ch.io.dec_tlu_flush_noredir_wb := io.dec_tlu_flush_noredir_wb
+  ifc_ctl_ch.io.dec_ifc := io.ifu_dec.dec_ifc
   ifc_ctl_ch.io.exu_flush_final := io.exu_flush_final
   ifc_ctl_ch.io.exu_flush_path_final := io.exu_flush_path_final
   ifc_ctl_ch.io.ifu_bp_hit_taken_f := bp_ctl_ch.io.ifu_bp_hit_taken_f
@@ -162,7 +168,6 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   ifc_ctl_ch.io.ic_dma_active := mem_ctl_ch.io.ic_dma_active
   ifc_ctl_ch.io.ic_write_stall := mem_ctl_ch.io.ic_write_stall
   ifc_ctl_ch.io.dma_iccm_stall_any := io.dma_iccm_stall_any
-  ifc_ctl_ch.io.dec_tlu_mrac_ff := io.dec_tlu_mrac_ff
   ifc_ctl_ch.io.ifu_ic_mb_empty := mem_ctl_ch.io.ifu_ic_mb_empty
   // Input complete
 
@@ -184,7 +189,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   aln_ctl_ch.io.ifu_bp_valid_f := bp_ctl_ch.io.ifu_bp_valid_f
   aln_ctl_ch.io.ifu_bp_ret_f := bp_ctl_ch.io.ifu_bp_ret_f
   aln_ctl_ch.io.exu_flush_final := io.exu_flush_final
-  aln_ctl_ch.io.dec_i0_decode_d := io.dec_i0_decode_d
+  aln_ctl_ch.io.dec_i0_decode_d := io.ifu_dec.dec_i0_decode_d
   aln_ctl_ch.io.ifu_fetch_data_f := mem_ctl_ch.io.ic_data_f
   aln_ctl_ch.io.ifu_fetch_val := mem_ctl_ch.io.ifu_fetch_val
   aln_ctl_ch.io.ifu_fetch_pc := ifc_ctl_ch.io.ifc_fetch_addr_f
@@ -195,12 +200,9 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   bp_ctl_ch.io.ic_hit_f := mem_ctl_ch.io.ic_hit_f
   bp_ctl_ch.io.ifc_fetch_addr_f := ifc_ctl_ch.io.ifc_fetch_addr_f
   bp_ctl_ch.io.ifc_fetch_req_f := ifc_ctl_ch.io.ifc_fetch_req_f
-  bp_ctl_ch.io.dec_tlu_br0_r_pkt <> io.dec_tlu_br0_r_pkt
+  bp_ctl_ch.io.dec_bp <> io.ifu_dec.dec_bp
   bp_ctl_ch.io.exu_i0_br_fghr_r := io.exu_i0_br_fghr_r
   bp_ctl_ch.io.exu_i0_br_index_r := io.exu_i0_br_index_r
-  bp_ctl_ch.io.dec_tlu_flush_lower_wb := io.dec_tlu_flush_lower_wb
-  bp_ctl_ch.io.dec_tlu_flush_leak_one_wb := io.dec_tlu_flush_leak_one_wb
-  bp_ctl_ch.io.dec_tlu_bpred_disable := io.dec_tlu_bpred_disable
   bp_ctl_ch.io.exu_mp_pkt <> io.exu_mp_pkt
   bp_ctl_ch.io.exu_mp_eghr := io.exu_mp_eghr
   bp_ctl_ch.io.exu_mp_fghr := io.exu_mp_fghr
@@ -212,10 +214,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   mem_ctl_ch.io.free_clk := io.free_clk
   mem_ctl_ch.io.active_clk := io.active_clk
   mem_ctl_ch.io.exu_flush_final := io.exu_flush_final
-  mem_ctl_ch.io.dec_tlu_flush_lower_wb := io.dec_tlu_flush_lower_wb
-  mem_ctl_ch.io.dec_tlu_flush_err_wb := io.dec_tlu_flush_err_wb
-  mem_ctl_ch.io.dec_tlu_i0_commit_cmt := io.dec_tlu_i0_commit_cmt
-  mem_ctl_ch.io.dec_tlu_force_halt := io.dec_tlu_force_halt
+  mem_ctl_ch.io.dec_mem_ctrl <> io.ifu_dec.dec_mem_ctrl
   mem_ctl_ch.io.ifc_fetch_addr_bf := ifc_ctl_ch.io.ifc_fetch_addr_bf
   mem_ctl_ch.io.ifc_fetch_uncacheable_bf := ifc_ctl_ch.io.ifc_fetch_uncacheable_bf
   mem_ctl_ch.io.ifc_fetch_req_bf := ifc_ctl_ch.io.ifc_fetch_req_bf
@@ -223,7 +222,6 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   mem_ctl_ch.io.ifc_iccm_access_bf := ifc_ctl_ch.io.ifc_iccm_access_bf
   mem_ctl_ch.io.ifc_region_acc_fault_bf := ifc_ctl_ch.io.ifc_region_acc_fault_bf
   mem_ctl_ch.io.ifc_dma_access_ok := ifc_ctl_ch.io.ifc_dma_access_ok
-  mem_ctl_ch.io.dec_tlu_fence_i_wb := io.dec_tlu_fence_i_wb
   mem_ctl_ch.io.ifu_bp_hit_taken_f := bp_ctl_ch.io.ifu_bp_hit_taken_f
   mem_ctl_ch.io.ifu_bp_inst_mask_f := bp_ctl_ch.io.ifu_bp_inst_mask_f
   mem_ctl_ch.io.ifu_axi_arready := io.ifu_axi_arready
@@ -248,8 +246,6 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   mem_ctl_ch.io.iccm_rd_data := io.iccm_rd_data
   mem_ctl_ch.io.iccm_rd_data_ecc := io.iccm_rd_data_ecc
   mem_ctl_ch.io.ifu_fetch_val := mem_ctl_ch.io.ic_fetch_val_f
-  mem_ctl_ch.io.dec_tlu_ic_diag_pkt <> io.dec_tlu_ic_diag_pkt
-  mem_ctl_ch.io.dec_tlu_core_ecc_disable := io.dec_tlu_core_ecc_disable
   mem_ctl_ch.io.scan_mode := io.scan_mode
 
   // Connecting the final outputs

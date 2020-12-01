@@ -3,6 +3,10 @@ import lib._
 import chisel3._
 import chisel3.util._
 
+class dec_ifc extends Bundle{
+  val dec_tlu_flush_noredir_wb = Input(Bool())
+  val dec_tlu_mrac_ff = Input(UInt(32.W))
+}
 class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
   val io = IO(new Bundle{
     val free_clk = Input(Clock())
@@ -12,7 +16,6 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
     val ifu_ic_mb_empty = Input(Bool())
     val ifu_fb_consume1 = Input(Bool())
     val ifu_fb_consume2 = Input(Bool())
-    val dec_tlu_flush_noredir_wb = Input(Bool())
     val exu_flush_final = Input(Bool())
     val exu_flush_path_final = Input(UInt(31.W))
     val ifu_bp_hit_taken_f = Input(Bool())
@@ -20,8 +23,7 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
     val ic_dma_active = Input(Bool())
     val ic_write_stall = Input(Bool())
     val dma_iccm_stall_any = Input(Bool())
-    val dec_tlu_mrac_ff = Input(UInt(32.W))
-
+    val dec_ifc = new dec_ifc
     val ifc_fetch_addr_f = Output(UInt(31.W))
     val ifc_fetch_addr_bf = Output(UInt(31.W))
 
@@ -82,7 +84,7 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
   io.ifc_fetch_req_bf_raw := ~idle
 
   io.ifc_fetch_req_bf :=  io.ifc_fetch_req_bf_raw & !(fb_full_f_ns & !(io.ifu_fb_consume2 | io.ifu_fb_consume1)) &
-    !dma_stall & !io.ic_write_stall & !io.dec_tlu_flush_noredir_wb
+    !dma_stall & !io.ic_write_stall & !io.dec_ifc.dec_tlu_flush_noredir_wb
 
   fetch_bf_en := io.exu_flush_final | io.ifc_fetch_req_f
 
@@ -90,9 +92,9 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
 
   mb_empty_mod := (io.ifu_ic_mb_empty | io.exu_flush_final) & !dma_stall & !miss_f & !miss_a
 
-  goto_idle := io.exu_flush_final & io.dec_tlu_flush_noredir_wb
+  goto_idle := io.exu_flush_final & io.dec_ifc.dec_tlu_flush_noredir_wb
 
-  leave_idle := io.exu_flush_final & !io.dec_tlu_flush_noredir_wb & idle
+  leave_idle := io.exu_flush_final & !io.dec_ifc.dec_tlu_flush_noredir_wb & idle
 
   val next_state_1 = (!state(1) & state(0) & miss_f & !goto_idle) |
     (state(1) & !mb_empty_mod & !goto_idle)
@@ -135,7 +137,7 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
     (wfm  & !io.ifc_fetch_req_bf) | idle ) & !io.exu_flush_final) | dma_iccm_stall_any_f
 
   io.ifc_region_acc_fault_bf := !iccm_acc_in_range_bf & iccm_acc_in_region_bf
-  io.ifc_fetch_uncacheable_bf := ~io.dec_tlu_mrac_ff(Cat(io.ifc_fetch_addr_bf(30,27), 0.U))
+  io.ifc_fetch_uncacheable_bf := ~io.dec_ifc.dec_tlu_mrac_ff(Cat(io.ifc_fetch_addr_bf(30,27), 0.U))
 
   io.ifc_fetch_req_f := withClock(io.active_clk){RegNext(io.ifc_fetch_req_bf, init=0.U)}
 
