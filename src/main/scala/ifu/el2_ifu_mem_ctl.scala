@@ -684,8 +684,8 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val iccm_corrected_ecc = Wire(Vec(2, UInt(7.W)))
   iccm_corrected_ecc := VecInit(ecc_decoded(0)._1,ecc_decoded(1)._1)
   iccm_corrected_data := VecInit(ecc_decoded(0)._2,ecc_decoded(1)._2)
-  iccm_single_ecc_error := Cat(ecc_decoded(0)._3,ecc_decoded(1)._3)
-  iccm_double_ecc_error := Cat(ecc_decoded(0)._4,ecc_decoded(1)._4)
+  iccm_single_ecc_error := Cat(ecc_decoded(1)._3,ecc_decoded(0)._3)
+  iccm_double_ecc_error := Cat(ecc_decoded(1)._4,ecc_decoded(0)._4)
   io.iccm_rd_ecc_single_err := iccm_single_ecc_error.orR & ifc_iccm_access_f & ifc_fetch_req_f
   io.iccm_rd_ecc_double_err := iccm_double_ecc_error.orR & ifc_iccm_access_f
   val iccm_corrected_data_f_mux = Mux(iccm_single_ecc_error(0).asBool, iccm_corrected_data(0), iccm_corrected_data(1))
