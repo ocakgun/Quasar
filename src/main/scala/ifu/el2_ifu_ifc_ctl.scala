@@ -6,7 +6,9 @@ import chisel3.util._
 class dec_ifc extends Bundle{
   val dec_tlu_flush_noredir_wb = Input(Bool())
   val dec_tlu_mrac_ff = Input(UInt(32.W))
+  val ifu_pmu_fetch_stall = Output(Bool())
 }
+
 class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
   val io = IO(new Bundle{
     val free_clk = Input(Clock())
@@ -28,7 +30,7 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
     val ifc_fetch_addr_bf = Output(UInt(31.W))
 
     val ifc_fetch_req_f = Output(Bool())
-    val ifu_pmu_fetch_stall = Output(Bool())
+
     val ifc_fetch_uncacheable_bf = Output(Bool())
     val ifc_fetch_req_bf = Output(Bool())
     val ifc_fetch_req_bf_raw = Output(Bool())
@@ -125,7 +127,7 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
   val fb_full_f = withClock(io.active_clk) {RegNext(fb_full_f_ns, init = 0.U)}
   fb_write_f := withClock(io.active_clk) {RegNext(fb_write_ns, 0.U)}
 
-  io.ifu_pmu_fetch_stall := wfm | (io.ifc_fetch_req_bf_raw &
+  io.dec_ifc.ifu_pmu_fetch_stall := wfm | (io.ifc_fetch_req_bf_raw &
     ((fb_full_f & !(io.ifu_fb_consume2 | io.ifu_fb_consume1 | io.exu_flush_final)) | dma_stall))
 
   val (iccm_acc_in_region_bf, iccm_acc_in_range_bf) = if(ICCM_ENABLE)

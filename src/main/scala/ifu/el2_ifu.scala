@@ -67,9 +67,6 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
     val iccm_dma_rdata = Output(UInt(64.W))
     val iccm_dma_rtag = Output(UInt(3.W))
     val iccm_ready = Output(Bool())
-    val ifu_pmu_instr_aligned = Output(Bool())
-    val ifu_pmu_fetch_stall = Output(Bool())
-    val ifu_ic_error_start = Output(Bool())
     // I$
     val ic_rw_addr = Output(UInt(31.W))
     val ic_wr_en = Output(UInt(ICACHE_NUM_WAYS.W))
@@ -79,7 +76,6 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
     val ic_debug_rd_data = Input(UInt(71.W))
     val ictag_debug_rd_data = Input(UInt(26.W))
     val ic_debug_wr_data = Output(UInt(71.W))
-    val ifu_ic_debug_rd_data = Output(UInt(71.W))
     val ic_eccerr = Input(UInt(ICACHE_BANKS_WAY.W))
     val ic_parerr = Input(UInt(ICACHE_BANKS_WAY.W))
     val ic_premux_data = Output(UInt(64.W))
@@ -100,29 +96,8 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
     val iccm_wr_size = Output(UInt(3.W))
     val iccm_rd_data = Input(UInt(64.W))
     val iccm_rd_data_ecc = Input(UInt(78.W))
-    val ifu_iccm_rd_ecc_single_err = Output(Bool())
     // Performance counter
-    val ifu_pmu_ic_miss = Output(Bool())
-    val ifu_pmu_ic_hit = Output(Bool())
-    val ifu_pmu_bus_error = Output(Bool())
-    val ifu_pmu_bus_busy = Output(Bool())
-    val ifu_pmu_bus_trxn = Output(Bool())
-    //
-    val ifu_i0_icaf = Output(Bool())
-    val ifu_i0_icaf_type = Output(UInt(2.W))
-    val ifu_i0_valid = Output(Bool())
-    val ifu_i0_icaf_f1 = Output(Bool())
-    val ifu_i0_dbecc = Output(Bool())
     val iccm_dma_sb_error = Output(Bool())
-    val ifu_i0_instr = Output(UInt(32.W))
-    val ifu_i0_pc = Output(UInt(31.W))
-    val ifu_i0_pc4 = Output(Bool())
-    val ifu_miss_state_idle = Output(Bool())
-    // Aligner branch data
-    val i0_brp = Valid(new el2_br_pkt_t)
-    val ifu_i0_bp_index         = Output(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W))
-    val ifu_i0_bp_fghr          = Output(UInt(BHT_GHR_SIZE.W))
-    val ifu_i0_bp_btag          = Output(UInt(BTB_BTAG_SIZE.W))
     // BP Inputs
     val exu_mp_pkt = Flipped(Valid(new el2_predict_pkt_t))
     val exu_mp_eghr = Input(UInt(BHT_GHR_SIZE.W))
@@ -132,10 +107,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
    // val dec_tlu_br0_r_pkt = Flipped(Valid(new el2_br_tlu_pkt_t))
     val exu_i0_br_fghr_r = Input(UInt(BHT_GHR_SIZE.W)) // Updated GHR from the exu
     val exu_i0_br_index_r = Input(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W))
-   // val dec_tlu_flush_lower_wb = Input(Bool())
-    val ifu_i0_cinst = Output(UInt(16.W))
-   // val dec_tlu_ic_diag_pkt = Input(new el2_cache_debug_pkt_t)
-    val ifu_ic_debug_rd_data_valid = Output(Bool())
+
     val iccm_buf_correct_ecc = Output(Bool())
     val iccm_correction_state = Output(Bool())
     val scan_mode = Input(Bool())
@@ -151,7 +123,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   ifc_ctl_ch.io.ic_hit_f := mem_ctl_ch.io.ic_hit_f
   ifc_ctl_ch.io.ifu_fb_consume1 := aln_ctl_ch.io.ifu_fb_consume1
   ifc_ctl_ch.io.ifu_fb_consume2 := aln_ctl_ch.io.ifu_fb_consume2
-  ifc_ctl_ch.io.dec_ifc := io.ifu_dec.dec_ifc
+  ifc_ctl_ch.io.dec_ifc <> io.ifu_dec.dec_ifc
   ifc_ctl_ch.io.exu_flush_final := io.exu_flush_final
   ifc_ctl_ch.io.exu_flush_path_final := io.exu_flush_path_final
   ifc_ctl_ch.io.ifu_bp_hit_taken_f := bp_ctl_ch.io.ifu_bp_hit_taken_f
@@ -180,7 +152,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   aln_ctl_ch.io.ifu_bp_valid_f := bp_ctl_ch.io.ifu_bp_valid_f
   aln_ctl_ch.io.ifu_bp_ret_f := bp_ctl_ch.io.ifu_bp_ret_f
   aln_ctl_ch.io.exu_flush_final := io.exu_flush_final
-  aln_ctl_ch.io.dec_aln := io.ifu_dec.dec_aln
+  aln_ctl_ch.io.dec_aln <> io.ifu_dec.dec_aln
   aln_ctl_ch.io.ifu_fetch_data_f := mem_ctl_ch.io.ic_data_f
   aln_ctl_ch.io.ifu_fetch_val := mem_ctl_ch.io.ifu_fetch_val
   aln_ctl_ch.io.ifu_fetch_pc := ifc_ctl_ch.io.ifc_fetch_addr_f
@@ -274,16 +246,13 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   io.iccm_dma_rdata := mem_ctl_ch.io.iccm_dma_rdata
   io.iccm_dma_rtag := mem_ctl_ch.io.iccm_dma_rtag
   io.iccm_ready := mem_ctl_ch.io.iccm_ready
-  io.ifu_pmu_instr_aligned := aln_ctl_ch.io.ifu_pmu_instr_aligned
-  io.ifu_pmu_fetch_stall := ifc_ctl_ch.io.ifu_pmu_fetch_stall
-  io.ifu_ic_error_start := mem_ctl_ch.io.ic_error_start
+
   // I$
   io.ic_rw_addr := mem_ctl_ch.io.ic_rw_addr
   io.ic_wr_en := mem_ctl_ch.io.ic_wr_en
   io.ic_rd_en := mem_ctl_ch.io.ic_rd_en
   io.ic_wr_data := mem_ctl_ch.io.ic_wr_data
   io.ic_debug_wr_data := mem_ctl_ch.io.ic_debug_wr_data
-  io.ifu_ic_debug_rd_data := mem_ctl_ch.io.ifu_ic_debug_rd_data
   io.ic_sel_premux_data := mem_ctl_ch.io.ic_sel_premux_data
   io.ic_debug_addr := mem_ctl_ch.io.ic_debug_addr
   io.ic_debug_rd_en := mem_ctl_ch.io.ic_debug_rd_en
@@ -296,31 +265,10 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   io.iccm_rden := mem_ctl_ch.io.iccm_rden
   io.iccm_wr_data := mem_ctl_ch.io.iccm_wr_data
   io.iccm_wr_size := mem_ctl_ch.io.iccm_wr_size
-  io.ifu_iccm_rd_ecc_single_err := mem_ctl_ch.io.iccm_rd_ecc_single_err
   // Performance counter
-  io.ifu_pmu_ic_miss := mem_ctl_ch.io.ifu_pmu_ic_miss
-  io.ifu_pmu_ic_hit := mem_ctl_ch.io.ifu_pmu_ic_hit
-  io.ifu_pmu_bus_error := mem_ctl_ch.io.ifu_pmu_bus_error
-  io.ifu_pmu_bus_busy := mem_ctl_ch.io.ifu_pmu_bus_busy
-  io.ifu_pmu_bus_trxn := mem_ctl_ch.io.ifu_pmu_bus_trxn
   //
-  io.ifu_i0_icaf := aln_ctl_ch.io.ifu_i0_icaf
-  io.ifu_i0_icaf_type := aln_ctl_ch.io.ifu_i0_icaf_type
-  io.ifu_i0_valid := aln_ctl_ch.io.ifu_i0_valid
-  io.ifu_i0_icaf_f1 := aln_ctl_ch.io.ifu_i0_icaf_f1
-  io.ifu_i0_dbecc := aln_ctl_ch.io.ifu_i0_dbecc
   io.iccm_dma_sb_error := mem_ctl_ch.io.iccm_dma_sb_error
-  io.ifu_i0_instr := aln_ctl_ch.io.ifu_i0_instr
-  io.ifu_i0_pc := aln_ctl_ch.io.ifu_i0_pc
-  io.ifu_i0_pc4 := aln_ctl_ch.io.ifu_i0_pc4
-  io.ifu_miss_state_idle := mem_ctl_ch.io.ifu_miss_state_idle
   // Aligner branch data
-  io.i0_brp <> aln_ctl_ch.io.i0_brp
-  io.ifu_i0_bp_index := aln_ctl_ch.io.ifu_i0_bp_index
-  io.ifu_i0_bp_fghr := aln_ctl_ch.io.ifu_i0_bp_fghr
-  io.ifu_i0_bp_btag := aln_ctl_ch.io.ifu_i0_bp_btag
-  io.ifu_i0_cinst := aln_ctl_ch.io.ifu_i0_cinst
-  io.ifu_ic_debug_rd_data_valid := mem_ctl_ch.io.ifu_ic_debug_rd_data_valid
   io.iccm_buf_correct_ecc := mem_ctl_ch.io.iccm_buf_correct_ecc
   io.iccm_correction_state := mem_ctl_ch.io.iccm_correction_state
   io.ic_premux_data := mem_ctl_ch.io.ic_premux_data

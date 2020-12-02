@@ -1,75 +1,34 @@
 [
   {
     "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_ifu|el2_ifu>io_iccm_wren",
+    "sink":"~el2_ifu|el2_ifu>io_ic_rd_en",
     "sources":[
-      "~el2_ifu|el2_ifu>io_dma_mem_write",
-      "~el2_ifu|el2_ifu>io_dma_iccm_req",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_core_ecc_disable",
-      "~el2_ifu|el2_ifu>io_iccm_rd_data_ecc",
       "~el2_ifu|el2_ifu>io_exu_flush_final",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_force_halt",
       "~el2_ifu|el2_ifu>io_ic_rd_hit",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_ifc_dec_tlu_flush_noredir_wb",
       "~el2_ifu|el2_ifu>io_exu_flush_path_final",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_ifc_dec_tlu_flush_noredir_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_ifc_dec_tlu_mrac_ff",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
       "~el2_ifu|el2_ifu>io_exu_i0_br_index_r",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_i0_decode_d",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_flush_err_wb",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_i0_commit_cmt",
       "~el2_ifu|el2_ifu>io_ic_rd_data",
-      "~el2_ifu|el2_ifu>io_ifu_axi_rid",
-      "~el2_ifu|el2_ifu>io_ifu_axi_rvalid",
-      "~el2_ifu|el2_ifu>io_ifu_bus_clk_en"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_ifu|el2_ifu>io_iccm_wr_data",
-    "sources":[
-      "~el2_ifu|el2_ifu>io_dma_iccm_req",
-      "~el2_ifu|el2_ifu>io_dma_mem_wdata",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_core_ecc_disable",
-      "~el2_ifu|el2_ifu>io_iccm_rd_data_ecc",
-      "~el2_ifu|el2_ifu>io_exu_flush_final",
-      "~el2_ifu|el2_ifu>io_ic_rd_hit",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_ifc_dec_tlu_flush_noredir_wb",
-      "~el2_ifu|el2_ifu>io_exu_flush_path_final",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
-      "~el2_ifu|el2_ifu>io_exu_i0_br_index_r",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_i0_decode_d",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_flush_err_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_i0_commit_cmt",
-      "~el2_ifu|el2_ifu>io_ic_rd_data",
-      "~el2_ifu|el2_ifu>io_ifu_axi_rid",
-      "~el2_ifu|el2_ifu>io_ifu_axi_rvalid",
-      "~el2_ifu|el2_ifu>io_ifu_bus_clk_en"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_ifu|el2_ifu>io_ifu_ic_error_start",
-    "sources":[
-      "~el2_ifu|el2_ifu>io_ic_eccerr",
-      "~el2_ifu|el2_ifu>io_ic_tag_perr",
-      "~el2_ifu|el2_ifu>io_ic_rd_hit",
-      "~el2_ifu|el2_ifu>io_exu_flush_final",
       "~el2_ifu|el2_ifu>io_ifu_axi_rid",
       "~el2_ifu|el2_ifu>io_ifu_axi_rvalid",
       "~el2_ifu|el2_ifu>io_ifu_bus_clk_en",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
-      "~el2_ifu|el2_ifu>io_exu_i0_br_index_r"
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_aln_aln_dec_dec_i0_decode_d"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_ifu|el2_ifu>io_ifu_dec_dec_aln_ifu_pmu_instr_aligned",
+    "sources":[
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_aln_aln_dec_dec_i0_decode_d"
     ]
   },
   {
@@ -77,6 +36,22 @@
     "sink":"~el2_ifu|el2_ifu>io_ic_debug_wr_data",
     "sources":[
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_ic_diag_pkt_icache_wrdata"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_ifu_iccm_rd_ecc_single_err",
+    "sources":[
+      "~el2_ifu|el2_ifu>io_exu_flush_final",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_core_ecc_disable",
+      "~el2_ifu|el2_ifu>io_iccm_rd_data_ecc",
+      "~el2_ifu|el2_ifu>io_ic_rd_hit",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
+      "~el2_ifu|el2_ifu>io_exu_i0_br_index_r"
     ]
   },
   {
@@ -95,6 +70,31 @@
   },
   {
     "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_ifu|el2_ifu>io_iccm_ready",
+    "sources":[
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_core_ecc_disable",
+      "~el2_ifu|el2_ifu>io_iccm_rd_data_ecc",
+      "~el2_ifu|el2_ifu>io_exu_flush_final",
+      "~el2_ifu|el2_ifu>io_ic_rd_hit",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_ifc_dec_tlu_flush_noredir_wb",
+      "~el2_ifu|el2_ifu>io_exu_flush_path_final",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
+      "~el2_ifu|el2_ifu>io_exu_i0_br_index_r",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_aln_aln_dec_dec_i0_decode_d",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_flush_err_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_i0_commit_cmt",
+      "~el2_ifu|el2_ifu>io_ic_rd_data",
+      "~el2_ifu|el2_ifu>io_ifu_axi_rid",
+      "~el2_ifu|el2_ifu>io_ifu_axi_rvalid",
+      "~el2_ifu|el2_ifu>io_ifu_bus_clk_en"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
     "sink":"~el2_ifu|el2_ifu>io_ic_premux_data",
     "sources":[
       "~el2_ifu|el2_ifu>io_iccm_rd_data",
@@ -109,6 +109,55 @@
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
       "~el2_ifu|el2_ifu>io_exu_i0_br_index_r"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_ifu|el2_ifu>io_ic_debug_addr",
+    "sources":[
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_ic_diag_pkt_icache_dicawics"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_ifu|el2_ifu>io_iccm_wr_size",
+    "sources":[
+      "~el2_ifu|el2_ifu>io_dma_mem_sz",
+      "~el2_ifu|el2_ifu>io_dma_iccm_req"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_ifu|el2_ifu>io_iccm_wren",
+    "sources":[
+      "~el2_ifu|el2_ifu>io_dma_mem_write",
+      "~el2_ifu|el2_ifu>io_dma_iccm_req",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_core_ecc_disable",
+      "~el2_ifu|el2_ifu>io_iccm_rd_data_ecc",
+      "~el2_ifu|el2_ifu>io_exu_flush_final",
+      "~el2_ifu|el2_ifu>io_ic_rd_hit",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_ifc_dec_tlu_flush_noredir_wb",
+      "~el2_ifu|el2_ifu>io_exu_flush_path_final",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
+      "~el2_ifu|el2_ifu>io_exu_i0_br_index_r",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_aln_aln_dec_dec_i0_decode_d",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_flush_err_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_i0_commit_cmt",
+      "~el2_ifu|el2_ifu>io_ic_rd_data",
+      "~el2_ifu|el2_ifu>io_ifu_axi_rid",
+      "~el2_ifu|el2_ifu>io_ifu_axi_rvalid",
+      "~el2_ifu|el2_ifu>io_ifu_bus_clk_en"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_ifu|el2_ifu>io_ic_debug_tag_array",
+    "sources":[
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_ic_diag_pkt_icache_dicawics"
     ]
   },
   {
@@ -135,29 +184,53 @@
       "~el2_ifu|el2_ifu>io_ifu_axi_rid",
       "~el2_ifu|el2_ifu>io_ifu_axi_rvalid",
       "~el2_ifu|el2_ifu>io_ifu_bus_clk_en",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_i0_decode_d"
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_aln_aln_dec_dec_i0_decode_d"
     ]
   },
   {
     "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_ifu|el2_ifu>io_ic_debug_addr",
+    "sink":"~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_ifu_ic_error_start",
     "sources":[
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_ic_diag_pkt_icache_dicawics"
+      "~el2_ifu|el2_ifu>io_ic_eccerr",
+      "~el2_ifu|el2_ifu>io_ic_tag_perr",
+      "~el2_ifu|el2_ifu>io_ic_rd_hit",
+      "~el2_ifu|el2_ifu>io_exu_flush_final",
+      "~el2_ifu|el2_ifu>io_ifu_axi_rid",
+      "~el2_ifu|el2_ifu>io_ifu_axi_rvalid",
+      "~el2_ifu|el2_ifu>io_ifu_bus_clk_en",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
+      "~el2_ifu|el2_ifu>io_exu_i0_br_index_r"
     ]
   },
   {
     "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_ifu|el2_ifu>io_iccm_wr_size",
+    "sink":"~el2_ifu|el2_ifu>io_iccm_wr_data",
     "sources":[
-      "~el2_ifu|el2_ifu>io_dma_mem_sz",
-      "~el2_ifu|el2_ifu>io_dma_iccm_req"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_ifu|el2_ifu>io_ic_debug_tag_array",
-    "sources":[
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_ic_diag_pkt_icache_dicawics"
+      "~el2_ifu|el2_ifu>io_dma_iccm_req",
+      "~el2_ifu|el2_ifu>io_dma_mem_wdata",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_core_ecc_disable",
+      "~el2_ifu|el2_ifu>io_iccm_rd_data_ecc",
+      "~el2_ifu|el2_ifu>io_exu_flush_final",
+      "~el2_ifu|el2_ifu>io_ic_rd_hit",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_ifc_dec_tlu_flush_noredir_wb",
+      "~el2_ifu|el2_ifu>io_exu_flush_path_final",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
+      "~el2_ifu|el2_ifu>io_exu_i0_br_index_r",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_aln_aln_dec_dec_i0_decode_d",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_flush_err_wb",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_i0_commit_cmt",
+      "~el2_ifu|el2_ifu>io_ic_rd_data",
+      "~el2_ifu|el2_ifu>io_ifu_axi_rid",
+      "~el2_ifu|el2_ifu>io_ifu_axi_rvalid",
+      "~el2_ifu|el2_ifu>io_ifu_bus_clk_en"
     ]
   },
   {
@@ -178,7 +251,7 @@
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
       "~el2_ifu|el2_ifu>io_exu_i0_br_index_r",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_i0_decode_d",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_aln_aln_dec_dec_i0_decode_d",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_flush_err_wb",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_i0_commit_cmt",
       "~el2_ifu|el2_ifu>io_ic_rd_data",
@@ -189,44 +262,17 @@
   },
   {
     "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_ifu|el2_ifu>io_ic_rd_en",
+    "sink":"~el2_ifu|el2_ifu>io_ifu_dec_dec_ifc_ifu_pmu_fetch_stall",
     "sources":[
       "~el2_ifu|el2_ifu>io_exu_flush_final",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_force_halt",
-      "~el2_ifu|el2_ifu>io_ic_rd_hit",
-      "~el2_ifu|el2_ifu>io_exu_flush_path_final",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_ifc_dec_tlu_flush_noredir_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_ifc_dec_tlu_mrac_ff",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
-      "~el2_ifu|el2_ifu>io_exu_i0_br_index_r",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_flush_err_wb",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_i0_commit_cmt",
       "~el2_ifu|el2_ifu>io_ic_rd_data",
+      "~el2_ifu|el2_ifu>io_ic_rd_hit",
       "~el2_ifu|el2_ifu>io_ifu_axi_rid",
       "~el2_ifu|el2_ifu>io_ifu_axi_rvalid",
       "~el2_ifu|el2_ifu>io_ifu_bus_clk_en",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_i0_decode_d"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_ifu|el2_ifu>io_ifu_pmu_instr_aligned",
-    "sources":[
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_i0_decode_d"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_ifu|el2_ifu>io_ifu_iccm_rd_ecc_single_err",
-    "sources":[
-      "~el2_ifu|el2_ifu>io_exu_flush_final",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_core_ecc_disable",
-      "~el2_ifu|el2_ifu>io_iccm_rd_data_ecc",
-      "~el2_ifu|el2_ifu>io_ic_rd_hit",
+      "~el2_ifu|el2_ifu>io_ifu_dec_dec_aln_aln_dec_dec_i0_decode_d",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
@@ -279,52 +325,6 @@
       "~el2_ifu|el2_ifu>io_exu_i0_br_index_r",
       "~el2_ifu|el2_ifu>io_ic_rd_hit",
       "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_ifu|el2_ifu>io_iccm_ready",
-    "sources":[
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_core_ecc_disable",
-      "~el2_ifu|el2_ifu>io_iccm_rd_data_ecc",
-      "~el2_ifu|el2_ifu>io_exu_flush_final",
-      "~el2_ifu|el2_ifu>io_ic_rd_hit",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_ifc_dec_tlu_flush_noredir_wb",
-      "~el2_ifu|el2_ifu>io_exu_flush_path_final",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
-      "~el2_ifu|el2_ifu>io_exu_i0_br_index_r",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_i0_decode_d",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_flush_err_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_i0_commit_cmt",
-      "~el2_ifu|el2_ifu>io_ic_rd_data",
-      "~el2_ifu|el2_ifu>io_ifu_axi_rid",
-      "~el2_ifu|el2_ifu>io_ifu_axi_rvalid",
-      "~el2_ifu|el2_ifu>io_ifu_bus_clk_en"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_ifu|el2_ifu>io_ifu_pmu_fetch_stall",
-    "sources":[
-      "~el2_ifu|el2_ifu>io_exu_flush_final",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_flush_err_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_mem_ctrl_dec_tlu_i0_commit_cmt",
-      "~el2_ifu|el2_ifu>io_ic_rd_data",
-      "~el2_ifu|el2_ifu>io_ic_rd_hit",
-      "~el2_ifu|el2_ifu>io_ifu_axi_rid",
-      "~el2_ifu|el2_ifu>io_ifu_axi_rvalid",
-      "~el2_ifu|el2_ifu>io_ifu_bus_clk_en",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_i0_decode_d",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_bpred_disable",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_leak_one_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_flush_lower_wb",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_start_error",
-      "~el2_ifu|el2_ifu>io_ifu_dec_dec_bp_dec_tlu_br0_r_pkt_bits_br_error",
-      "~el2_ifu|el2_ifu>io_exu_i0_br_index_r"
     ]
   },
   {
