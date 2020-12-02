@@ -344,6 +344,8 @@
               <option value="$PROJECT_DIR$/el2_dec_tlu_ctl.v" />
               <option value="$PROJECT_DIR$/el2_exu_alu_ctl.v" />
               <option value="$PROJECT_DIR$/el2_pic_ctrl.v" />
+              <option value="$PROJECT_DIR$/src/main/resources/vsrc/el2_ifu_iccm_mem.sv" />
+              <option value="$PROJECT_DIR$/src/main/resources/vsrc/el2_lsu_dccm_mem.sv" />
               <option value="$PROJECT_DIR$/top.v" />
             </set>
           </value>

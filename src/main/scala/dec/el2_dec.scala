@@ -3,19 +3,82 @@ import chisel3._
 import chisel3.util._
 import include._
 import lib._
+class aln_ib extends Bundle with el2_lib{
+  val ifu_i0_icaf             = Output(Bool())
+  val ifu_i0_icaf_type        = Output(UInt(2.W))
+  val ifu_i0_icaf_f1          = Output(Bool())
+  val ifu_i0_dbecc            = Output(Bool())
+  val ifu_i0_bp_index         = Output(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W))
+  val ifu_i0_bp_fghr          = Output(UInt(BHT_GHR_SIZE.W))
+  val ifu_i0_bp_btag          = Output(UInt(BTB_BTAG_SIZE.W))
+  val ifu_i0_valid            = Output(Bool())
+  val ifu_i0_instr            = Output(UInt(32.W))
+  val ifu_i0_pc               = Output(UInt(31.W))
+  val ifu_i0_pc4              = Output(Bool())
+  val i0_brp                  = Valid(new el2_br_pkt_t)
+}
+class aln_dec extends Bundle{
+  val dec_i0_decode_d = Input(Bool()) // Dec
+  val ifu_i0_cinst            = Output(UInt(16.W)) // Dec
+}
+class dec_aln extends Bundle with el2_lib {
+  val aln_dec = new aln_dec
+  val aln_ib = new aln_ib
+  val ifu_pmu_instr_aligned   = Output(Bool()) // TLU
+}
+
+
+class dec_ifc extends Bundle{
+  val dec_tlu_flush_noredir_wb = Input(Bool())
+  val dec_tlu_mrac_ff = Input(UInt(32.W))
+  val ifu_pmu_fetch_stall = Output(Bool())
+}
+class dec_bp extends Bundle{
+  val dec_tlu_br0_r_pkt = Flipped(Valid(new el2_br_tlu_pkt_t))
+  val dec_tlu_flush_lower_wb = Input(Bool())/////////////
+  val dec_tlu_flush_leak_one_wb = Input(Bool())
+  val dec_tlu_bpred_disable = Input(Bool())
+}
+
+class dec_mem_ctrl extends Bundle with el2_lib{
+  val dec_tlu_flush_lower_wb = Input(Bool())
+  val dec_tlu_flush_err_wb = Input(Bool())
+  val dec_tlu_i0_commit_cmt = Input(Bool())
+  val dec_tlu_force_halt = Input(Bool())
+  val dec_tlu_fence_i_wb = Input(Bool())
+  val dec_tlu_ic_diag_pkt = Input(new el2_cache_debug_pkt_t)
+  val dec_tlu_core_ecc_disable = Input(Bool())
+
+  val ifu_pmu_ic_miss = Output(Bool())
+  val ifu_pmu_ic_hit = Output(Bool())
+  val ifu_pmu_bus_error = Output(Bool())
+  val ifu_pmu_bus_busy = Output(Bool())
+  val ifu_pmu_bus_trxn = Output(Bool())
+  val ifu_ic_error_start = Output(Bool())
+  val ifu_iccm_rd_ecc_single_err = Output(Bool())
+  val ifu_ic_debug_rd_data = Output(UInt(71.W))
+  val ifu_ic_debug_rd_data_valid = Output(Bool())
+  val ifu_miss_state_idle = Output(Bool())
+}
+class ifu_dec extends Bundle{
+  val dec_aln       = Flipped(new dec_aln)
+  val dec_mem_ctrl  = Flipped(new dec_mem_ctrl)
+  val dec_ifc       = Flipped(new dec_ifc)
+  val dec_bp        = Flipped(new dec_bp )
+}
+
+
+
 
 class el2_dec_IO extends Bundle with el2_lib {
   //val clk                   = Input(Clock())
   val free_clk              = Input(Clock())
   val active_clk            = Input(Clock())
-
   val lsu_fastint_stall_any = Input(Bool())           // needed by lsu for 2nd pass of dma with ecc correction, stall next cycle
-
   val dec_extint_stall      = Output(Bool())
 
-  val dec_i0_decode_d       = Output(Bool())
+//  val dec_i0_decode_d       = Output(Bool())
   val dec_pause_state_cg    = Output(Bool())          // to top for active state clock gating
-
   // val rst_l                 = Input(Bool())           // reset, active low
   val rst_vec               = Input(UInt(31.W))       // [31:1] reset vector, from core pins
 
@@ -69,16 +132,16 @@ class el2_dec_IO extends Bundle with el2_lib {
   val lsu_fir_addr    =   Input(UInt(31.W)) //[31:1] Fast int address
   val lsu_fir_error   =   Input(UInt(2.W))  //[1:0]  Fast int lookup error
 
-  val ifu_pmu_instr_aligned   =  Input(Bool())         // aligned instructions
-  val ifu_pmu_fetch_stall     =  Input(Bool())         // fetch unit stalled
-  val ifu_pmu_ic_miss         =  Input(Bool())         // icache miss
-  val ifu_pmu_ic_hit          =  Input(Bool())         // icache hit
-  val ifu_pmu_bus_error       =  Input(Bool())         // Instruction side bus error
-  val ifu_pmu_bus_busy        =  Input(Bool())         // Instruction side bus busy
-  val ifu_pmu_bus_trxn        =  Input(Bool())         // Instruction side bus transaction
-
-  val ifu_ic_error_start            =  Input(Bool())     // IC single bit error
-  val ifu_iccm_rd_ecc_single_err    =  Input(Bool())     // ICCM single bit error
+//  val ifu_pmu_instr_aligned   =  Input(Bool())         // aligned instructions
+//  val ifu_pmu_fetch_stall     =  Input(Bool())         // fetch unit stalled
+//  val ifu_pmu_ic_miss         =  Input(Bool())         // icache miss
+//  val ifu_pmu_ic_hit          =  Input(Bool())         // icache hit
+//  val ifu_pmu_bus_error       =  Input(Bool())         // Instruction side bus error
+//  val ifu_pmu_bus_busy        =  Input(Bool())         // Instruction side bus busy
+//  val ifu_pmu_bus_trxn        =  Input(Bool())         // Instruction side bus transaction
+//
+//  val ifu_ic_error_start            =  Input(Bool())     // IC single bit error
+//  val ifu_iccm_rd_ecc_single_err    =  Input(Bool())     // ICCM single bit error
 
   val lsu_trigger_match_m     = Input(UInt(4.W))
   val dbg_cmd_valid           = Input(Bool())    // debugger abstract command valid
@@ -88,20 +151,20 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dbg_cmd_wrdata          = Input(UInt(2.W))    // command write data, for fence/fence_i
 
 
-  val ifu_i0_icaf             = Input(Bool())         // icache access fault
-  val ifu_i0_icaf_type        = Input(UInt(2.W))
-
-  val ifu_i0_icaf_f1          = Input(Bool())    // i0 has access fault on second fetch group
-  val ifu_i0_dbecc            = Input(Bool())    // icache/iccm double-bit error
+//  val ifu_i0_icaf             = Input(Bool())         // icache access fault
+//  val ifu_i0_icaf_type        = Input(UInt(2.W))
+//
+//  val ifu_i0_icaf_f1          = Input(Bool())    // i0 has access fault on second fetch group
+//  val ifu_i0_dbecc            = Input(Bool())    // icache/iccm double-bit error
 
   val lsu_idle_any            = Input(Bool())     // lsu idle for halting
 
-  val i0_brp                  = Input(new el2_br_pkt_t)         // branch packet
-  val ifu_i0_bp_index         = Input(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W))      // BP index
-  val ifu_i0_bp_fghr          = Input(UInt(BHT_GHR_SIZE.W))     // BP FGHR
-  val ifu_i0_bp_btag          = Input(UInt(BTB_BTAG_SIZE.W))    // BP tag
+//  val i0_brp                  = Flipped(Valid(new el2_br_pkt_t))         // branch packet
+//  val ifu_i0_bp_index         = Input(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W))      // BP index
+//  val ifu_i0_bp_fghr          = Input(UInt(BHT_GHR_SIZE.W))     // BP FGHR
+//  val ifu_i0_bp_btag          = Input(UInt(BTB_BTAG_SIZE.W))    // BP tag
 
-  val lsu_error_pkt_r               = Input(new el2_lsu_error_pkt_t) // LSU exception/error packet
+  val lsu_error_pkt_r               = Flipped(Valid(new el2_lsu_error_pkt_t)) // LSU exception/error packet
   val lsu_single_ecc_error_incr     = Input(Bool())// LSU inc SB error counter
 
   val lsu_imprecise_error_load_any  = Input(Bool())  // LSU imprecise load bus error
@@ -128,10 +191,10 @@ class el2_dec_IO extends Bundle with el2_lib {
   val exu_i0_result_x               = Input(UInt(32.W))     // alu result x
 
 
-  val ifu_i0_valid             = Input(Bool())         // fetch valids to instruction buffer
-  val ifu_i0_instr             = Input(UInt(32.W))     // fetch inst's to instruction buffer
-  val ifu_i0_pc                = Input(UInt(31.W))     // pc's for instruction buffer
-  val ifu_i0_pc4               = Input(Bool())         // indication of 4B or 2B for corresponding inst
+//  val ifu_i0_valid             = Input(Bool())         // fetch valids to instruction buffer
+//  val ifu_i0_instr             = Input(UInt(32.W))     // fetch inst's to instruction buffer
+//  val ifu_i0_pc                = Input(UInt(31.W))     // pc's for instruction buffer
+//  val ifu_i0_pc4               = Input(Bool())         // indication of 4B or 2B for corresponding inst
   val exu_i0_pc_x              = Input(UInt(31.W))     // pc's for e1 from the alu's
 
   val mexintpend                = Input(Bool())        // External interrupt pending
@@ -145,23 +208,23 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_tlu_meicurpl          = Output(UInt(4.W))     // to PIC, Current priv level
   val dec_tlu_meipt             = Output(UInt(4.W))     // to PIC
 
-  val ifu_ic_debug_rd_data           = Input(UInt(71.W))          // diagnostic icache read data
-  val ifu_ic_debug_rd_data_valid     = Input(Bool())          // diagnostic icache read data valid
-  val dec_tlu_ic_diag_pkt            = Output(new el2_cache_debug_pkt_t)          // packet of DICAWICS, DICAD0/1, DICAGO info for icache diagnostics
+//  val ifu_ic_debug_rd_data           = Input(UInt(71.W))          // diagnostic icache read data
+//  val ifu_ic_debug_rd_data_valid     = Input(Bool())          // diagnostic icache read data valid
+//  val dec_tlu_ic_diag_pkt            = Output(new el2_cache_debug_pkt_t)          // packet of DICAWICS, DICAD0/1, DICAGO info for icache diagnostics
 
 
   // Debug start
   val dbg_halt_req         = Input(Bool())        // DM requests a halt
   val dbg_resume_req       = Input(Bool())        // DM requests a resume
-  val ifu_miss_state_idle  = Input(Bool())        // I-side miss buffer empty
+//  val ifu_miss_state_idle  = Input(Bool())        // I-side miss buffer empty
 
   val dec_tlu_dbg_halted        = Output(Bool())       // Core is halted and ready for debug command
   val dec_tlu_debug_mode        = Output(Bool())       // Core is in debug mode
   val dec_tlu_resume_ack        = Output(Bool())       // Resume acknowledge
-  val dec_tlu_flush_noredir_r   = Output(Bool())       // Tell fetch to idle on this flush
+//  val dec_tlu_flush_noredir_r   = Output(Bool())       // Tell fetch to idle on this flush
   val dec_tlu_mpc_halted_only   = Output(Bool())       // Core is halted only due to MPC
-  val dec_tlu_flush_leak_one_r  = Output(Bool())       // single step
-  val dec_tlu_flush_err_r       = Output(Bool())       // iside perr/ecc rfpc
+//  val dec_tlu_flush_leak_one_r  = Output(Bool())       // single step
+//  val dec_tlu_flush_err_r       = Output(Bool())       // iside perr/ecc rfpc
   val dec_tlu_meihap            = Output(UInt(30.W))       // Fast ext int base
 
   val dec_debug_wdata_rs1_d     = Output(Bool())      // insert debug write data into rs1 at decode
@@ -173,7 +236,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val trigger_pkt_any           = Output(Vec(4,new el2_trigger_pkt_t))  // info needed by debug trigger blocks
 
-  val dec_tlu_force_halt        = Output(Bool())        // halt has been forced
+//  val dec_tlu_force_halt        = Output(Bool())        // halt has been forced
   // Debug end
   // branch info from pipe0 for errors or counter updates
   val exu_i0_br_hist_r           = Input(UInt(2.W))          // history
@@ -206,9 +269,9 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_i0_rs1_bypass_data_d  = Output(UInt(32.W)) // rs1 bypass data
   val dec_i0_rs2_bypass_data_d  = Output(UInt(32.W)) // rs2 bypass data
 
-  val lsu_p                     = Output(new el2_lsu_pkt_t) // lsu packet
-  val mul_p                     = Output(new el2_mul_pkt_t) // mul packet
-  val div_p                     = Output(new el2_div_pkt_t) // div packet
+  val lsu_p                     = Valid(new el2_lsu_pkt_t) // lsu packet
+  val mul_p                     = Valid(new el2_mul_pkt_t) // mul packet
+  val div_p                     = Valid(new el2_div_pkt_t) // div packet
   val dec_div_cancel            = Output(Bool()) // cancel divide operation
 
   val dec_lsu_offset_d          = Output(UInt(12.W)) // 12b offset for load/store addresses
@@ -219,38 +282,38 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_tlu_flush_lower_r     = Output(Bool())   // tlu flush due to late mp, exception, rfpc, or int
   val dec_tlu_flush_path_r      = Output(UInt(31.W))   // tlu flush target
   val dec_tlu_i0_kill_writeb_r  = Output(Bool())   // I0 is flushed, don't writeback any results to arch state
-  val dec_tlu_fence_i_r         = Output(Bool())   // flush is a fence_i rfnpc, flush icache
+//  val dec_tlu_fence_i_r         = Output(Bool())   // flush is a fence_i rfnpc, flush icache
 
   val pred_correct_npc_x  = Output(UInt(31.W))       // npc if prediction is correct at e2 stage
 
-  val dec_tlu_br0_r_pkt  = Output(new el2_br_tlu_pkt_t)    // slot 0 branch predictor update packet
+//  val dec_tlu_br0_r_pkt  = Valid(new el2_br_tlu_pkt_t)    // slot 0 branch predictor update packet
 
   val dec_tlu_perfcnt0   = Output(Bool())      // toggles when slot0 perf counter 0 has an event inc
   val dec_tlu_perfcnt1   = Output(Bool())      // toggles when slot0 perf counter 1 has an event inc
   val dec_tlu_perfcnt2   = Output(Bool())      // toggles when slot0 perf counter 2 has an event inc
   val dec_tlu_perfcnt3   = Output(Bool())      // toggles when slot0 perf counter 3 has an event inc
 
-  val dec_i0_predict_p_d = Output(new el2_predict_pkt_t)      // prediction packet to alus
+  val dec_i0_predict_p_d = Valid(new el2_predict_pkt_t)      // prediction packet to alus
   val i0_predict_fghr_d  = Output(UInt(BHT_GHR_SIZE.W))   // DEC predict fghr
   val i0_predict_index_d = Output(UInt((BHT_ADDR_HI-BHT_ADDR_LO+1).W))   // DEC predict index
   val i0_predict_btag_d  = Output(UInt(BTB_BTAG_SIZE.W))   // DEC predict branch tag
 
   val dec_lsu_valid_raw_d = Output(Bool())
 
-  val dec_tlu_mrac_ff  = Output(UInt(32.W))          // CSR for memory region control
+//  val dec_tlu_mrac_ff  = Output(UInt(32.W))          // CSR for memory region control
 
   val dec_data_en      = Output(UInt(2.W))             // clock-gate control logic
   val dec_ctl_en       = Output(UInt(2.W))
 
-  val ifu_i0_cinst     = Input(UInt(16.W))             // 16b compressed instruction
+//  val ifu_i0_cinst     = Input(UInt(16.W))             // 16b compressed instruction
 
   val rv_trace_pkt     = Output(new el2_trace_pkt_t)        // trace packet
 
   // feature disable from mfdc
   val dec_tlu_external_ldfwd_disable     = Output(Bool())       // disable external load forwarding
   val dec_tlu_sideeffect_posted_disable  = Output(Bool())       // disable posted stores to side-effect address
-  val dec_tlu_core_ecc_disable           = Output(Bool())       // disable core ECC
-  val dec_tlu_bpred_disable              = Output(Bool())       // disable branch prediction
+//  val dec_tlu_core_ecc_disable           = Output(Bool())       // disable core ECC
+//  val dec_tlu_bpred_disable              = Output(Bool())       // disable branch prediction
   val dec_tlu_wb_coalescing_disable      = Output(Bool())       // disable writebuffer coalescing
   val dec_tlu_dma_qos_prty               = Output(UInt(3.W))       // DMA QoS priority coming from MFDC [18:16]
 
@@ -263,9 +326,9 @@ class el2_dec_IO extends Bundle with el2_lib {
   val dec_tlu_dccm_clk_override   = Output(Bool())       // override DCCM clock domain gating
   val dec_tlu_icm_clk_override    = Output(Bool())       // override ICCM clock domain gating
 
-  val dec_tlu_i0_commit_cmt       = Output(Bool())          // committed i0 instruction
+//  val dec_tlu_i0_commit_cmt       = Output(Bool())          // committed i0 instruction
   val scan_mode                   = Input(Bool())
-
+  val ifu_dec = new ifu_dec
 }
 
 class el2_dec extends Module with param with RequireAsyncReset{
@@ -294,22 +357,23 @@ class el2_dec extends Module with param with RequireAsyncReset{
 
   //connections for el2_dec_Ib
   //inputs
+  instbuff.io.ifu_ib <> io.ifu_dec.dec_aln.aln_ib
   instbuff.io.dbg_cmd_valid		    := io.dbg_cmd_valid
   instbuff.io.dbg_cmd_write		    := io.dbg_cmd_write
   instbuff.io.dbg_cmd_type		    :=  io.dbg_cmd_type
   instbuff.io.dbg_cmd_addr		    := io.dbg_cmd_addr
-  instbuff.io.i0_brp				      := io.i0_brp
-  instbuff.io.ifu_i0_bp_index     := io.ifu_i0_bp_index
-  instbuff.io.ifu_i0_bp_fghr      := io.ifu_i0_bp_fghr
-  instbuff.io.ifu_i0_bp_btag      := io.ifu_i0_bp_btag
-  instbuff.io.ifu_i0_pc4          := io.ifu_i0_pc4
-  instbuff.io.ifu_i0_valid        := io.ifu_i0_valid
-  instbuff.io.ifu_i0_icaf         := io.ifu_i0_icaf
-  instbuff.io.ifu_i0_icaf_type    := io.ifu_i0_icaf_type
-  instbuff.io.ifu_i0_icaf_f1      := io.ifu_i0_icaf_f1
-  instbuff.io.ifu_i0_dbecc        := io.ifu_i0_dbecc
-  instbuff.io.ifu_i0_instr        := io.ifu_i0_instr
-  instbuff.io.ifu_i0_pc           := io.ifu_i0_pc
+//  instbuff.io.ifu_ib.i0_brp				       := io.ifu_dec.ifu_ib.i0_brp
+//  instbuff.io.ifu_ib.ifu_i0_bp_index     := io.ifu_dec.ifu_ib.ifu_i0_bp_index
+//  instbuff.io.ifu_ib.ifu_i0_bp_fghr      := io.ifu_dec.ifu_ib.ifu_i0_bp_fghr
+//  instbuff.io.ifu_ib.ifu_i0_bp_btag      := io.ifu_dec.ifu_ib.ifu_i0_bp_btag
+//  instbuff.io.ifu_ib.ifu_i0_pc4          := io.ifu_dec.ifu_ib.ifu_i0_pc4
+//  instbuff.io.ifu_ib.ifu_i0_valid        := io.ifu_dec.ifu_ib.ifu_i0_valid
+//  instbuff.io.ifu_ib.ifu_i0_icaf         := io.ifu_dec.ifu_ib.ifu_i0_icaf
+//  instbuff.io.ifu_ib.ifu_i0_icaf_type    := io.ifu_dec.ifu_ib.ifu_i0_icaf_type
+//  instbuff.io.ifu_ib.ifu_i0_icaf_f1      := io.ifu_dec.ifu_ib.ifu_i0_icaf_f1
+//  instbuff.io.ifu_ib.ifu_i0_dbecc        := io.ifu_dec.ifu_ib.ifu_i0_dbecc
+//  instbuff.io.ifu_ib.ifu_i0_instr        := io.ifu_dec.ifu_ib.ifu_i0_instr
+//  instbuff.io.ifu_ib.ifu_i0_pc           := io.ifu_dec.ifu_ib.ifu_i0_pc
   //outputs
   io.dec_debug_wdata_rs1_d           := instbuff.io.dec_debug_wdata_rs1_d
   //--------------------------------------------------------------------------//
@@ -327,9 +391,10 @@ class el2_dec extends Module with param with RequireAsyncReset{
   //connections for el2_dec_decode
   // decode.io <> io
   //inputs
+  decode.io.dec_aln <> io.ifu_dec.dec_aln.aln_dec
   decode.io.dec_tlu_flush_extint               :=  tlu.io.dec_tlu_flush_extint
-  decode.io.dec_tlu_force_halt                 :=  tlu.io.dec_tlu_force_halt
-  decode.io.ifu_i0_cinst                       :=  io.ifu_i0_cinst
+  decode.io.dec_tlu_force_halt                 :=  tlu.io.tlu_mem.dec_tlu_force_halt
+//  decode.io.ifu_decode.ifu_i0_cinst                       :=  io.ifu_dec.ifu_decode.ifu_i0_cinst
   decode.io.lsu_nonblock_load_valid_m          :=  io.lsu_nonblock_load_valid_m
   decode.io.lsu_nonblock_load_tag_m            :=  io.lsu_nonblock_load_tag_m
   decode.io.lsu_nonblock_load_inv_r            :=  io.lsu_nonblock_load_inv_r
@@ -344,7 +409,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   decode.io.lsu_trigger_match_m                :=  io.lsu_trigger_match_m
   decode.io.lsu_pmu_misaligned_m               :=  io.lsu_pmu_misaligned_m
   decode.io.dec_tlu_debug_stall                :=  tlu.io.dec_tlu_debug_stall
-  decode.io.dec_tlu_flush_leak_one_r           :=  tlu.io.dec_tlu_flush_leak_one_r
+  decode.io.dec_tlu_flush_leak_one_r           :=  tlu.io.tlu_bp.dec_tlu_flush_leak_one_wb
   decode.io.dec_debug_fence_d                  :=  instbuff.io.dec_debug_fence_d
   decode.io.dbg_cmd_wrdata                     :=  io.dbg_cmd_wrdata
   decode.io.dec_i0_icaf_d                      :=  instbuff.io.dec_i0_icaf_d
@@ -362,7 +427,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   decode.io.dma_dccm_stall_any                 :=  io.dma_dccm_stall_any
   decode.io.exu_div_wren                       :=  io.exu_div_wren
   decode.io.dec_tlu_i0_kill_writeb_wb          :=  tlu.io.dec_tlu_i0_kill_writeb_wb
-  decode.io.dec_tlu_flush_lower_wb             :=  tlu.io.dec_tlu_flush_lower_wb
+  decode.io.dec_tlu_flush_lower_wb             :=  tlu.io.tlu_bp.dec_tlu_flush_lower_wb
   decode.io.dec_tlu_i0_kill_writeb_r           :=  tlu.io.dec_tlu_i0_kill_writeb_r
   decode.io.dec_tlu_flush_lower_r              :=  tlu.io.dec_tlu_flush_lower_r
   decode.io.dec_tlu_flush_pause_r              :=  tlu.io.dec_tlu_flush_pause_r
@@ -386,6 +451,9 @@ class el2_dec extends Module with param with RequireAsyncReset{
   // decode.io.rst_l                              :=  io.rst_l
   decode.io.scan_mode                          :=  io.scan_mode
   //outputs
+//
+//  io.ifu_dec.dec_aln <> decode.io.dec_aln
+
   io.dec_extint_stall                  :=   decode.io.dec_extint_stall
   dec_i0_inst_wb1                      :=   decode.io.dec_i0_inst_wb1   //for tracer
   dec_i0_pc_wb1                        :=   decode.io.dec_i0_pc_wb1     //for tracer
@@ -394,7 +462,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   io.dec_i0_immed_d                    :=   decode.io.dec_i0_immed_d
   io.dec_i0_br_immed_d                 :=   decode.io.dec_i0_br_immed_d
   io.i0_ap                             :=   decode.io.i0_ap
-  io.dec_i0_decode_d                   :=   decode.io.dec_i0_decode_d
+//  io.ifu_dec.dec_aln.dec_i0_decode_d                   :=   decode.io.dec_aln.dec_i0_decode_d
   io.dec_i0_alu_decode_d               :=   decode.io.dec_i0_alu_decode_d
   io.dec_i0_rs1_bypass_data_d          :=   decode.io.dec_i0_rs1_bypass_data_d
   io.dec_i0_rs2_bypass_data_d          :=   decode.io.dec_i0_rs2_bypass_data_d
@@ -446,6 +514,9 @@ class el2_dec extends Module with param with RequireAsyncReset{
   //connection for dec_tlu
   // tlu.io <> io
   //inputs
+  tlu.io.tlu_mem <> io.ifu_dec.dec_mem_ctrl
+  tlu.io.tlu_ifc <> io.ifu_dec.dec_ifc
+  tlu.io.tlu_bp <> io.ifu_dec.dec_bp
   //tlu.io.clk                                :=  io.clk
   tlu.io.active_clk                         :=  io.active_clk
   tlu.io.free_clk                           :=  io.free_clk
@@ -457,13 +528,13 @@ class el2_dec extends Module with param with RequireAsyncReset{
   tlu.io.i_cpu_halt_req                     :=  io.i_cpu_halt_req
   tlu.io.i_cpu_run_req                      :=  io.i_cpu_run_req
   tlu.io.lsu_fastint_stall_any              :=  io.lsu_fastint_stall_any
-  tlu.io.ifu_pmu_instr_aligned              :=  io.ifu_pmu_instr_aligned
-  tlu.io.ifu_pmu_fetch_stall                :=  io.ifu_pmu_fetch_stall
-  tlu.io.ifu_pmu_ic_miss                    :=  io.ifu_pmu_ic_miss
-  tlu.io.ifu_pmu_ic_hit                     :=  io.ifu_pmu_ic_hit
-  tlu.io.ifu_pmu_bus_error                  :=  io.ifu_pmu_bus_error
-  tlu.io.ifu_pmu_bus_busy                   :=  io.ifu_pmu_bus_busy
-  tlu.io.ifu_pmu_bus_trxn                   :=  io.ifu_pmu_bus_trxn
+  tlu.io.ifu_pmu_instr_aligned              :=  io.ifu_dec.dec_aln.ifu_pmu_instr_aligned
+//  tlu.io.ifu_tlu.ifu_pmu_fetch_stall                :=  io.ifu_dec.ifu_tlu.ifu_pmu_fetch_stall
+//  tlu.io.ifu_tlu.ifu_pmu_ic_miss                    :=  io.ifu_dec.ifu_tlu.ifu_pmu_ic_miss
+//  tlu.io.ifu_tlu.ifu_pmu_ic_hit                     :=  io.ifu_dec.ifu_tlu.ifu_pmu_ic_hit
+//  tlu.io.ifu_tlu.ifu_pmu_bus_error                  :=  io.ifu_dec.ifu_tlu.ifu_pmu_bus_error
+//  tlu.io.ifu_tlu.ifu_pmu_bus_busy                   :=  io.ifu_dec.ifu_tlu.ifu_pmu_bus_busy
+//  tlu.io.ifu_tlu.ifu_pmu_bus_trxn                   :=  io.ifu_dec.ifu_tlu.ifu_pmu_bus_trxn
   tlu.io.dec_pmu_instr_decoded              :=  decode.io.dec_pmu_instr_decoded
   tlu.io.dec_pmu_decode_stall               :=  decode.io.dec_pmu_decode_stall
   tlu.io.dec_pmu_presync_stall              :=  decode.io.dec_pmu_presync_stall
@@ -505,7 +576,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   tlu.io.dec_tlu_i0_pc_r                    :=  decode.io.dec_tlu_i0_pc_r
   tlu.io.dec_tlu_packet_r                   :=  decode.io.dec_tlu_packet_r
   tlu.io.dec_illegal_inst                   :=  decode.io.dec_illegal_inst
-  tlu.io.dec_i0_decode_d                    :=  decode.io.dec_i0_decode_d
+  tlu.io.dec_i0_decode_d                    :=  decode.io.dec_aln.dec_i0_decode_d
   tlu.io.exu_i0_br_hist_r                   :=  io.exu_i0_br_hist_r
   tlu.io.exu_i0_br_error_r                  :=  io.exu_i0_br_error_r
   tlu.io.exu_i0_br_start_error_r            :=  io.exu_i0_br_start_error_r
@@ -515,13 +586,13 @@ class el2_dec extends Module with param with RequireAsyncReset{
   tlu.io.exu_i0_br_way_r                    :=  io.exu_i0_br_way_r
   tlu.io.dbg_halt_req                       :=  io.dbg_halt_req
   tlu.io.dbg_resume_req                     :=  io.dbg_resume_req
-  tlu.io.ifu_miss_state_idle                :=  io.ifu_miss_state_idle
+//  tlu.io.ifu_tlu.ifu_miss_state_idle                :=  io.ifu_dec.ifu_tlu.ifu_miss_state_idle
   tlu.io.lsu_idle_any                       :=  io.lsu_idle_any
   tlu.io.dec_div_active                     :=  decode.io.dec_div_active
-  tlu.io.ifu_ic_error_start                 :=  io.ifu_ic_error_start
-  tlu.io.ifu_iccm_rd_ecc_single_err         :=  io.ifu_iccm_rd_ecc_single_err
-  tlu.io.ifu_ic_debug_rd_data               :=  io.ifu_ic_debug_rd_data
-  tlu.io.ifu_ic_debug_rd_data_valid         :=  io.ifu_ic_debug_rd_data_valid
+//  tlu.io.ifu_tlu.ifu_ic_error_start                 :=  io.ifu_dec.ifu_tlu.ifu_ic_error_start
+//  tlu.io.ifu_tlu.ifu_iccm_rd_ecc_single_err         :=  io.ifu_dec.ifu_tlu.ifu_iccm_rd_ecc_single_err
+//  tlu.io.ifu_tlu.ifu_ic_debug_rd_data               :=  io.ifu_dec.ifu_tlu.ifu_ic_debug_rd_data
+//  tlu.io.ifu_tlu.ifu_ic_debug_rd_data_valid         :=  io.ifu_dec.ifu_tlu.ifu_ic_debug_rd_data_valid
   tlu.io.pic_claimid                        :=  io.pic_claimid
   tlu.io.pic_pl                             :=  io.pic_pl
   tlu.io.mhwakeup                           :=  io.mhwakeup
@@ -533,18 +604,22 @@ class el2_dec extends Module with param with RequireAsyncReset{
   tlu.io.mpc_debug_run_req                  :=  io.mpc_debug_run_req
   tlu.io.mpc_reset_run_req                  :=  io.mpc_reset_run_req
   //outputs
+//  io.ifu_dec.dec_mem_ctrl <> tlu.io.tlu_mem
+//  io.ifu_dec.dec_ifc <> tlu.io.tlu_ifc
+//  io.ifu_dec.dec_bp <> tlu.io.tlu_bp
+
   io.dec_dbg_cmd_done      := tlu.io.dec_dbg_cmd_done
   io.dec_dbg_cmd_fail      := tlu.io.dec_dbg_cmd_fail
   io.dec_tlu_dbg_halted    := tlu.io.dec_tlu_dbg_halted
   io.dec_tlu_debug_mode    := tlu.io.dec_tlu_debug_mode
   io.dec_tlu_resume_ack    := tlu.io.dec_tlu_resume_ack
-  io.dec_tlu_flush_noredir_r     := tlu.io.dec_tlu_flush_noredir_r
-  io.dec_tlu_mpc_halted_only     := tlu.io.dec_tlu_mpc_halted_only
-  io.dec_tlu_flush_leak_one_r    := tlu.io.dec_tlu_flush_leak_one_r
-  io.dec_tlu_flush_err_r         := tlu.io.dec_tlu_flush_err_r
+//  io.ifu_dec.tlu_ifc.dec_tlu_flush_noredir_wb     := tlu.io.tlu_ifc.dec_tlu_flush_noredir_wb
+  io.dec_tlu_mpc_halted_only                      := tlu.io.dec_tlu_mpc_halted_only
+//  io.ifu_dec.tlu_bp.dec_tlu_flush_leak_one_wb     := tlu.io.tlu_bp.dec_tlu_flush_leak_one_wb
+//  io.ifu_dec.tlu_mem.dec_tlu_flush_err_wb         := tlu.io.tlu_mem.dec_tlu_flush_err_wb
   io.dec_tlu_meihap         := tlu.io.dec_tlu_meihap
   io.trigger_pkt_any        := tlu.io.trigger_pkt_any
-  io.dec_tlu_ic_diag_pkt    := tlu.io.dec_tlu_ic_diag_pkt
+//  io.ifu_dec.tlu_mem.dec_tlu_ic_diag_pkt    := tlu.io.tlu_mem.dec_tlu_ic_diag_pkt
   io.o_cpu_halt_status      := tlu.io.o_cpu_halt_status
   io.o_cpu_halt_ack         := tlu.io.o_cpu_halt_ack
   io.o_cpu_run_ack          := tlu.io.o_cpu_run_ack
@@ -554,14 +629,14 @@ class el2_dec extends Module with param with RequireAsyncReset{
   io.debug_brkpt_status     := tlu.io.debug_brkpt_status
   io.dec_tlu_meicurpl       := tlu.io.dec_tlu_meicurpl
   io.dec_tlu_meipt          := tlu.io.dec_tlu_meipt
-  io.dec_tlu_br0_r_pkt                   := tlu.io.dec_tlu_br0_r_pkt
-  io.dec_tlu_i0_commit_cmt       := tlu.io.dec_tlu_i0_commit_cmt
+//  io.ifu_dec.tlu_bp.dec_tlu_br0_r_pkt                   := tlu.io.tlu_bp.dec_tlu_br0_r_pkt
+//  io.ifu_dec.tlu_mem.dec_tlu_i0_commit_cmt       := tlu.io.tlu_mem.dec_tlu_i0_commit_cmt
   io.dec_tlu_i0_kill_writeb_r    := tlu.io.dec_tlu_i0_kill_writeb_r
   io.dec_tlu_flush_lower_r       := tlu.io.dec_tlu_flush_lower_r
   io.dec_tlu_flush_path_r        := tlu.io.dec_tlu_flush_path_r
-  io.dec_tlu_fence_i_r           := tlu.io.dec_tlu_fence_i_r
-  io.dec_tlu_mrac_ff        := tlu.io.dec_tlu_mrac_ff
-  io.dec_tlu_force_halt     := tlu.io.dec_tlu_force_halt
+//  io.ifu_dec.tlu_mem.dec_tlu_fence_i_wb           := tlu.io.tlu_mem.dec_tlu_fence_i_wb
+//  io.ifu_dec.tlu_ifc.dec_tlu_mrac_ff        := tlu.io.tlu_ifc.dec_tlu_mrac_ff
+//  io.ifu_dec.tlu_mem.dec_tlu_force_halt     := tlu.io.tlu_mem.dec_tlu_force_halt
   io.dec_tlu_perfcnt0       := tlu.io.dec_tlu_perfcnt0
   io.dec_tlu_perfcnt1       := tlu.io.dec_tlu_perfcnt1
   io.dec_tlu_perfcnt2       := tlu.io.dec_tlu_perfcnt2
@@ -573,8 +648,8 @@ class el2_dec extends Module with param with RequireAsyncReset{
   dec_tlu_mtval_wb1            := tlu.io.dec_tlu_mtval_wb1
   io.dec_tlu_external_ldfwd_disable       := tlu.io.dec_tlu_external_ldfwd_disable
   io.dec_tlu_sideeffect_posted_disable    := tlu.io.dec_tlu_sideeffect_posted_disable
-  io.dec_tlu_core_ecc_disable             := tlu.io.dec_tlu_core_ecc_disable
-  io.dec_tlu_bpred_disable                := tlu.io.dec_tlu_bpred_disable
+//  io.ifu_dec.tlu_mem.dec_tlu_core_ecc_disable             := tlu.io.tlu_mem.dec_tlu_core_ecc_disable
+//  io.ifu_dec.tlu_bp.dec_tlu_bpred_disable                := tlu.io.tlu_bp.dec_tlu_bpred_disable
   io.dec_tlu_wb_coalescing_disable        := tlu.io.dec_tlu_wb_coalescing_disable
   io.dec_tlu_dma_qos_prty         := tlu.io.dec_tlu_dma_qos_prty
   io.dec_tlu_misc_clk_override    := tlu.io.dec_tlu_misc_clk_override

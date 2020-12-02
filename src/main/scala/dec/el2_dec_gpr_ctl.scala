@@ -50,7 +50,7 @@ class el2_dec_gpr_ctl extends Module with el2_lib with RequireAsyncReset{
 
 class el2_dec_gpr_ctl_IO extends Bundle{
 	val	raddr0=Input(UInt(5.W))      // logical read addresses
-	val  	raddr1=Input(UInt(5.W))
+	val raddr1=Input(UInt(5.W))
 	val	wen0=Input(UInt(1.W))         // write enable
 	val  	waddr0=Input(UInt(5.W))       // write address
 	val 	wd0=Input(UInt(32.W))          // write data
