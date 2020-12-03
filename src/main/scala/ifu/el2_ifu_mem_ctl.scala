@@ -6,6 +6,53 @@ import lib._
 import include._
 
 import scala.math.pow
+
+class axi_channels extends Bundle with el2_lib{
+  val aw = Decoupled(new write_addr())
+  val w = Decoupled(new write_data())
+  val b = Flipped(Decoupled(new write_resp()))
+  val ar = Decoupled(new read_addr())
+  val r = Flipped(Decoupled(new read_data()))
+}
+class read_addr extends Bundle with el2_lib { // read_address
+  val id = UInt(LSU_BUS_TAG.W)
+  val addr = UInt(32.W)
+  val region = UInt(4.W)
+  val len = UInt(8.W)
+  val size = UInt(3.W)
+  val burst = UInt(2.W)
+  val lock = Bool()
+  val cache = UInt(4.W)
+  val prot = UInt(3.W)
+  val qos = UInt(4.W)
+}
+class read_data extends Bundle with el2_lib {   // read_data
+  val id = UInt(LSU_BUS_TAG.W)
+  val data = UInt(64.W)
+  val resp = UInt(2.W)
+  val last = Bool()
+}
+class write_addr extends Bundle with el2_lib { // write_address
+  val id = UInt(LSU_BUS_TAG.W)
+  val addr = UInt(32.W)
+  val region = UInt(4.W)
+  val len = UInt(8.W)
+  val size = UInt(3.W)
+  val burst = UInt(2.W)
+  val lock = Bool()
+  val cache = UInt(4.W)
+  val prot = UInt(3.W)
+  val qos = UInt(4.W)
+}
+class write_data extends Bundle with el2_lib{ // write_data
+  val data = UInt(64.W)
+  val strb = UInt(8.W)
+  val last = Bool()
+}
+class write_resp extends Bundle with el2_lib{ // write_response
+  val resp = UInt(2.W)
+  val id = UInt(LSU_BUS_TAG.W)
+}
 @chiselName
 class dec_mem_ctrl extends Bundle with el2_lib{
   val dec_tlu_flush_lower_wb = Input(Bool())
@@ -15,7 +62,6 @@ class dec_mem_ctrl extends Bundle with el2_lib{
   val dec_tlu_fence_i_wb = Input(Bool())
   val dec_tlu_ic_diag_pkt = Input(new el2_cache_debug_pkt_t)
   val dec_tlu_core_ecc_disable = Input(Bool())
-
   val ifu_pmu_ic_miss = Output(Bool())
   val ifu_pmu_ic_hit = Output(Bool())
   val ifu_pmu_bus_error = Output(Bool())
@@ -41,11 +87,7 @@ class mem_ctl_bundle extends Bundle with el2_lib{
   val ifc_dma_access_ok = Input(Bool())
   val ifu_bp_hit_taken_f = Input(Bool())
   val ifu_bp_inst_mask_f = Input(Bool())
-  val ifu_axi_arready = Input(Bool())
-  val ifu_axi_rvalid = Input(Bool())
-  val ifu_axi_rid = Input(UInt(IFU_BUS_TAG.W))
-  val ifu_axi_rdata = Input(UInt(64.W))
-  val ifu_axi_rresp = Input(UInt(2.W))
+  val ifu_axi = new axi_channels()
   val ifu_bus_clk_en = Input(Bool())
   val dma_iccm_req = Input(Bool())
   val dma_mem_addr = Input(UInt(32.W))
@@ -67,34 +109,7 @@ class mem_ctl_bundle extends Bundle with el2_lib{
   val ifu_ic_mb_empty = Output(Bool())
   val ic_dma_active = Output(Bool())
   val ic_write_stall = Output(Bool())
-  val ifu_axi_awvalid = Output(Bool())
-  val ifu_axi_awid = Output(UInt(IFU_BUS_TAG.W))
-  val ifu_axi_awaddr = Output(UInt(32.W))
-  val ifu_axi_awregion = Output(UInt(4.W))
-  val ifu_axi_awlen = Output(UInt(8.W))
-  val ifu_axi_awsize = Output(UInt(3.W))
-  val ifu_axi_awburst = Output(UInt(2.W))
-  val ifu_axi_awlock = Output(Bool())
-  val ifu_axi_awcache = Output(UInt(4.W))
-  val ifu_axi_awprot = Output(UInt(3.W))
-  val ifu_axi_awqos = Output(UInt(4.W))
-  val ifu_axi_wvalid = Output(Bool())
-  val ifu_axi_wdata = Output(UInt(64.W))
-  val ifu_axi_wstrb = Output(UInt(8.W))
-  val ifu_axi_wlast = Output(Bool())
-  val ifu_axi_bready = Output(Bool())
-  val ifu_axi_arvalid = Output(Bool())
-  val ifu_axi_arid = Output(UInt(IFU_BUS_TAG.W))
-  val ifu_axi_araddr = Output(UInt(32.W))
-  val ifu_axi_arregion = Output(UInt(4.W))
-  val ifu_axi_arlen = Output(UInt(8.W))
-  val ifu_axi_arsize = Output(UInt(3.W))
-  val ifu_axi_arburst = Output(UInt(2.W))
-  val ifu_axi_arlock = Output(Bool())
-  val ifu_axi_arcache = Output(UInt(4.W))
-  val ifu_axi_arprot = Output(UInt(3.W))
-  val ifu_axi_arqos = Output(UInt(4.W))
-  val ifu_axi_rready = Output(Bool())
+
   val iccm_dma_ecc_error = Output(Bool())
   val iccm_dma_rvalid = Output(Bool())
   val iccm_dma_rdata = Output(UInt(64.W))
@@ -132,26 +147,26 @@ class mem_ctl_bundle extends Bundle with el2_lib{
 }
 class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val io = IO(new mem_ctl_bundle)
-  io.ifu_axi_wvalid := 0.U
-  io.ifu_axi_wdata := 0.U
-  io.ifu_axi_awqos := 0.U
-  io.ifu_axi_awaddr := 0.U
-  io.ifu_axi_awprot := 0.U
-  io.ifu_axi_awlen := 0.U
-  io.ifu_axi_arlock := 0.U
-  io.ifu_axi_awregion := 0.U
-  io.ifu_axi_awid := 0.U
-  io.ifu_axi_awvalid := 0.U
-  io.ifu_axi_wstrb := 0.U
-  io.ifu_axi_awcache := 0.U
-  io.ifu_axi_arqos := 0.U
-  io.ifu_axi_awlock := 0.U
-  io.ifu_axi_bready := 0.U
-  io.ifu_axi_arlen := 0.U
-  io.ifu_axi_awsize := 0.U
-  io.ifu_axi_arprot := 0.U
-  io.ifu_axi_awburst := 0.U
-  io.ifu_axi_wlast := 0.U
+  io.ifu_axi.w.valid := 0.U
+  io.ifu_axi.w.bits.data := 0.U
+  io.ifu_axi.aw.bits.qos := 0.U
+  io.ifu_axi.aw.bits.addr := 0.U
+  io.ifu_axi.aw.bits.prot := 0.U
+  io.ifu_axi.aw.bits.len := 0.U
+  io.ifu_axi.ar.bits.lock := 0.U
+  io.ifu_axi.aw.bits.region := 0.U
+  io.ifu_axi.aw.bits.id := 0.U
+  io.ifu_axi.aw.valid := 0.U
+  io.ifu_axi.w.bits.strb := 0.U
+  io.ifu_axi.aw.bits.cache := 0.U
+  io.ifu_axi.ar.bits.qos := 0.U
+  io.ifu_axi.aw.bits.lock := 0.U
+  io.ifu_axi.b.ready := 0.U
+  io.ifu_axi.ar.bits.len := 0.U
+  io.ifu_axi.aw.bits.size := 0.U
+  io.ifu_axi.ar.bits.prot := 0.U
+  io.ifu_axi.aw.bits.burst := 0.U
+  io.ifu_axi.w.bits.last := 0.U
   val idle_C :: crit_byp_ok_C :: hit_u_miss_C :: miss_wait_C :: crit_wrd_rdy_C :: scnd_miss_C :: stream_C :: stall_scnd_miss_C :: Nil = Enum(8)
   val err_stop_idle_C :: err_fetch1_C :: err_fetch2_C :: err_stop_fetch_C :: Nil = Enum(4)
   val err_idle_C :: ic_wff_C :: ecc_wff_C :: ecc_cor_C :: dma_sb_err_C :: Nil = Enum(5)
@@ -566,31 +581,31 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val bus_cmd_req_in = (ic_act_miss_f | bus_cmd_req_hold) & !bus_cmd_sent & !io.dec_mem_ctrl.dec_tlu_force_halt
   bus_cmd_req_hold := withClock(io.free_clk){RegNext(bus_cmd_req_in, false.B)}
   // AXI Read-Channel
-  io.ifu_axi_arvalid := ifu_bus_cmd_valid
-  io.ifu_axi_arid := bus_rd_addr_count & Fill(IFU_BUS_TAG, ifu_bus_cmd_valid)
-  io.ifu_axi_araddr := Cat(ifu_ic_req_addr_f, 0.U(3.W)) & Fill(32, ifu_bus_cmd_valid)
-  io.ifu_axi_arsize := 3.U(3.W)
-  io.ifu_axi_arcache := 15.U
-  io.ifu_axi_arregion := ifu_ic_req_addr_f(28,25)
-  io.ifu_axi_arburst := 1.U
-  io.ifu_axi_rready := true.B
+  io.ifu_axi.ar.valid := ifu_bus_cmd_valid
+  io.ifu_axi.ar.bits.id := bus_rd_addr_count & Fill(IFU_BUS_TAG, ifu_bus_cmd_valid)
+  io.ifu_axi.ar.bits.addr := Cat(ifu_ic_req_addr_f, 0.U(3.W)) & Fill(32, ifu_bus_cmd_valid)
+  io.ifu_axi.ar.bits.size := 3.U(3.W)
+  io.ifu_axi.ar.bits.cache := 15.U
+  io.ifu_axi.ar.bits.region := ifu_ic_req_addr_f(28,25)
+  io.ifu_axi.ar.bits.burst := 1.U
+  io.ifu_axi.r.ready := true.B
 
-  val ifu_bus_arready_unq = io.ifu_axi_arready
-  val ifu_bus_rvalid_unq = io.ifu_axi_rvalid
-  val ifu_bus_arvalid = io.ifu_axi_arvalid
+  val ifu_bus_arready_unq = io.ifu_axi.ar.ready
+  val ifu_bus_rvalid_unq = io.ifu_axi.r.valid
+  val ifu_bus_arvalid = io.ifu_axi.ar.valid
   bus_ifu_bus_clk_en
   val ifu_bus_arready_unq_ff = withClock(busclk){RegNext(ifu_bus_arready_unq, false.B)}
   val ifu_bus_rvalid_unq_ff = withClock(busclk){RegNext(ifu_bus_rvalid_unq, false.B)}
   val ifu_bus_arvalid_ff = withClock(busclk){RegNext(ifu_bus_arvalid, false.B)}
-  val ifu_bus_rresp_ff = withClock(busclk){RegNext(io.ifu_axi_rresp, 0.U)}
-  ifu_bus_rdata_ff := withClock(busclk){RegNext(io.ifu_axi_rdata, 0.U)}
-  ifu_bus_rid_ff := withClock(busclk){RegNext(io.ifu_axi_rid, 0.U)}
-  ifu_bus_cmd_ready := io.ifu_axi_arready
-  ifu_bus_rsp_valid := io.ifu_axi_rvalid
-  ifu_bus_rsp_ready := io.ifu_axi_rready
-  ifu_bus_rsp_tag := io.ifu_axi_rid
-  ifu_bus_rsp_rdata := io.ifu_axi_rdata
-  val ifu_bus_rsp_opc = io.ifu_axi_rresp
+  val ifu_bus_rresp_ff = withClock(busclk){RegNext(io.ifu_axi.r.bits.resp, 0.U)}
+  ifu_bus_rdata_ff := withClock(busclk){RegNext(io.ifu_axi.r.bits.data, 0.U)}
+  ifu_bus_rid_ff := withClock(busclk){RegNext(io.ifu_axi.r.bits.id, 0.U)}
+  ifu_bus_cmd_ready := io.ifu_axi.ar.ready
+  ifu_bus_rsp_valid := io.ifu_axi.r.valid
+  ifu_bus_rsp_ready := io.ifu_axi.r.ready
+  ifu_bus_rsp_tag := io.ifu_axi.r.bits.id
+  ifu_bus_rsp_rdata := io.ifu_axi.r.bits.data
+  val ifu_bus_rsp_opc = io.ifu_axi.r.bits.resp
   val ifu_bus_rvalid = ifu_bus_rsp_valid & bus_ifu_bus_clk_en
   val ifu_bus_arready = ifu_bus_arready_unq & bus_ifu_bus_clk_en
   val ifu_bus_arready_ff = ifu_bus_arready_unq_ff & bus_ifu_bus_clk_en_ff
