@@ -4,6 +4,7 @@ import chisel3.util._
 import lib._
 import include._
 import el2_inst_pkt_t._
+import  ifu._
 trait CSR_VAL {
 
 	val MSTATUS_MIE		=0
@@ -38,13 +39,13 @@ trait CSR_VAL {
 
 
 }
-
+import exu._
 class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
-
-   val active_clk  = Input(Clock())
-    val free_clk    = Input(Clock())
+    val tlu_exu = Flipped(new tlu_exu)
+    val active_clk    = Input(Clock())
+    val free_clk      = Input(Clock())
     //val rst_l       = Input(Bool())
-    val scan_mode   = Input(Bool())
+    val scan_mode     = Input(Bool())
 
     val        rst_vec         = Input(UInt(31.W))    // reset vector, from core pins
     val        nmi_int         = Input(UInt(1.W))    // nmi pin
@@ -64,9 +65,9 @@ class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
     val       lsu_store_stall_any     = Input(UInt(1.W))// SB or WB is full, stall decode
     val       dma_dccm_stall_any      = Input(UInt(1.W))// DMA stall of lsu
     val       dma_iccm_stall_any      = Input(UInt(1.W))// DMA stall of ifu
-    val       exu_pmu_i0_br_misp      = Input(UInt(1.W))// pipe 0 branch misp
-    val       exu_pmu_i0_br_ataken    = Input(UInt(1.W))// pipe 0 branch actual taken
-    val       exu_pmu_i0_pc4          = Input(UInt(1.W))// pipe 0 4 byte branch
+//    val       exu_pmu_i0_br_misp      = Input(UInt(1.W))// pipe 0 branch misp
+//    val       exu_pmu_i0_br_ataken    = Input(UInt(1.W))// pipe 0 branch actual taken
+//    val       exu_pmu_i0_pc4          = Input(UInt(1.W))// pipe 0 4 byte branch
     val       lsu_pmu_bus_trxn        = Input(UInt(1.W))// D side bus transaction
     val       lsu_pmu_bus_misaligned  = Input(UInt(1.W)) // D side bus misaligned
     val       lsu_pmu_bus_error       = Input(UInt(1.W)) // D side bus error
@@ -103,7 +104,7 @@ class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
 
     val       dec_tlu_i0_valid_r = Input(UInt(1.W)) // pipe 0 op at e4 is valid
 
-    val       exu_npc_r = Input(UInt(31.W)) // for NPC tracking
+//    val       exu_npc_r = Input(UInt(31.W)) // for NPC tracking
 
     val       dec_tlu_i0_pc_r = Input(UInt(31.W)) // for PC/NPC tracking
 
@@ -113,12 +114,12 @@ class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
     val        dec_i0_decode_d = Input(UInt(1.W))  // decode valid, used for clean icache diagnostics
 
     // branch info from pipe0 for errors or counter updates
-    val         exu_i0_br_hist_r  = Input(UInt(2.W)) // history
-    val        exu_i0_br_error_r = Input(UInt(1.W)) // error
-    val        exu_i0_br_start_error_r = Input(UInt(1.W)) // start error
-    val        exu_i0_br_valid_r = Input(UInt(1.W)) // valid
-    val        exu_i0_br_mp_r = Input(UInt(1.W)) // mispredict
-    val        exu_i0_br_middle_r = Input(UInt(1.W)) // middle of bank
+//    val         exu_i0_br_hist_r  = Input(UInt(2.W)) // history
+//    val        exu_i0_br_error_r = Input(UInt(1.W)) // error
+//    val        exu_i0_br_start_error_r = Input(UInt(1.W)) // start error
+//    val        exu_i0_br_valid_r = Input(UInt(1.W)) // valid
+//    val        exu_i0_br_mp_r = Input(UInt(1.W)) // mispredict
+//    val        exu_i0_br_middle_r = Input(UInt(1.W)) // middle of bank
 
     // branch info from pipe1 for errors or counter updates
 
@@ -138,7 +139,7 @@ class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
 //    val dec_tlu_flush_err_r         = Output(UInt(1.W)) // iside perr/ecc rfpc. This is the D stage of the error
 
     val dec_tlu_flush_extint        = Output(UInt(1.W)) // fast ext int started
-    val dec_tlu_meihap              = Output(UInt(30.W)) // meihap for fast int
+//    val dec_tlu_meihap              = Output(UInt(30.W)) // meihap for fast int
 
     val dbg_halt_req = Input(UInt(1.W)) // DM requests a halt
     val dbg_resume_req = Input(UInt(1.W)) // DM requests a resume
@@ -181,8 +182,8 @@ class el2_dec_tlu_ctl_IO extends Bundle with el2_lib {
 //    val dec_tlu_flush_lower_wb      = Output(UInt(1.W))       // commit has a flush (exception, int, mispredict at e4)
 //    val dec_tlu_i0_commit_cmt       = Output(UInt(1.W))        // committed an instruction
     val dec_tlu_i0_kill_writeb_r    = Output(UInt(1.W))    // I0 is flushed, don't writeback any results to arch state
-    val dec_tlu_flush_lower_r       = Output(UInt(1.W))       // commit has a flush (exception, int)
-    val dec_tlu_flush_path_r        = Output(UInt(31.W)) // flush pc
+//    val dec_tlu_flush_lower_r       = Output(UInt(1.W))       // commit has a flush (exception, int)
+//    val dec_tlu_flush_path_r        = Output(UInt(31.W)) // flush pc
 //    val dec_tlu_fence_i_r           = Output(UInt(1.W))           // flush is a fence_i rfnpc, flush icache
     val dec_tlu_wr_pause_r          = Output(UInt(1.W))           // CSR write to pause reg is at R.
     val dec_tlu_flush_pause_r       = Output(UInt(1.W))        // Flush is due to pause
@@ -555,8 +556,8 @@ class el2_dec_tlu_ctl extends Module with el2_lib with RequireAsyncReset with CS
    // detect end of pause counter and rfpc
 	pause_expired_r := ~io.dec_pause_state & dec_pause_state_f & ~(ext_int_ready | ce_int_ready | timer_int_ready | soft_int_ready | int_timer0_int_hold_f | int_timer1_int_hold_f | nmi_int_detected | ext_int_freeze_d1) & ~interrupt_valid_r_d1 & ~debug_halt_req_f & ~pmu_fw_halt_req_f & ~halt_taken_f
 
-	io.tlu_bp.dec_tlu_flush_leak_one_wb := io.dec_tlu_flush_lower_r  & dcsr(DCSR_STEP) & (io.dec_tlu_resume_ack | dcsr_single_step_running) & ~io.tlu_ifc.dec_tlu_flush_noredir_wb
-	io.tlu_mem.dec_tlu_flush_err_wb := io.dec_tlu_flush_lower_r & (ic_perr_r_d1 | iccm_sbecc_r_d1)
+	io.tlu_bp.dec_tlu_flush_leak_one_wb := io.tlu_exu.dec_tlu_flush_lower_r  & dcsr(DCSR_STEP) & (io.dec_tlu_resume_ack | dcsr_single_step_running) & ~io.tlu_ifc.dec_tlu_flush_noredir_wb
+	io.tlu_mem.dec_tlu_flush_err_wb := io.tlu_exu.dec_tlu_flush_lower_r & (ic_perr_r_d1 | iccm_sbecc_r_d1)
 
    // If DM attempts to access an illegal CSR, send cmd_fail back
 	io.dec_dbg_cmd_done := dbg_cmd_done_ns
@@ -581,7 +582,7 @@ class el2_dec_tlu_ctl extends Module with el2_lib with RequireAsyncReset with CS
    val trigger_enabled	 = Cat((mtdata1_t(3)(MTDATA1_ACTION) | mstatus(MSTATUS_MIE)) & mtdata1_t(3)(MTDATA1_M_ENABLED),(mtdata1_t(2)(MTDATA1_ACTION) | mstatus(MSTATUS_MIE)) & mtdata1_t(2)(MTDATA1_M_ENABLED), (mtdata1_t(1)(MTDATA1_ACTION) | mstatus(MSTATUS_MIE)) & mtdata1_t(1)(MTDATA1_M_ENABLED), (mtdata1_t(0)(MTDATA1_ACTION) | mstatus(MSTATUS_MIE)) & mtdata1_t(0)(MTDATA1_M_ENABLED))
 
    // iside exceptions are always in i0
-   val i0_iside_trigger_has_pri_r  = ~((trigger_execute & trigger_data & Fill(4,inst_acc_r_raw)) | (Fill(4,io.exu_i0_br_error_r | io.exu_i0_br_start_error_r)))
+   val i0_iside_trigger_has_pri_r  = ~((trigger_execute & trigger_data & Fill(4,inst_acc_r_raw)) | (Fill(4,io.tlu_exu.exu_i0_br_error_r | io.tlu_exu.exu_i0_br_start_error_r)))
 
    // lsu excs have to line up with their respective triggers since the lsu op can be i0
    val i0_lsu_trigger_has_pri_r = ~(trigger_store & trigger_data & Fill(4,lsu_i0_exc_r_raw))
@@ -704,10 +705,10 @@ class el2_dec_tlu_ctl extends Module with el2_lib with RequireAsyncReset with CS
 
    // refetch PC, microarch flush
    // ic errors only in pipe0
-   rfpc_i0_r :=  ((io.dec_tlu_i0_valid_r & ~tlu_flush_lower_r_d1 & (io.exu_i0_br_error_r | io.exu_i0_br_start_error_r)) | ((ic_perr_r_d1 | iccm_sbecc_r_d1) & ~ext_int_freeze_d1)) &  ~i0_trigger_hit_r &  ~lsu_i0_rfnpc_r
+   rfpc_i0_r :=  ((io.dec_tlu_i0_valid_r & ~tlu_flush_lower_r_d1 & (io.tlu_exu.exu_i0_br_error_r | io.tlu_exu.exu_i0_br_start_error_r)) | ((ic_perr_r_d1 | iccm_sbecc_r_d1) & ~ext_int_freeze_d1)) &  ~i0_trigger_hit_r &  ~lsu_i0_rfnpc_r
 
    // From the indication of a iccm single bit error until the first commit or flush, maintain a repair state. In the repair state, rfnpc i0 commits.
-   iccm_repair_state_ns := iccm_sbecc_r_d1 | (iccm_repair_state_d1 & ~io.dec_tlu_flush_lower_r)
+   iccm_repair_state_ns := iccm_sbecc_r_d1 | (iccm_repair_state_d1 & ~io.tlu_exu.dec_tlu_flush_lower_r)
 
 
    val MCPC =0x7c2.U(12.W)
@@ -716,17 +717,17 @@ class el2_dec_tlu_ctl extends Module with el2_lib with RequireAsyncReset with CS
    val iccm_repair_state_rfnpc = tlu_i0_commit_cmt & iccm_repair_state_d1 & ~(ebreak_r | ecall_r | mret_r | take_reset | illegal_r | (dec_csr_wen_r_mod & (io.dec_csr_wraddr_r ===MCPC)))
 
    // go ahead and repair the branch error on other flushes, doesn't have to be the rfpc flush
-   val dec_tlu_br0_error_r = io.exu_i0_br_error_r & io.dec_tlu_i0_valid_r & ~tlu_flush_lower_r_d1
-   val dec_tlu_br0_start_error_r = io.exu_i0_br_start_error_r & io.dec_tlu_i0_valid_r & ~tlu_flush_lower_r_d1
-   val dec_tlu_br0_v_r = io.exu_i0_br_valid_r & io.dec_tlu_i0_valid_r & ~tlu_flush_lower_r_d1 & (~io.exu_i0_br_mp_r | ~io.exu_pmu_i0_br_ataken)
+   val dec_tlu_br0_error_r = io.tlu_exu.exu_i0_br_error_r & io.dec_tlu_i0_valid_r & ~tlu_flush_lower_r_d1
+   val dec_tlu_br0_start_error_r = io.tlu_exu.exu_i0_br_start_error_r & io.dec_tlu_i0_valid_r & ~tlu_flush_lower_r_d1
+   val dec_tlu_br0_v_r = io.tlu_exu.exu_i0_br_valid_r & io.dec_tlu_i0_valid_r & ~tlu_flush_lower_r_d1 & (~io.tlu_exu.exu_i0_br_mp_r | ~io.tlu_exu.exu_pmu_i0_br_ataken)
 
 
-   io.tlu_bp.dec_tlu_br0_r_pkt.bits.hist 			:= io.exu_i0_br_hist_r
+   io.tlu_bp.dec_tlu_br0_r_pkt.bits.hist 			:= io.tlu_exu.exu_i0_br_hist_r
    io.tlu_bp.dec_tlu_br0_r_pkt.bits.br_error 		:= dec_tlu_br0_error_r
    io.tlu_bp.dec_tlu_br0_r_pkt.bits.br_start_error 	:= dec_tlu_br0_start_error_r
    io.tlu_bp.dec_tlu_br0_r_pkt.valid 			:= dec_tlu_br0_v_r
    io.tlu_bp.dec_tlu_br0_r_pkt.bits.way 			:= io.exu_i0_br_way_r
-   io.tlu_bp.dec_tlu_br0_r_pkt.bits.middle 			:= io.exu_i0_br_middle_r
+   io.tlu_bp.dec_tlu_br0_r_pkt.bits.middle 			:= io.tlu_exu.exu_i0_br_middle_r
 
 
   ebreak_r  :=  (io.dec_tlu_packet_r.pmu_i0_itype === EBREAK)  & io.dec_tlu_i0_valid_r & ~i0_trigger_hit_r & ~dcsr(DCSR_EBREAKM) & ~rfpc_i0_r
@@ -874,8 +875,8 @@ class el2_dec_tlu_ctl extends Module with el2_lib with RequireAsyncReset with CS
 
    	io.tlu_bp.dec_tlu_flush_lower_wb 	:= tlu_flush_lower_r_d1
     io.tlu_mem.dec_tlu_flush_lower_wb 	:= io.tlu_bp.dec_tlu_flush_lower_wb
-   	io.dec_tlu_flush_lower_r 	:= tlu_flush_lower_r
-   	io.dec_tlu_flush_path_r 	:= tlu_flush_path_r ///After Combining Code revisit this
+   	io.tlu_exu.dec_tlu_flush_lower_r 	:= tlu_flush_lower_r
+   	io.tlu_exu.dec_tlu_flush_path_r 	:= tlu_flush_path_r ///After Combining Code revisit this
 
    // this is used to capture mepc, etc.
    val exc_or_int_valid_r = lsu_exc_valid_r | i0_exception_valid_r | interrupt_valid_r | (i0_trigger_hit_r & ~trigger_hit_dmode_r)
@@ -908,11 +909,11 @@ val csr=Module(new csr_tlu)
   csr.io.dec_pmu_decode_stall              :=io.dec_pmu_decode_stall   
   csr.io.ifu_pmu_fetch_stall               :=io.tlu_ifc.ifu_pmu_fetch_stall
   csr.io.dec_tlu_packet_r                  :=io.dec_tlu_packet_r 
-  csr.io.exu_pmu_i0_br_ataken              :=io.exu_pmu_i0_br_ataken    
-  csr.io.exu_pmu_i0_br_misp                :=io.exu_pmu_i0_br_misp     
+  csr.io.exu_pmu_i0_br_ataken              :=io.tlu_exu.exu_pmu_i0_br_ataken
+  csr.io.exu_pmu_i0_br_misp                :=io.tlu_exu.exu_pmu_i0_br_misp
   csr.io.dec_pmu_instr_decoded             :=io.dec_pmu_instr_decoded  
   csr.io.ifu_pmu_instr_aligned             :=io.ifu_pmu_instr_aligned
-  csr.io.exu_pmu_i0_pc4                    :=io.exu_pmu_i0_pc4         
+  csr.io.exu_pmu_i0_pc4                    :=io.tlu_exu.exu_pmu_i0_pc4
   csr.io.ifu_pmu_ic_miss                   :=io.tlu_mem.ifu_pmu_ic_miss
   csr.io.ifu_pmu_ic_hit                    :=io.tlu_mem.ifu_pmu_ic_hit
   csr.io.dec_csr_wen_r                     := io.dec_csr_wen_r
@@ -941,14 +942,14 @@ val csr=Module(new csr_tlu)
   csr.io.dec_illegal_inst                  := io.dec_illegal_inst  
   csr.io.lsu_error_pkt_r                   := io.lsu_error_pkt_r   
   csr.io.mexintpend                        := io.mexintpend        
-  csr.io.exu_npc_r                         := io.exu_npc_r         
+  csr.io.exu_npc_r                         := io.tlu_exu.exu_npc_r
   csr.io.mpc_reset_run_req                 := io.mpc_reset_run_req 
   csr.io.rst_vec                           := io.rst_vec           
   csr.io.core_id                           := io.core_id           
   csr.io.dec_timer_rddata_d                := dec_timer_rddata_d
   csr.io.dec_timer_read_d                  := dec_timer_read_d  
   io.dec_tlu_meicurpl                      := csr.io.dec_tlu_meicurpl
-  io.dec_tlu_meihap                        := csr.io.dec_tlu_meihap       
+  io.tlu_exu.dec_tlu_meihap                        := csr.io.dec_tlu_meihap
   io.dec_tlu_meipt                         := csr.io.dec_tlu_meipt           
   io.dec_tlu_int_valid_wb1                 := csr.io.dec_tlu_int_valid_wb1   
   io.dec_tlu_i0_exc_valid_wb1              := csr.io.dec_tlu_i0_exc_valid_wb1
@@ -982,7 +983,7 @@ val csr=Module(new csr_tlu)
   csr.io.dec_illegal_inst                  := io.dec_illegal_inst      
   csr.io.lsu_error_pkt_r                   := io.lsu_error_pkt_r    
   csr.io.mexintpend                        := io.mexintpend                            
-  csr.io.exu_npc_r                         := io.exu_npc_r                    
+  csr.io.exu_npc_r                         := io.tlu_exu.exu_npc_r
   csr.io.mpc_reset_run_req                 := io.mpc_reset_run_req           
   csr.io.rst_vec                           := io.rst_vec                      
   csr.io.core_id                           := io.core_id                      

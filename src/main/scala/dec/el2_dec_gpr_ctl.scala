@@ -1,7 +1,9 @@
 package dec
 import chisel3._
+
 import scala.collection._
 import chisel3.util._
+import exu.gpr_exu
 import include._
 import lib._
 
@@ -28,8 +30,8 @@ class el2_dec_gpr_ctl extends Module with el2_lib with RequireAsyncReset{
 	w2v(0):=0.U
 	gpr_out(0):=0.U
 	gpr_in(0):=0.U
-	io.rd0:=0.U
-	io.rd1:=0.U
+	io.gpr_exu.gpr_i0_rs1_d:=0.U
+	io.gpr_exu.gpr_i0_rs2_d:=0.U
 	   // GPR Write logic
      for (j <-1 until 32){
          w0v(j)     := io.wen0  & (io.waddr0===j.asUInt)
@@ -44,8 +46,8 @@ class el2_dec_gpr_ctl extends Module with el2_lib with RequireAsyncReset{
  	  gpr_out(j):=rvdffe(gpr_in(j),gpr_wr_en(j),clock,io.scan_mode)
     }
       // GPR Read logic
-	io.rd0:=Mux1H((1 until 32).map(i => (io.raddr0===i.U).asBool -> gpr_out(i)))
-	io.rd1:=Mux1H((1 until 32).map(i => (io.raddr1===i.U).asBool -> gpr_out(i)))
+	io.gpr_exu.gpr_i0_rs1_d:=Mux1H((1 until 32).map(i => (io.raddr0===i.U).asBool -> gpr_out(i)))
+	io.gpr_exu.gpr_i0_rs2_d:=Mux1H((1 until 32).map(i => (io.raddr1===i.U).asBool -> gpr_out(i)))
 }
 
 class el2_dec_gpr_ctl_IO extends Bundle{
@@ -60,9 +62,10 @@ class el2_dec_gpr_ctl_IO extends Bundle{
 	val   	wen2=Input(UInt(1.W))         // write enable
 	val  	waddr2=Input(UInt(5.W))       // write address
 	val 	wd2=Input(UInt(32.W))          // write data
-	val 	rd0=Output(UInt(32.W))         // read data
-	val 	rd1=Output(UInt(32.W))
-	val     scan_mode=Input(Bool()) 
+//	val 	gpr_i0_rs1_d=Output(UInt(32.W))         // read data
+//	val 	gpr_i0_rs2_d=Output(UInt(32.W))
+	val     scan_mode=Input(Bool())
+	val gpr_exu = Flipped(new gpr_exu)
 }
 object gpr_gen extends App{
 println(chisel3.Driver.emitVerilog(new el2_dec_gpr_ctl))

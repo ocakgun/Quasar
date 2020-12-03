@@ -4121,6 +4121,20 @@ endmodule
 module el2_dec_tlu_ctl(
   input         clock,
   input         reset,
+  output [29:0] io_tlu_exu_dec_tlu_meihap,
+  output        io_tlu_exu_dec_tlu_flush_lower_r,
+  output [30:0] io_tlu_exu_dec_tlu_flush_path_r,
+  input  [1:0]  io_tlu_exu_exu_i0_br_hist_r,
+  input         io_tlu_exu_exu_i0_br_error_r,
+  input         io_tlu_exu_exu_i0_br_start_error_r,
+  input  [7:0]  io_tlu_exu_exu_i0_br_index_r,
+  input         io_tlu_exu_exu_i0_br_valid_r,
+  input         io_tlu_exu_exu_i0_br_mp_r,
+  input         io_tlu_exu_exu_i0_br_middle_r,
+  input         io_tlu_exu_exu_pmu_i0_br_misp,
+  input         io_tlu_exu_exu_pmu_i0_br_ataken,
+  input         io_tlu_exu_exu_pmu_i0_pc4,
+  input  [30:0] io_tlu_exu_exu_npc_r,
   input         io_active_clk,
   input         io_free_clk,
   input         io_scan_mode,
@@ -4138,9 +4152,6 @@ module el2_dec_tlu_ctl(
   input         io_lsu_store_stall_any,
   input         io_dma_dccm_stall_any,
   input         io_dma_iccm_stall_any,
-  input         io_exu_pmu_i0_br_misp,
-  input         io_exu_pmu_i0_br_ataken,
-  input         io_exu_pmu_i0_pc4,
   input         io_lsu_pmu_bus_trxn,
   input         io_lsu_pmu_bus_misaligned,
   input         io_lsu_pmu_bus_error,
@@ -4173,7 +4184,6 @@ module el2_dec_tlu_ctl(
   input  [31:0] io_dec_csr_wrdata_r,
   input         io_dec_csr_stall_int_ff,
   input         io_dec_tlu_i0_valid_r,
-  input  [30:0] io_exu_npc_r,
   input  [30:0] io_dec_tlu_i0_pc_r,
   input         io_dec_tlu_packet_r_legal,
   input         io_dec_tlu_packet_r_icaf,
@@ -4187,12 +4197,6 @@ module el2_dec_tlu_ctl(
   input         io_dec_tlu_packet_r_pmu_lsu_misaligned,
   input  [31:0] io_dec_illegal_inst,
   input         io_dec_i0_decode_d,
-  input  [1:0]  io_exu_i0_br_hist_r,
-  input         io_exu_i0_br_error_r,
-  input         io_exu_i0_br_start_error_r,
-  input         io_exu_i0_br_valid_r,
-  input         io_exu_i0_br_mp_r,
-  input         io_exu_i0_br_middle_r,
   input         io_exu_i0_br_way_r,
   output        io_dec_dbg_cmd_done,
   output        io_dec_dbg_cmd_fail,
@@ -4202,7 +4206,6 @@ module el2_dec_tlu_ctl(
   output        io_dec_tlu_debug_stall,
   output        io_dec_tlu_mpc_halted_only,
   output        io_dec_tlu_flush_extint,
-  output [29:0] io_dec_tlu_meihap,
   input         io_dbg_halt_req,
   input         io_dbg_resume_req,
   input         io_dec_div_active,
@@ -4257,8 +4260,6 @@ module el2_dec_tlu_ctl(
   output        io_dec_csr_legal_d,
   output        io_dec_tlu_i0_kill_writeb_wb,
   output        io_dec_tlu_i0_kill_writeb_r,
-  output        io_dec_tlu_flush_lower_r,
-  output [30:0] io_dec_tlu_flush_path_r,
   output        io_dec_tlu_wr_pause_r,
   output        io_dec_tlu_flush_pause_r,
   output        io_dec_tlu_presync_d,
@@ -4285,6 +4286,7 @@ module el2_dec_tlu_ctl(
   output        io_dec_tlu_pic_clk_override,
   output        io_dec_tlu_dccm_clk_override,
   output        io_dec_tlu_icm_clk_override,
+  input         io_ifu_pmu_instr_aligned,
   output        io_tlu_bp_dec_tlu_br0_r_pkt_valid,
   output [1:0]  io_tlu_bp_dec_tlu_br0_r_pkt_bits_hist,
   output        io_tlu_bp_dec_tlu_br0_r_pkt_bits_br_error,
@@ -4296,6 +4298,7 @@ module el2_dec_tlu_ctl(
   output        io_tlu_bp_dec_tlu_bpred_disable,
   output        io_tlu_ifc_dec_tlu_flush_noredir_wb,
   output [31:0] io_tlu_ifc_dec_tlu_mrac_ff,
+  input         io_tlu_ifc_ifu_pmu_fetch_stall,
   output        io_tlu_mem_dec_tlu_flush_lower_wb,
   output        io_tlu_mem_dec_tlu_flush_err_wb,
   output        io_tlu_mem_dec_tlu_i0_commit_cmt,
@@ -4306,18 +4309,16 @@ module el2_dec_tlu_ctl(
   output        io_tlu_mem_dec_tlu_ic_diag_pkt_icache_rd_valid,
   output        io_tlu_mem_dec_tlu_ic_diag_pkt_icache_wr_valid,
   output        io_tlu_mem_dec_tlu_core_ecc_disable,
-  input         io_ifu_tlu_ifu_pmu_instr_aligned,
-  input         io_ifu_tlu_ifu_pmu_fetch_stall,
-  input         io_ifu_tlu_ifu_pmu_ic_miss,
-  input         io_ifu_tlu_ifu_pmu_ic_hit,
-  input         io_ifu_tlu_ifu_pmu_bus_error,
-  input         io_ifu_tlu_ifu_pmu_bus_busy,
-  input         io_ifu_tlu_ifu_pmu_bus_trxn,
-  input         io_ifu_tlu_ifu_miss_state_idle,
-  input         io_ifu_tlu_ifu_ic_error_start,
-  input         io_ifu_tlu_ifu_iccm_rd_ecc_single_err,
-  input  [70:0] io_ifu_tlu_ifu_ic_debug_rd_data,
-  input         io_ifu_tlu_ifu_ic_debug_rd_data_valid
+  input         io_tlu_mem_ifu_pmu_ic_miss,
+  input         io_tlu_mem_ifu_pmu_ic_hit,
+  input         io_tlu_mem_ifu_pmu_bus_error,
+  input         io_tlu_mem_ifu_pmu_bus_busy,
+  input         io_tlu_mem_ifu_pmu_bus_trxn,
+  input         io_tlu_mem_ifu_ic_error_start,
+  input         io_tlu_mem_ifu_iccm_rd_ecc_single_err,
+  input  [70:0] io_tlu_mem_ifu_ic_debug_rd_data,
+  input         io_tlu_mem_ifu_ic_debug_rd_data_valid,
+  input         io_tlu_mem_ifu_miss_state_idle
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_0;
@@ -4777,8 +4778,8 @@ module el2_dec_tlu_ctl(
   reg  mpc_halt_state_f; // @[el2_dec_tlu_ctl.scala 436:89]
   wire [2:0] _T_3 = {io_i_cpu_run_req,io_mpc_debug_halt_req,io_mpc_debug_run_req}; // @[Cat.scala 29:58]
   wire [3:0] _T_6 = {io_nmi_int,io_timer_int,io_soft_int,io_i_cpu_halt_req}; // @[Cat.scala 29:58]
-  reg [6:0] _T_8; // @[el2_lib.scala 176:81]
-  reg [6:0] syncro_ff; // @[el2_lib.scala 176:58]
+  reg [6:0] _T_8; // @[el2_lib.scala 177:81]
+  reg [6:0] syncro_ff; // @[el2_lib.scala 177:58]
   wire  nmi_int_sync = syncro_ff[6]; // @[el2_dec_tlu_ctl.scala 376:67]
   wire  i_cpu_halt_req_sync = syncro_ff[3]; // @[el2_dec_tlu_ctl.scala 379:59]
   wire  i_cpu_run_req_sync = syncro_ff[2]; // @[el2_dec_tlu_ctl.scala 380:59]
@@ -4872,7 +4873,7 @@ module el2_dec_tlu_ctl(
   wire  force_halt = csr_io_force_halt; // @[el2_dec_tlu_ctl.scala 1075:31]
   reg  lsu_idle_any_f; // @[el2_dec_tlu_ctl.scala 525:89]
   wire  _T_142 = io_lsu_idle_any & lsu_idle_any_f; // @[el2_dec_tlu_ctl.scala 491:53]
-  wire  _T_143 = _T_142 & io_ifu_tlu_ifu_miss_state_idle; // @[el2_dec_tlu_ctl.scala 491:70]
+  wire  _T_143 = _T_142 & io_tlu_mem_ifu_miss_state_idle; // @[el2_dec_tlu_ctl.scala 491:70]
   reg  ifu_miss_state_idle_f; // @[el2_dec_tlu_ctl.scala 526:81]
   wire  _T_144 = _T_143 & ifu_miss_state_idle_f; // @[el2_dec_tlu_ctl.scala 491:103]
   wire  _T_145 = ~debug_halt_req; // @[el2_dec_tlu_ctl.scala 491:129]
@@ -4976,7 +4977,7 @@ module el2_dec_tlu_ctl(
   wire  inst_acc_r_raw = io_dec_tlu_packet_r_icaf & io_dec_tlu_i0_valid_r; // @[el2_dec_tlu_ctl.scala 740:49]
   wire [3:0] _T_281 = inst_acc_r_raw ? 4'hf : 4'h0; // @[Bitwise.scala 72:12]
   wire [3:0] _T_282 = _T_279 & _T_281; // @[el2_dec_tlu_ctl.scala 584:72]
-  wire  _T_283 = io_exu_i0_br_error_r | io_exu_i0_br_start_error_r; // @[el2_dec_tlu_ctl.scala 584:129]
+  wire  _T_283 = io_tlu_exu_exu_i0_br_error_r | io_tlu_exu_exu_i0_br_start_error_r; // @[el2_dec_tlu_ctl.scala 584:137]
   wire [3:0] _T_285 = _T_283 ? 4'hf : 4'h0; // @[Bitwise.scala 72:12]
   wire [3:0] _T_286 = _T_282 | _T_285; // @[el2_dec_tlu_ctl.scala 584:98]
   wire [3:0] i0_iside_trigger_has_pri_r = ~_T_286; // @[el2_dec_tlu_ctl.scala 584:38]
@@ -5021,16 +5022,16 @@ module el2_dec_tlu_ctl(
   wire  _T_432 = _T_430 & _T_283; // @[el2_dec_tlu_ctl.scala 707:66]
   reg  ic_perr_r_d1; // @[el2_dec_tlu_ctl.scala 396:89]
   reg  iccm_sbecc_r_d1; // @[el2_dec_tlu_ctl.scala 397:89]
-  wire  _T_433 = ic_perr_r_d1 | iccm_sbecc_r_d1; // @[el2_dec_tlu_ctl.scala 707:138]
-  wire  _T_435 = _T_433 & _T_107; // @[el2_dec_tlu_ctl.scala 707:157]
-  wire  _T_436 = _T_432 | _T_435; // @[el2_dec_tlu_ctl.scala 707:121]
-  wire  _T_438 = _T_436 & _T_465; // @[el2_dec_tlu_ctl.scala 707:180]
+  wire  _T_433 = ic_perr_r_d1 | iccm_sbecc_r_d1; // @[el2_dec_tlu_ctl.scala 707:154]
+  wire  _T_435 = _T_433 & _T_107; // @[el2_dec_tlu_ctl.scala 707:173]
+  wire  _T_436 = _T_432 | _T_435; // @[el2_dec_tlu_ctl.scala 707:137]
+  wire  _T_438 = _T_436 & _T_465; // @[el2_dec_tlu_ctl.scala 707:196]
   wire  _T_410 = io_dec_tlu_i0_valid_r & _T_465; // @[el2_dec_tlu_ctl.scala 695:47]
   wire  _T_411 = ~io_lsu_error_pkt_r_bits_inst_type; // @[el2_dec_tlu_ctl.scala 695:70]
   wire  _T_412 = _T_411 & io_lsu_error_pkt_r_bits_single_ecc_error; // @[el2_dec_tlu_ctl.scala 695:105]
   wire  lsu_i0_rfnpc_r = _T_410 & _T_412; // @[el2_dec_tlu_ctl.scala 695:67]
-  wire  _T_439 = ~lsu_i0_rfnpc_r; // @[el2_dec_tlu_ctl.scala 707:204]
-  wire  rfpc_i0_r = _T_438 & _T_439; // @[el2_dec_tlu_ctl.scala 707:201]
+  wire  _T_439 = ~lsu_i0_rfnpc_r; // @[el2_dec_tlu_ctl.scala 707:220]
+  wire  rfpc_i0_r = _T_438 & _T_439; // @[el2_dec_tlu_ctl.scala 707:217]
   wire  _T_470 = ~rfpc_i0_r; // @[el2_dec_tlu_ctl.scala 732:132]
   wire  ebreak_r = _T_469 & _T_470; // @[el2_dec_tlu_ctl.scala 732:130]
   wire  _T_472 = io_dec_tlu_packet_r_pmu_i0_itype == 4'h9; // @[el2_dec_tlu_ctl.scala 733:51]
@@ -5173,14 +5174,14 @@ module el2_dec_tlu_ctl(
   wire  _T_18 = _T_17 | pause_expired_r; // @[el2_dec_tlu_ctl.scala 390:128]
   reg  pause_expired_wb; // @[el2_dec_tlu_ctl.scala 890:90]
   wire  _T_19 = _T_18 | pause_expired_wb; // @[el2_dec_tlu_ctl.scala 390:146]
-  wire  _T_496 = io_ifu_tlu_ifu_ic_error_start & _T_107; // @[el2_dec_tlu_ctl.scala 738:51]
+  wire  _T_496 = io_tlu_mem_ifu_ic_error_start & _T_107; // @[el2_dec_tlu_ctl.scala 738:51]
   wire  _T_498 = _T_152 | dcsr_single_step_running; // @[el2_dec_tlu_ctl.scala 738:101]
   wire  _T_499 = _T_496 & _T_498; // @[el2_dec_tlu_ctl.scala 738:72]
   wire  _T_500 = ~internal_pmu_fw_halt_mode_f; // @[el2_dec_tlu_ctl.scala 738:131]
   wire  ic_perr_r = _T_499 & _T_500; // @[el2_dec_tlu_ctl.scala 738:129]
   wire  _T_20 = _T_19 | ic_perr_r; // @[el2_dec_tlu_ctl.scala 390:165]
   wire  _T_21 = _T_20 | ic_perr_r_d1; // @[el2_dec_tlu_ctl.scala 390:177]
-  wire  _T_503 = io_ifu_tlu_ifu_iccm_rd_ecc_single_err & _T_107; // @[el2_dec_tlu_ctl.scala 739:59]
+  wire  _T_503 = io_tlu_mem_ifu_iccm_rd_ecc_single_err & _T_107; // @[el2_dec_tlu_ctl.scala 739:59]
   wire  _T_506 = _T_503 & _T_498; // @[el2_dec_tlu_ctl.scala 739:80]
   wire  iccm_sbecc_r = _T_506 & _T_500; // @[el2_dec_tlu_ctl.scala 739:137]
   wire  _T_22 = _T_21 | iccm_sbecc_r; // @[el2_dec_tlu_ctl.scala 390:192]
@@ -5276,10 +5277,10 @@ module el2_dec_tlu_ctl(
   wire  _T_207 = ~interrupt_valid_r; // @[el2_dec_tlu_ctl.scala 554:61]
   wire  _T_208 = dec_tlu_wr_pause_r_d1 & _T_207; // @[el2_dec_tlu_ctl.scala 554:59]
   wire  _T_209 = ~take_ext_int_start; // @[el2_dec_tlu_ctl.scala 554:82]
-  wire  _T_231 = io_dec_tlu_flush_lower_r & dcsr[2]; // @[el2_dec_tlu_ctl.scala 558:74]
-  wire  _T_232 = io_dec_tlu_resume_ack | dcsr_single_step_running; // @[el2_dec_tlu_ctl.scala 558:117]
-  wire  _T_233 = _T_231 & _T_232; // @[el2_dec_tlu_ctl.scala 558:92]
-  wire  _T_234 = ~io_tlu_ifc_dec_tlu_flush_noredir_wb; // @[el2_dec_tlu_ctl.scala 558:147]
+  wire  _T_231 = io_tlu_exu_dec_tlu_flush_lower_r & dcsr[2]; // @[el2_dec_tlu_ctl.scala 558:82]
+  wire  _T_232 = io_dec_tlu_resume_ack | dcsr_single_step_running; // @[el2_dec_tlu_ctl.scala 558:125]
+  wire  _T_233 = _T_231 & _T_232; // @[el2_dec_tlu_ctl.scala 558:100]
+  wire  _T_234 = ~io_tlu_ifc_dec_tlu_flush_noredir_wb; // @[el2_dec_tlu_ctl.scala 558:155]
   wire [3:0] _T_342 = i0_trigger_hit_raw_r ? 4'hf : 4'h0; // @[Bitwise.scala 72:12]
   wire  _T_345 = ~trigger_hit_dmode_r; // @[el2_dec_tlu_ctl.scala 616:55]
   wire  mepc_trigger_hit_sel_pc_r = i0_trigger_hit_raw_r & _T_345; // @[el2_dec_tlu_ctl.scala 616:53]
@@ -5303,15 +5304,15 @@ module el2_dec_tlu_ctl(
   wire  _T_425 = _T_424 | inst_acc_r; // @[el2_dec_tlu_ctl.scala 701:53]
   wire  _T_426 = illegal_r & io_dec_tlu_dbg_halted; // @[el2_dec_tlu_ctl.scala 701:79]
   wire  _T_427 = _T_425 | _T_426; // @[el2_dec_tlu_ctl.scala 701:66]
-  wire  _T_441 = ~io_dec_tlu_flush_lower_r; // @[el2_dec_tlu_ctl.scala 710:70]
+  wire  _T_441 = ~io_tlu_exu_dec_tlu_flush_lower_r; // @[el2_dec_tlu_ctl.scala 710:70]
   wire  _T_442 = iccm_repair_state_d1 & _T_441; // @[el2_dec_tlu_ctl.scala 710:68]
-  wire  _T_453 = io_exu_i0_br_error_r & io_dec_tlu_i0_valid_r; // @[el2_dec_tlu_ctl.scala 719:51]
-  wire  _T_455 = io_exu_i0_br_start_error_r & io_dec_tlu_i0_valid_r; // @[el2_dec_tlu_ctl.scala 720:63]
-  wire  _T_457 = io_exu_i0_br_valid_r & io_dec_tlu_i0_valid_r; // @[el2_dec_tlu_ctl.scala 721:47]
-  wire  _T_459 = _T_457 & _T_429; // @[el2_dec_tlu_ctl.scala 721:71]
-  wire  _T_460 = ~io_exu_i0_br_mp_r; // @[el2_dec_tlu_ctl.scala 721:98]
-  wire  _T_461 = ~io_exu_pmu_i0_br_ataken; // @[el2_dec_tlu_ctl.scala 721:119]
-  wire  _T_462 = _T_460 | _T_461; // @[el2_dec_tlu_ctl.scala 721:117]
+  wire  _T_453 = io_tlu_exu_exu_i0_br_error_r & io_dec_tlu_i0_valid_r; // @[el2_dec_tlu_ctl.scala 719:59]
+  wire  _T_455 = io_tlu_exu_exu_i0_br_start_error_r & io_dec_tlu_i0_valid_r; // @[el2_dec_tlu_ctl.scala 720:71]
+  wire  _T_457 = io_tlu_exu_exu_i0_br_valid_r & io_dec_tlu_i0_valid_r; // @[el2_dec_tlu_ctl.scala 721:55]
+  wire  _T_459 = _T_457 & _T_429; // @[el2_dec_tlu_ctl.scala 721:79]
+  wire  _T_460 = ~io_tlu_exu_exu_i0_br_mp_r; // @[el2_dec_tlu_ctl.scala 721:106]
+  wire  _T_461 = ~io_tlu_exu_exu_pmu_i0_br_ataken; // @[el2_dec_tlu_ctl.scala 721:135]
+  wire  _T_462 = _T_460 | _T_461; // @[el2_dec_tlu_ctl.scala 721:133]
   wire  _T_529 = ~take_nmi; // @[el2_dec_tlu_ctl.scala 769:33]
   wire  _T_530 = take_ext_int & _T_529; // @[el2_dec_tlu_ctl.scala 769:31]
   wire  _T_533 = take_timer_int & _T_529; // @[el2_dec_tlu_ctl.scala 770:25]
@@ -5865,6 +5866,9 @@ module el2_dec_tlu_ctl(
     .io_csr_pkt_postsync(csr_read_io_csr_pkt_postsync),
     .io_csr_pkt_legal(csr_read_io_csr_pkt_legal)
   );
+  assign io_tlu_exu_dec_tlu_meihap = csr_io_dec_tlu_meihap; // @[el2_dec_tlu_ctl.scala 951:52]
+  assign io_tlu_exu_dec_tlu_flush_lower_r = _T_801 | take_ext_int_start; // @[el2_dec_tlu_ctl.scala 877:49]
+  assign io_tlu_exu_dec_tlu_flush_path_r = take_reset ? io_rst_vec : _T_852; // @[el2_dec_tlu_ctl.scala 878:49]
   assign io_dec_dbg_cmd_done = io_dec_tlu_i0_valid_r & io_dec_tlu_dbg_halted; // @[el2_dec_tlu_ctl.scala 562:29]
   assign io_dec_dbg_cmd_fail = illegal_r & io_dec_dbg_cmd_done; // @[el2_dec_tlu_ctl.scala 563:29]
   assign io_dec_tlu_dbg_halted = dbg_tlu_halted_f; // @[el2_dec_tlu_ctl.scala 544:41]
@@ -5873,7 +5877,6 @@ module el2_dec_tlu_ctl(
   assign io_dec_tlu_debug_stall = debug_halt_req_f; // @[el2_dec_tlu_ctl.scala 543:41]
   assign io_dec_tlu_mpc_halted_only = _T_65; // @[el2_dec_tlu_ctl.scala 443:49]
   assign io_dec_tlu_flush_extint = ext_int_ready & _T_704; // @[el2_dec_tlu_ctl.scala 551:33]
-  assign io_dec_tlu_meihap = csr_io_dec_tlu_meihap; // @[el2_dec_tlu_ctl.scala 951:44]
   assign io_trigger_pkt_any_0_select = csr_io_trigger_pkt_any_0_select; // @[el2_dec_tlu_ctl.scala 957:40]
   assign io_trigger_pkt_any_0_match_pkt = csr_io_trigger_pkt_any_0_match_pkt; // @[el2_dec_tlu_ctl.scala 957:40]
   assign io_trigger_pkt_any_0_store = csr_io_trigger_pkt_any_0_store; // @[el2_dec_tlu_ctl.scala 957:40]
@@ -5915,8 +5918,6 @@ module el2_dec_tlu_ctl(
   assign io_dec_csr_legal_d = _T_887 & _T_894; // @[el2_dec_tlu_ctl.scala 1096:20]
   assign io_dec_tlu_i0_kill_writeb_wb = _T_32; // @[el2_dec_tlu_ctl.scala 403:41]
   assign io_dec_tlu_i0_kill_writeb_r = _T_427 | i0_trigger_hit_raw_r; // @[el2_dec_tlu_ctl.scala 409:41]
-  assign io_dec_tlu_flush_lower_r = _T_801 | take_ext_int_start; // @[el2_dec_tlu_ctl.scala 877:41]
-  assign io_dec_tlu_flush_path_r = take_reset ? io_rst_vec : _T_852; // @[el2_dec_tlu_ctl.scala 878:41]
   assign io_dec_tlu_wr_pause_r = csr_io_dec_tlu_wr_pause_r; // @[el2_dec_tlu_ctl.scala 974:40]
   assign io_dec_tlu_flush_pause_r = _T_208 & _T_209; // @[el2_dec_tlu_ctl.scala 554:34]
   assign io_dec_tlu_presync_d = _T_864 & _T_865; // @[el2_dec_tlu_ctl.scala 1089:23]
@@ -5944,18 +5945,18 @@ module el2_dec_tlu_ctl(
   assign io_dec_tlu_dccm_clk_override = csr_io_dec_tlu_dccm_clk_override; // @[el2_dec_tlu_ctl.scala 970:40]
   assign io_dec_tlu_icm_clk_override = csr_io_dec_tlu_icm_clk_override; // @[el2_dec_tlu_ctl.scala 971:40]
   assign io_tlu_bp_dec_tlu_br0_r_pkt_valid = _T_459 & _T_462; // @[el2_dec_tlu_ctl.scala 727:57]
-  assign io_tlu_bp_dec_tlu_br0_r_pkt_bits_hist = io_exu_i0_br_hist_r; // @[el2_dec_tlu_ctl.scala 724:65]
+  assign io_tlu_bp_dec_tlu_br0_r_pkt_bits_hist = io_tlu_exu_exu_i0_br_hist_r; // @[el2_dec_tlu_ctl.scala 724:65]
   assign io_tlu_bp_dec_tlu_br0_r_pkt_bits_br_error = _T_453 & _T_429; // @[el2_dec_tlu_ctl.scala 725:57]
   assign io_tlu_bp_dec_tlu_br0_r_pkt_bits_br_start_error = _T_455 & _T_429; // @[el2_dec_tlu_ctl.scala 726:57]
   assign io_tlu_bp_dec_tlu_br0_r_pkt_bits_way = io_exu_i0_br_way_r; // @[el2_dec_tlu_ctl.scala 728:65]
-  assign io_tlu_bp_dec_tlu_br0_r_pkt_bits_middle = io_exu_i0_br_middle_r; // @[el2_dec_tlu_ctl.scala 729:65]
+  assign io_tlu_bp_dec_tlu_br0_r_pkt_bits_middle = io_tlu_exu_exu_i0_br_middle_r; // @[el2_dec_tlu_ctl.scala 729:65]
   assign io_tlu_bp_dec_tlu_flush_lower_wb = tlu_flush_lower_r_d1; // @[el2_dec_tlu_ctl.scala 875:49]
   assign io_tlu_bp_dec_tlu_flush_leak_one_wb = _T_233 & _T_234; // @[el2_dec_tlu_ctl.scala 558:45]
   assign io_tlu_bp_dec_tlu_bpred_disable = csr_io_dec_tlu_bpred_disable; // @[el2_dec_tlu_ctl.scala 977:47]
   assign io_tlu_ifc_dec_tlu_flush_noredir_wb = _T_205 | take_ext_int_start; // @[el2_dec_tlu_ctl.scala 549:45]
   assign io_tlu_ifc_dec_tlu_mrac_ff = csr_io_dec_tlu_mrac_ff; // @[el2_dec_tlu_ctl.scala 975:48]
   assign io_tlu_mem_dec_tlu_flush_lower_wb = io_tlu_bp_dec_tlu_flush_lower_wb; // @[el2_dec_tlu_ctl.scala 876:41]
-  assign io_tlu_mem_dec_tlu_flush_err_wb = io_dec_tlu_flush_lower_r & _T_433; // @[el2_dec_tlu_ctl.scala 559:41]
+  assign io_tlu_mem_dec_tlu_flush_err_wb = io_tlu_exu_dec_tlu_flush_lower_r & _T_433; // @[el2_dec_tlu_ctl.scala 559:41]
   assign io_tlu_mem_dec_tlu_i0_commit_cmt = _T_422 & _T_465; // @[el2_dec_tlu_ctl.scala 702:37]
   assign io_tlu_mem_dec_tlu_force_halt = _T_33; // @[el2_dec_tlu_ctl.scala 405:57]
   assign io_tlu_mem_dec_tlu_fence_i_wb = _T_492 & _T_470; // @[el2_dec_tlu_ctl.scala 747:39]
@@ -6002,27 +6003,27 @@ module el2_dec_tlu_ctl(
   assign csr_io_dec_csr_rdaddr_d = io_dec_csr_rdaddr_d; // @[el2_dec_tlu_ctl.scala 898:44]
   assign csr_io_dec_csr_wen_unq_d = io_dec_csr_wen_unq_d; // @[el2_dec_tlu_ctl.scala 899:44]
   assign csr_io_dec_i0_decode_d = io_dec_i0_decode_d; // @[el2_dec_tlu_ctl.scala 900:44]
-  assign csr_io_ifu_ic_debug_rd_data_valid = io_ifu_tlu_ifu_ic_debug_rd_data_valid; // @[el2_dec_tlu_ctl.scala 901:44]
-  assign csr_io_ifu_pmu_bus_trxn = io_ifu_tlu_ifu_pmu_bus_trxn; // @[el2_dec_tlu_ctl.scala 902:44]
+  assign csr_io_ifu_ic_debug_rd_data_valid = io_tlu_mem_ifu_ic_debug_rd_data_valid; // @[el2_dec_tlu_ctl.scala 901:44]
+  assign csr_io_ifu_pmu_bus_trxn = io_tlu_mem_ifu_pmu_bus_trxn; // @[el2_dec_tlu_ctl.scala 902:44]
   assign csr_io_dma_iccm_stall_any = io_dma_iccm_stall_any; // @[el2_dec_tlu_ctl.scala 903:44]
   assign csr_io_dma_dccm_stall_any = io_dma_dccm_stall_any; // @[el2_dec_tlu_ctl.scala 904:44]
   assign csr_io_lsu_store_stall_any = io_lsu_store_stall_any; // @[el2_dec_tlu_ctl.scala 905:44]
   assign csr_io_dec_pmu_presync_stall = io_dec_pmu_presync_stall; // @[el2_dec_tlu_ctl.scala 906:44]
   assign csr_io_dec_pmu_postsync_stall = io_dec_pmu_postsync_stall; // @[el2_dec_tlu_ctl.scala 907:44]
   assign csr_io_dec_pmu_decode_stall = io_dec_pmu_decode_stall; // @[el2_dec_tlu_ctl.scala 908:44]
-  assign csr_io_ifu_pmu_fetch_stall = io_ifu_tlu_ifu_pmu_fetch_stall; // @[el2_dec_tlu_ctl.scala 909:44]
+  assign csr_io_ifu_pmu_fetch_stall = io_tlu_ifc_ifu_pmu_fetch_stall; // @[el2_dec_tlu_ctl.scala 909:44]
   assign csr_io_dec_tlu_packet_r_icaf_type = io_dec_tlu_packet_r_icaf_type; // @[el2_dec_tlu_ctl.scala 910:44]
   assign csr_io_dec_tlu_packet_r_pmu_i0_itype = io_dec_tlu_packet_r_pmu_i0_itype; // @[el2_dec_tlu_ctl.scala 910:44]
   assign csr_io_dec_tlu_packet_r_pmu_i0_br_unpred = io_dec_tlu_packet_r_pmu_i0_br_unpred; // @[el2_dec_tlu_ctl.scala 910:44]
   assign csr_io_dec_tlu_packet_r_pmu_divide = io_dec_tlu_packet_r_pmu_divide; // @[el2_dec_tlu_ctl.scala 910:44]
   assign csr_io_dec_tlu_packet_r_pmu_lsu_misaligned = io_dec_tlu_packet_r_pmu_lsu_misaligned; // @[el2_dec_tlu_ctl.scala 910:44]
-  assign csr_io_exu_pmu_i0_br_ataken = io_exu_pmu_i0_br_ataken; // @[el2_dec_tlu_ctl.scala 911:44]
-  assign csr_io_exu_pmu_i0_br_misp = io_exu_pmu_i0_br_misp; // @[el2_dec_tlu_ctl.scala 912:44]
+  assign csr_io_exu_pmu_i0_br_ataken = io_tlu_exu_exu_pmu_i0_br_ataken; // @[el2_dec_tlu_ctl.scala 911:44]
+  assign csr_io_exu_pmu_i0_br_misp = io_tlu_exu_exu_pmu_i0_br_misp; // @[el2_dec_tlu_ctl.scala 912:44]
   assign csr_io_dec_pmu_instr_decoded = io_dec_pmu_instr_decoded; // @[el2_dec_tlu_ctl.scala 913:44]
-  assign csr_io_ifu_pmu_instr_aligned = io_ifu_tlu_ifu_pmu_instr_aligned; // @[el2_dec_tlu_ctl.scala 914:44]
-  assign csr_io_exu_pmu_i0_pc4 = io_exu_pmu_i0_pc4; // @[el2_dec_tlu_ctl.scala 915:44]
-  assign csr_io_ifu_pmu_ic_miss = io_ifu_tlu_ifu_pmu_ic_miss; // @[el2_dec_tlu_ctl.scala 916:44]
-  assign csr_io_ifu_pmu_ic_hit = io_ifu_tlu_ifu_pmu_ic_hit; // @[el2_dec_tlu_ctl.scala 917:44]
+  assign csr_io_ifu_pmu_instr_aligned = io_ifu_pmu_instr_aligned; // @[el2_dec_tlu_ctl.scala 914:44]
+  assign csr_io_exu_pmu_i0_pc4 = io_tlu_exu_exu_pmu_i0_pc4; // @[el2_dec_tlu_ctl.scala 915:44]
+  assign csr_io_ifu_pmu_ic_miss = io_tlu_mem_ifu_pmu_ic_miss; // @[el2_dec_tlu_ctl.scala 916:44]
+  assign csr_io_ifu_pmu_ic_hit = io_tlu_mem_ifu_pmu_ic_hit; // @[el2_dec_tlu_ctl.scala 917:44]
   assign csr_io_dec_csr_wen_r = io_dec_csr_wen_r; // @[el2_dec_tlu_ctl.scala 918:44]
   assign csr_io_dec_tlu_dbg_halted = io_dec_tlu_dbg_halted; // @[el2_dec_tlu_ctl.scala 919:44]
   assign csr_io_dma_pmu_dccm_write = io_dma_pmu_dccm_write; // @[el2_dec_tlu_ctl.scala 920:44]
@@ -6033,12 +6034,12 @@ module el2_dec_tlu_ctl(
   assign csr_io_dec_tlu_i0_pc_r = io_dec_tlu_i0_pc_r; // @[el2_dec_tlu_ctl.scala 925:44]
   assign csr_io_dec_tlu_i0_valid_r = io_dec_tlu_i0_valid_r; // @[el2_dec_tlu_ctl.scala 926:44]
   assign csr_io_dec_csr_any_unq_d = io_dec_csr_any_unq_d; // @[el2_dec_tlu_ctl.scala 928:44]
-  assign csr_io_ifu_pmu_bus_busy = io_ifu_tlu_ifu_pmu_bus_busy; // @[el2_dec_tlu_ctl.scala 929:44]
+  assign csr_io_ifu_pmu_bus_busy = io_tlu_mem_ifu_pmu_bus_busy; // @[el2_dec_tlu_ctl.scala 929:44]
   assign csr_io_lsu_pmu_bus_error = io_lsu_pmu_bus_error; // @[el2_dec_tlu_ctl.scala 930:44]
-  assign csr_io_ifu_pmu_bus_error = io_ifu_tlu_ifu_pmu_bus_error; // @[el2_dec_tlu_ctl.scala 931:44]
+  assign csr_io_ifu_pmu_bus_error = io_tlu_mem_ifu_pmu_bus_error; // @[el2_dec_tlu_ctl.scala 931:44]
   assign csr_io_lsu_pmu_bus_misaligned = io_lsu_pmu_bus_misaligned; // @[el2_dec_tlu_ctl.scala 932:44]
   assign csr_io_lsu_pmu_bus_trxn = io_lsu_pmu_bus_trxn; // @[el2_dec_tlu_ctl.scala 933:44]
-  assign csr_io_ifu_ic_debug_rd_data = io_ifu_tlu_ifu_ic_debug_rd_data; // @[el2_dec_tlu_ctl.scala 934:44]
+  assign csr_io_ifu_ic_debug_rd_data = io_tlu_mem_ifu_ic_debug_rd_data; // @[el2_dec_tlu_ctl.scala 934:44]
   assign csr_io_pic_pl = io_pic_pl; // @[el2_dec_tlu_ctl.scala 935:44]
   assign csr_io_pic_claimid = io_pic_claimid; // @[el2_dec_tlu_ctl.scala 936:44]
   assign csr_io_iccm_dma_sb_error = io_iccm_dma_sb_error; // @[el2_dec_tlu_ctl.scala 937:44]
@@ -6048,7 +6049,7 @@ module el2_dec_tlu_ctl(
   assign csr_io_dec_illegal_inst = io_dec_illegal_inst; // @[el2_dec_tlu_ctl.scala 941:44 el2_dec_tlu_ctl.scala 982:44]
   assign csr_io_lsu_error_pkt_r_bits_mscause = io_lsu_error_pkt_r_bits_mscause; // @[el2_dec_tlu_ctl.scala 942:44 el2_dec_tlu_ctl.scala 983:44]
   assign csr_io_mexintpend = io_mexintpend; // @[el2_dec_tlu_ctl.scala 943:44 el2_dec_tlu_ctl.scala 984:44]
-  assign csr_io_exu_npc_r = io_exu_npc_r; // @[el2_dec_tlu_ctl.scala 944:44 el2_dec_tlu_ctl.scala 985:44]
+  assign csr_io_exu_npc_r = io_tlu_exu_exu_npc_r; // @[el2_dec_tlu_ctl.scala 944:44 el2_dec_tlu_ctl.scala 985:44]
   assign csr_io_mpc_reset_run_req = io_mpc_reset_run_req; // @[el2_dec_tlu_ctl.scala 945:44 el2_dec_tlu_ctl.scala 986:44]
   assign csr_io_rst_vec = io_rst_vec; // @[el2_dec_tlu_ctl.scala 946:44 el2_dec_tlu_ctl.scala 987:44]
   assign csr_io_core_id = io_core_id; // @[el2_dec_tlu_ctl.scala 947:44 el2_dec_tlu_ctl.scala 988:44]
@@ -6781,7 +6782,7 @@ end // initial
     if (reset) begin
       ifu_miss_state_idle_f <= 1'h0;
     end else begin
-      ifu_miss_state_idle_f <= io_ifu_tlu_ifu_miss_state_idle;
+      ifu_miss_state_idle_f <= io_tlu_mem_ifu_miss_state_idle;
     end
   end
   always @(posedge io_free_clk or posedge reset) begin
