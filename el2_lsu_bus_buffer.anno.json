@@ -10,34 +10,23 @@
   },
   {
     "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_pmu_bus_busy",
+    "sources":[
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_ar_valid",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_aw_valid",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_w_valid",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_ar_ready",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_aw_ready",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_w_ready"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
     "sink":"~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_ld_fwddata_buf_hi",
     "sources":[
       "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_ldst_byteen_ext_m",
       "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_busreq_m",
       "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_end_addr_m"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_nonblock_load_valid_m",
-    "sources":[
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_ld_full_hit_m",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_pkt_m_load",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_flush_m_up",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_busreq_m",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_pkt_m_valid"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_pmu_bus_trxn",
-    "sources":[
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_arvalid",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_arready",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_awvalid",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_awready",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_wvalid",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_wready"
     ]
   },
   {
@@ -120,14 +109,13 @@
   },
   {
     "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_pmu_bus_busy",
+    "sink":"~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_nonblock_load_valid_m",
     "sources":[
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_arvalid",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_awvalid",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_wvalid",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_arready",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_awready",
-      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_wready"
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_ld_full_hit_m",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_pkt_m_bits_load",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_flush_m_up",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_busreq_m",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_pkt_m_valid"
     ]
   },
   {
@@ -138,6 +126,18 @@
       "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_imprecise_error_store_any",
       "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_nonblock_load_data_error",
       "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_bus_clk_en_q"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_pmu_bus_trxn",
+    "sources":[
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_ar_valid",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_ar_ready",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_aw_valid",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_aw_ready",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_w_valid",
+      "~el2_lsu_bus_buffer|el2_lsu_bus_buffer>io_lsu_axi_w_ready"
     ]
   },
   {

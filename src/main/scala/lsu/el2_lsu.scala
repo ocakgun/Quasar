@@ -3,7 +3,7 @@ import lib._
 import chisel3._
 import chisel3.util._
 import include._
-
+import ifu._
 
 class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
   val io = IO (new Bundle {
@@ -82,49 +82,7 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
 
     // AXI Write Channels
 
-    val lsu_axi_awvalid                   = Output(Bool())
-    val lsu_axi_awlock                    = Output(Bool())
-    val lsu_axi_awready                   = Input(Bool())
-    val lsu_axi_awid                      = Output(UInt(LSU_BUS_TAG.W))
-    val lsu_axi_awaddr                    = Output(UInt(32.W))
-    val lsu_axi_awregion                  = Output(UInt(4.W))
-    val lsu_axi_awlen                     = Output(UInt(8.W))
-    val lsu_axi_awsize                    = Output(UInt(3.W))
-    val lsu_axi_awburst                   = Output(UInt(2.W))
-    val lsu_axi_awcache                   = Output(UInt(4.W))
-    val lsu_axi_awprot                    = Output(UInt(3.W))
-    val lsu_axi_awqos                     = Output(UInt(4.W))
-    val lsu_axi_wvalid                    = Output(Bool())
-    val lsu_axi_wready                    = Input(Bool())
-    val lsu_axi_wdata                     = Output(UInt(64.W))
-    val lsu_axi_wstrb                     = Output(UInt(8.W))
-    val lsu_axi_wlast                     = Output(Bool())
-    val lsu_axi_bvalid                    = Input(Bool())
-    val lsu_axi_bready                    = Output(Bool())
-    val lsu_axi_bresp                     = Input(UInt(2.W))
-    val lsu_axi_bid                       = Input(UInt(LSU_BUS_TAG.W))
-
-    // AXI Read Channels
-
-    val lsu_axi_arvalid                   = Output(Bool())
-    val lsu_axi_arlock                    = Output(Bool())
-    val lsu_axi_arready                   = Input(Bool())
-    val lsu_axi_arid                      = Output(UInt(LSU_BUS_TAG.W))
-    val lsu_axi_araddr                    = Output(UInt(32.W))
-    val lsu_axi_arregion                  = Output(UInt(4.W))
-    val lsu_axi_arlen                     = Output(UInt(8.W))
-    val lsu_axi_arsize                    = Output(UInt(3.W))
-    val lsu_axi_arburst                   = Output(UInt(2.W))
-    val lsu_axi_arcache                   = Output(UInt(4.W))
-    val lsu_axi_arprot                    = Output(UInt(3.W))
-    val lsu_axi_arqos                     = Output(UInt(4.W))
-    val lsu_axi_rvalid                    = Input(Bool())
-    val lsu_axi_rready                    = Output(Bool())
-    val lsu_axi_rdata                     = Input(UInt(64.W))
-    val lsu_axi_rlast                     = Input(Bool())
-    val lsu_axi_rresp                     = Input(UInt(2.W))
-    val lsu_axi_rid                       = Input(UInt(LSU_BUS_TAG.W))
-
+   val axi = new axi_channels()
     val lsu_bus_clk_en                    = Input(Bool())
     // DMA slave
 
@@ -448,45 +406,7 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
   io.lsu_pmu_bus_misaligned                     := bus_intf.io.lsu_pmu_bus_misaligned
   io.lsu_pmu_bus_error                          := bus_intf.io.lsu_pmu_bus_error
   io.lsu_pmu_bus_busy                           := bus_intf.io.lsu_pmu_bus_busy
-  io.lsu_axi_awvalid                            := bus_intf.io.lsu_axi_awvalid
-  bus_intf.io.lsu_axi_awready                   := io.lsu_axi_awready
-  io.lsu_axi_awid                               := bus_intf.io.lsu_axi_awid
-  io.lsu_axi_awaddr                             := bus_intf.io.lsu_axi_awaddr
-  io.lsu_axi_awregion                           := bus_intf.io.lsu_axi_awregion
-  io.lsu_axi_awlen                              := bus_intf.io.lsu_axi_awlen
-  io.lsu_axi_awsize                             := bus_intf.io.lsu_axi_awsize
-  io.lsu_axi_awburst                            := bus_intf.io.lsu_axi_awburst
-  io.lsu_axi_awlock                             := bus_intf.io.lsu_axi_awlock
-  io.lsu_axi_awcache                            := bus_intf.io.lsu_axi_awcache
-  io.lsu_axi_awprot                             := bus_intf.io.lsu_axi_awprot
-  io.lsu_axi_awqos                              := bus_intf.io.lsu_axi_awqos
-  io.lsu_axi_wvalid                             := bus_intf.io.lsu_axi_wvalid
-  bus_intf.io.lsu_axi_wready                    := io.lsu_axi_wready
-  io.lsu_axi_wdata                              := bus_intf.io.lsu_axi_wdata
-  io.lsu_axi_wstrb                              := bus_intf.io.lsu_axi_wstrb
-  io.lsu_axi_wlast                              := bus_intf.io.lsu_axi_wlast
-  bus_intf.io.lsu_axi_bvalid                    := io.lsu_axi_bvalid
-  io.lsu_axi_bready                             := bus_intf.io.lsu_axi_bready
-  bus_intf.io.lsu_axi_bresp                     := io.lsu_axi_bresp
-  bus_intf.io.lsu_axi_bid                       := io.lsu_axi_bid
-  io.lsu_axi_arvalid                            := bus_intf.io.lsu_axi_arvalid
-  bus_intf.io.lsu_axi_arready                   := io.lsu_axi_arready
-  io.lsu_axi_arid                               := bus_intf.io.lsu_axi_arid
-  io.lsu_axi_araddr                             := bus_intf.io.lsu_axi_araddr
-  io.lsu_axi_arregion                           := bus_intf.io.lsu_axi_arregion
-  io.lsu_axi_arlen                              := bus_intf.io.lsu_axi_arlen
-  io.lsu_axi_arsize                             := bus_intf.io.lsu_axi_arsize
-  io.lsu_axi_arburst                            := bus_intf.io.lsu_axi_arburst
-  io.lsu_axi_arlock                             := bus_intf.io.lsu_axi_arlock
-  io.lsu_axi_arcache                            := bus_intf.io.lsu_axi_arcache
-  io.lsu_axi_arprot                             := bus_intf.io.lsu_axi_arprot
-  io.lsu_axi_arqos                              := bus_intf.io.lsu_axi_arqos
-  bus_intf.io.lsu_axi_rvalid                    := io.lsu_axi_rvalid
-  io.lsu_axi_rready                             := bus_intf.io.lsu_axi_rready
-  bus_intf.io.lsu_axi_rid                       := io.lsu_axi_rid
-  bus_intf.io.lsu_axi_rdata                     := io.lsu_axi_rdata
-  bus_intf.io.lsu_axi_rresp                     := io.lsu_axi_rresp
-  bus_intf.io.lsu_axi_rlast                     := io.lsu_axi_rlast
+  io.axi                                        <> bus_intf.io.axi
   bus_intf.io.lsu_bus_clk_en                    := io.lsu_bus_clk_en
 
   withClock(clkdomain.io.lsu_c1_m_clk){dma_mem_tag_m    := RegNext(dma_mem_tag_d,0.U)}

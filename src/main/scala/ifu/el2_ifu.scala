@@ -25,6 +25,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
     // AXI Write Channel
     val ifu = new axi_channels()
     val ifu_bus_clk_en = Input(Bool())
+
     // DMA signals
     val dma_iccm_req = Input(Bool())
     val dma_mem_addr = Input(UInt(32.W))
@@ -33,12 +34,14 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
     val dma_mem_wdata = Input(UInt(64.W))
     val dma_mem_tag = Input(UInt(3.W))
     val dma_iccm_stall_any = Input(Bool())
+
     // ICCM
     val iccm_dma_ecc_error = Output(Bool())
     val iccm_dma_rvalid = Output(Bool())
     val iccm_dma_rdata = Output(UInt(64.W))
     val iccm_dma_rtag = Output(UInt(3.W))
     val iccm_ready = Output(Bool())
+
     // I$
     val ic_rw_addr = Output(UInt(31.W))
     val ic_wr_en = Output(UInt(ICACHE_NUM_WAYS.W))
@@ -60,6 +63,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
     val ic_tag_valid = Output(UInt(ICACHE_NUM_WAYS.W))
     val ic_rd_hit = Input(UInt(ICACHE_NUM_WAYS.W))
     val ic_tag_perr = Input(Bool())
+
     // ICCM cont'd
     val iccm_rw_addr = Output(UInt((ICCM_BITS-1).W))
     val iccm_wren = Output(Bool())
@@ -68,6 +72,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
     val iccm_wr_size = Output(UInt(3.W))
     val iccm_rd_data = Input(UInt(64.W))
     val iccm_rd_data_ecc = Input(UInt(78.W))
+
     // Performance counter
     val iccm_dma_sb_error = Output(Bool())
     val iccm_buf_correct_ecc = Output(Bool())

@@ -64,7 +64,7 @@ trait param {
   val DCCM_SIZE              = 0x040
   val DCCM_WIDTH_BITS        = 2 //.U(2.W)
   val DMA_BUF_DEPTH          = 5 //.U(3.W)
-  val DMA_BUS_ID             = true //.U(1.W)
+  val DMA_BUS_ID             = 0x01 //.U(1.W)
   val DMA_BUS_PRTY           = 0x2 //.U(2.W)
   val DMA_BUS_TAG            = 0x1 //.U(4.W)
   val FAST_INTERRUPT_REDIRECT= 0x1 //.U(1.W)
