@@ -3,7 +3,7 @@ import lib._
 import chisel3._
 import chisel3.util._
 import include._
-class aln_ib                                             extends Bundle with el2_lib{
+class aln_ib extends Bundle with el2_lib{
   val ifu_i0_icaf             = Output(Bool())
   val ifu_i0_icaf_type        = Output(UInt(2.W))
   val ifu_i0_icaf_f1          = Output(Bool())

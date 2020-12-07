@@ -25,6 +25,7 @@ class el2_exu_alu_ctl extends Module with el2_lib with RequireAsyncReset{
     //////////  Outputs  /////////
     val                  result_ff         = Output(UInt(32.W))          // final result
     val                  flush_upper_out   = Output(UInt(1.W)) // Branch flush
+    val                  flush_final_out   = Output(UInt(1.W)) // Branch flush or flush entire pipeline
     val                  flush_path_out    = Output(UInt(31.W)) // Branch flush PC
     val                  pred_correct_out  = Output(UInt(1.W)) // NPC control
     val                  predict_p_out     = Valid(new el2_predict_pkt_t)     // Predicted branch structure
@@ -113,7 +114,7 @@ class el2_exu_alu_ctl extends Module with el2_lib with RequireAsyncReset{
 
   io.flush_upper_out     :=   (io.i0_ap.jal | cond_mispredict | target_mispredict) & io.dec_alu.dec_i0_alu_decode_d & !io.flush_upper_x   & !io.dec_tlu_flush_lower_r
   //there was no entire pipe flush (& previous cycle flush ofc(why check?)) therfore signAL 1 to flush instruction before X stage
-  io.dec_alu.exu_flush_final     := ( (io.i0_ap.jal | cond_mispredict | target_mispredict) & io.dec_alu.dec_i0_alu_decode_d & !io.flush_upper_x ) |  io.dec_tlu_flush_lower_r
+  io.flush_final_out     := ( (io.i0_ap.jal | cond_mispredict | target_mispredict) & io.dec_alu.dec_i0_alu_decode_d & !io.flush_upper_x ) |  io.dec_tlu_flush_lower_r
   //there was entire pipe flush or (there is mispred or a jal) therfore signAL 1 to flush entire pipe
 
   val  newhist = WireInit(UInt(2.W),0.U)

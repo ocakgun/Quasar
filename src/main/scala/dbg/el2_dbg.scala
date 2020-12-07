@@ -2,6 +2,7 @@ package dbg
 
 import chisel3._
 import chisel3.util._
+import ifu.axi_channels
 import lib._
 
 object state_t {
@@ -52,42 +53,43 @@ class el2_dbg extends Module with el2_lib with RequireAsyncReset {
     val dmi_reg_wr_en = Input(Bool())
     val dmi_reg_wdata = Input(UInt(32.W))
     val dmi_reg_rdata = Output(UInt(32.W))
-    val sb_axi_awvalid = Output(Bool())
-    val sb_axi_awready = Input(Bool())
-    val sb_axi_awid = Output(UInt(SB_BUS_TAG.W))
-    val sb_axi_awaddr = Output(UInt(32.W))
-    val sb_axi_awregion = Output(UInt(4.W))
-    val sb_axi_awlen = Output(UInt(8.W))
-    val sb_axi_awsize = Output(UInt(3.W))
-    val sb_axi_awburst = Output(UInt(2.W))
-    val sb_axi_awlock = Output(Bool())
-    val sb_axi_awcache = Output(UInt(4.W))
-    val sb_axi_awprot = Output(UInt(3.W))
-    val sb_axi_awqos = Output(UInt(4.W))
-    val sb_axi_wvalid = Output(Bool())
-    val sb_axi_wready = Input(Bool())
-    val sb_axi_wdata = Output(UInt(64.W))
-    val sb_axi_wstrb = Output(UInt(8.W))
-    val sb_axi_wlast = Output(Bool())
-    val sb_axi_bvalid = Input(Bool())
-    val sb_axi_bready = Output(Bool())
-    val sb_axi_bresp = Input(UInt(2.W))
-    val sb_axi_arvalid = Output(Bool())
-    val sb_axi_arready = Input(Bool())
-    val sb_axi_arid = Output(UInt(SB_BUS_TAG.W))
-    val sb_axi_araddr = Output(UInt(32.W))
-    val sb_axi_arregion = Output(UInt(4.W))
-    val sb_axi_arlen = Output(UInt(8.W))
-    val sb_axi_arsize = Output(UInt(3.W))
-    val sb_axi_arburst = Output(UInt(2.W))
-    val sb_axi_arlock = Output(Bool())
-    val sb_axi_arcache = Output(UInt(4.W))
-    val sb_axi_arprot = Output(UInt(3.W))
-    val sb_axi_arqos = Output(UInt(4.W))
-    val sb_axi_rvalid = Input(Bool())
-    val sb_axi_rready = Output(Bool())
-    val sb_axi_rdata = Input(UInt(64.W))
-    val sb_axi_rresp = Input(UInt(2.W))
+    val sb_axi = new axi_channels
+//    val sb_axi_awvalid = Output(Bool())
+//    val sb_axi_awready = Input(Bool())
+//    val sb_axi_awid = Output(UInt(SB_BUS_TAG.W))
+//    val sb_axi_awaddr = Output(UInt(32.W))
+//    val sb_axi_awregion = Output(UInt(4.W))
+//    val sb_axi_awlen = Output(UInt(8.W))
+//    val sb_axi_awsize = Output(UInt(3.W))
+//    val sb_axi_awburst = Output(UInt(2.W))
+//    val sb_axi_awlock = Output(Bool())
+//    val sb_axi_awcache = Output(UInt(4.W))
+//    val sb_axi_awprot = Output(UInt(3.W))
+//    val sb_axi_awqos = Output(UInt(4.W))
+//    val sb_axi_wvalid = Output(Bool())
+//    val sb_axi_wready = Input(Bool())
+//    val sb_axi_wdata = Output(UInt(64.W))
+//    val sb_axi_wstrb = Output(UInt(8.W))
+//    val sb_axi_wlast = Output(Bool())
+//    val sb_axi_bvalid = Input(Bool())
+//    val sb_axi_bready = Output(Bool())
+//    val sb_axi_bresp = Input(UInt(2.W))
+//    val sb_axi_arvalid = Output(Bool())
+//    val sb_axi_arready = Input(Bool())
+//    val sb_axi_arid = Output(UInt(SB_BUS_TAG.W))
+//    val sb_axi_araddr = Output(UInt(32.W))
+//    val sb_axi_arregion = Output(UInt(4.W))
+//    val sb_axi_arlen = Output(UInt(8.W))
+//    val sb_axi_arsize = Output(UInt(3.W))
+//    val sb_axi_arburst = Output(UInt(2.W))
+//    val sb_axi_arlock = Output(Bool())
+//    val sb_axi_arcache = Output(UInt(4.W))
+//    val sb_axi_arprot = Output(UInt(3.W))
+//    val sb_axi_arqos = Output(UInt(4.W))
+//    val sb_axi_rvalid = Input(Bool())
+//    val sb_axi_rready = Output(Bool())
+//    val sb_axi_rdata = Input(UInt(64.W))
+//    val sb_axi_rresp = Input(UInt(2.W))
     val dbg_bus_clk_en = Input(Bool())
     val dbg_rst_l = Input(Bool())
     val clk_override = Input(Bool())
@@ -429,50 +431,50 @@ class el2_dbg extends Module with el2_lib with RequireAsyncReset {
     RegEnable(sb_nxtstate, 0.U, sb_state_en)
   } // sb_state_reg
 
-  sb_bus_cmd_read := io.sb_axi_arvalid & io.sb_axi_arready
-  sb_bus_cmd_write_addr := io.sb_axi_awvalid & io.sb_axi_awready
-  sb_bus_cmd_write_data := io.sb_axi_wvalid & io.sb_axi_wready
-  sb_bus_rsp_read := io.sb_axi_rvalid & io.sb_axi_rready
-  sb_bus_rsp_write := io.sb_axi_bvalid & io.sb_axi_bready
-  sb_bus_rsp_error := sb_bus_rsp_read & io.sb_axi_rresp(1, 0).orR | sb_bus_rsp_write & io.sb_axi_bresp(1, 0).orR
-  io.sb_axi_awvalid := ((sb_state === sb_state_t.cmd_wr) | (sb_state === sb_state_t.cmd_wr_addr)).asBool()
-  io.sb_axi_awaddr := sbaddress0_reg
-  io.sb_axi_awid := 0.U
-  io.sb_axi_awsize := sbcs_reg(19, 17)
-  io.sb_axi_awprot := 0.U
-  io.sb_axi_awcache := "b1111".U
-  io.sb_axi_awregion := sbaddress0_reg(31, 28)
-  io.sb_axi_awlen := 0.U
-  io.sb_axi_awburst := "b01".U
-  io.sb_axi_awqos := 0.U
-  io.sb_axi_awlock := false.B
-  io.sb_axi_wvalid := ((sb_state === sb_state_t.cmd_wr) | (sb_state === sb_state_t.cmd_wr_data)).asBool()
-  io.sb_axi_wdata := Fill(64, (sbcs_reg(19, 17) === 0.U)) & Fill(8, (sbdata0_reg(7, 0))) | Fill(64, (sbcs_reg(19, 17) === "h1".U)) & Fill(4, sbdata0_reg(15, 0)) |
+  sb_bus_cmd_read := io.sb_axi.ar.valid & io.sb_axi.ar.ready
+  sb_bus_cmd_write_addr := io.sb_axi.aw.valid & io.sb_axi.aw.ready
+  sb_bus_cmd_write_data := io.sb_axi.w.valid & io.sb_axi.w.ready
+  sb_bus_rsp_read := io.sb_axi.r.valid & io.sb_axi.r.ready
+  sb_bus_rsp_write := io.sb_axi.b.valid & io.sb_axi.b.ready
+  sb_bus_rsp_error := sb_bus_rsp_read & io.sb_axi.r.bits.resp(1, 0).orR | sb_bus_rsp_write & io.sb_axi.b.bits.resp(1, 0).orR
+  io.sb_axi.aw.valid := ((sb_state === sb_state_t.cmd_wr) | (sb_state === sb_state_t.cmd_wr_addr)).asBool()
+  io.sb_axi.aw.bits.addr := sbaddress0_reg
+  io.sb_axi.aw.bits.id := 0.U
+  io.sb_axi.aw.bits.size := sbcs_reg(19, 17)
+  io.sb_axi.aw.bits.prot := 0.U
+  io.sb_axi.aw.bits.cache := "b1111".U
+  io.sb_axi.aw.bits.region := sbaddress0_reg(31, 28)
+  io.sb_axi.aw.bits.len := 0.U
+  io.sb_axi.aw.bits.burst := "b01".U
+  io.sb_axi.aw.bits.qos := 0.U
+  io.sb_axi.aw.bits.lock := false.B
+  io.sb_axi.w.valid := ((sb_state === sb_state_t.cmd_wr) | (sb_state === sb_state_t.cmd_wr_data)).asBool()
+  io.sb_axi.w.bits.data := Fill(64, (sbcs_reg(19, 17) === 0.U)) & Fill(8, (sbdata0_reg(7, 0))) | Fill(64, (sbcs_reg(19, 17) === "h1".U)) & Fill(4, sbdata0_reg(15, 0)) |
     Fill(64, (sbcs_reg(19, 17) === "h2".U)) & Fill(2, (sbdata0_reg(31, 0))) | Fill(64, (sbcs_reg(19, 17) === "h3".U)) & Cat(sbdata1_reg(31, 0), sbdata0_reg(31, 0))
 
-  io.sb_axi_wstrb := Fill(8, (sbcs_reg(19, 17) === "h0".U)) & ("h1".U(8.W) << sbaddress0_reg(2, 0)) |
+  io.sb_axi.w.bits.strb := Fill(8, (sbcs_reg(19, 17) === "h0".U)) & ("h1".U(8.W) << sbaddress0_reg(2, 0)) |
     Fill(8, (sbcs_reg(19, 17) === "h1".U)) & ("h3".U(8.W) << Cat(sbaddress0_reg(2, 1), "b0".U)) |
     Fill(8, (sbcs_reg(19, 17) === "h2".U)) & ("hf".U(8.W) << Cat(sbaddress0_reg(2), "b00".U)) |
     Fill(8, (sbcs_reg(19, 17) === "h3".U)) & "hff".U
 
-  io.sb_axi_wlast := true.B
-  io.sb_axi_arvalid := (sb_state === sb_state_t.cmd_rd).asBool()
-  io.sb_axi_araddr := sbaddress0_reg
-  io.sb_axi_arid := 0.U
-  io.sb_axi_arsize := sbcs_reg(19, 17)
-  io.sb_axi_arprot := 0.U
-  io.sb_axi_arcache := 0.U
-  io.sb_axi_arregion := sbaddress0_reg(31, 28)
-  io.sb_axi_arlen := 0.U
-  io.sb_axi_arburst := "b01".U
-  io.sb_axi_arqos := 0.U
-  io.sb_axi_arlock := false.B
-  io.sb_axi_bready := true.B
-  io.sb_axi_rready := true.B
-  sb_bus_rdata := Fill(64, (sbcs_reg(19, 17) === "h0".U)) & ((io.sb_axi_rdata(63, 0) >> 8.U * sbaddress0_reg(2, 0)) & "hff".U(64.W)) |
-    Fill(64, (sbcs_reg(19, 17) === "h1".U)) & ((io.sb_axi_rdata(63, 0) >> 16.U * sbaddress0_reg(2, 1)) & "hffff".U(64.W)) |
-    Fill(64, (sbcs_reg(19, 17) === "h2".U)) & ((io.sb_axi_rdata(63, 0) >> 32.U * sbaddress0_reg(2)) & "hffff_ffff".U(64.W)) |
-    Fill(64, (sbcs_reg(19, 17) === "h3".U)) & io.sb_axi_rdata(63, 0)
+  io.sb_axi.w.bits.last := true.B
+  io.sb_axi.ar.valid := (sb_state === sb_state_t.cmd_rd).asBool()
+  io.sb_axi.ar.bits.addr := sbaddress0_reg
+  io.sb_axi.ar.bits.id := 0.U
+  io.sb_axi.ar.bits.size := sbcs_reg(19, 17)
+  io.sb_axi.ar.bits.prot := 0.U
+  io.sb_axi.ar.bits.cache := 0.U
+  io.sb_axi.ar.bits.region := sbaddress0_reg(31, 28)
+  io.sb_axi.ar.bits.len := 0.U
+  io.sb_axi.ar.bits.burst := "b01".U
+  io.sb_axi.ar.bits.qos := 0.U
+  io.sb_axi.ar.bits.lock := false.B
+  io.sb_axi.b.ready := true.B
+  io.sb_axi.r.ready := true.B
+  sb_bus_rdata := Fill(64, (sbcs_reg(19, 17) === "h0".U)) & ((io.sb_axi.r.bits.data(63, 0) >> 8.U * sbaddress0_reg(2, 0)) & "hff".U(64.W)) |
+    Fill(64, (sbcs_reg(19, 17) === "h1".U)) & ((io.sb_axi.r.bits.data(63, 0) >> 16.U * sbaddress0_reg(2, 1)) & "hffff".U(64.W)) |
+    Fill(64, (sbcs_reg(19, 17) === "h2".U)) & ((io.sb_axi.r.bits.data(63, 0) >> 32.U * sbaddress0_reg(2)) & "hffff_ffff".U(64.W)) |
+    Fill(64, (sbcs_reg(19, 17) === "h3".U)) & io.sb_axi.r.bits.data(63, 0)
 }
 
 object debug extends App {

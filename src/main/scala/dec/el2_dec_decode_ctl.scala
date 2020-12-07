@@ -63,7 +63,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
 //    val exu_csr_rs1_x              =   Input(UInt(32.W))    // rs1 for csr instr
     val lsu_result_m               =   Input(UInt(32.W))    // load result
     val lsu_result_corr_r          =   Input(UInt(32.W))   // load result - corrected data for writing gpr's, not for bypassing
-//    val exu_flush_final            =   Input(Bool())           // lower flush or i0 flush at X or D
+    val exu_flush_final            =   Input(Bool())           // lower flush or i0 flush at X or D
 //    val exu_i0_pc_x                =   Input(UInt(31.W))    // pcs at e1
     val dec_i0_instr_d             =   Input(UInt(32.W))    // inst at decode
     val dec_ib0_valid_d            =   Input(Bool())          // inst valid at decode
@@ -222,7 +222,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
     (leak1_i0_stall_in         ^  leak1_i0_stall     ) |   // replaces free_clk
     (pause_state_in            ^  pause_state        ) |   // replaces free_clk
     (ps_stall_in               ^  postsync_stall     ) |   // replaces free_clk
-    (io.dec_alu.exu_flush_final        ^  flush_final_r      ) |   // replaces free_clk
+    (io.exu_flush_final        ^  flush_final_r      ) |   // replaces free_clk
     (illegal_lockout_in        ^  illegal_lockout    )     // replaces active_clk
 
 
@@ -620,7 +620,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   io.dec_tlu_packet_r.pmu_divide      :=  r_d.bits.i0div & r_d.valid
   // end tlu stuff
 
-  flush_final_r := withClock(data_gate_clk){RegNext(io.dec_alu.exu_flush_final, 0.U)}
+  flush_final_r := withClock(data_gate_clk){RegNext(io.exu_flush_final, 0.U)}
 
   io.dec_aln.dec_i0_decode_d := io.dec_ib0_valid_d & !i0_block_d & !io.dec_tlu_flush_lower_r & !flush_final_r
 

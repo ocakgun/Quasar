@@ -2,6 +2,7 @@ import chisel3._
 import el2_mem._
 import chisel3.util._
 import dmi._
+import ifu.axi_channels
 import lib._
 class el2_swerv_wrapper extends Module with el2_lib with RequireAsyncReset {
   val io = IO(new Bundle{
@@ -20,177 +21,181 @@ class el2_swerv_wrapper extends Module with el2_lib with RequireAsyncReset {
     val trace_rv_i_tval_ip = Output(UInt(32.W))
 
     // AXI Signals
-    val lsu_axi_awvalid = Output(Bool())
-    val lsu_axi_awready = Input(Bool())
-    val lsu_axi_awid = Output(UInt(LSU_BUS_TAG.W))
-    val lsu_axi_awaddr = Output(UInt(32.W))
-    val lsu_axi_awregion = Output(UInt(4.W))
-    val lsu_axi_awlen = Output(UInt(8.W))
-    val lsu_axi_awsize = Output(UInt(3.W))
-    val lsu_axi_awburst = Output(UInt(2.W))
-    val lsu_axi_awlock = Output(Bool())
-    val lsu_axi_awcache = Output(UInt(4.W))
-    val lsu_axi_awprot = Output(UInt(3.W))
-    val lsu_axi_awqos = Output(UInt(4.W))
-    val lsu_axi_wvalid = Output(Bool())
-    val lsu_axi_wready = Input(Bool())
-    val lsu_axi_wdata = Output(UInt(64.W))
-    val lsu_axi_wstrb = Output(UInt(8.W))
-    val lsu_axi_wlast = Output(Bool())
-
-    val lsu_axi_bvalid = Input(Bool())
-    val lsu_axi_bready = Output(Bool())
-    val lsu_axi_bresp = Input(UInt(2.W))
-    val lsu_axi_bid = Input(UInt(LSU_BUS_TAG.W))
-
-    val lsu_axi_arvalid = Output(Bool())
-    val lsu_axi_arready = Input(Bool())
-    val lsu_axi_arid = Output(UInt(LSU_BUS_TAG.W))
-    val lsu_axi_araddr = Output(UInt(32.W))
-    val lsu_axi_arregion = Output(UInt(4.W))
-    val lsu_axi_arlen = Output(UInt(8.W))
-    val lsu_axi_arsize = Output(UInt(3.W))
-    val lsu_axi_arburst = Output(UInt(2.W))
-    val lsu_axi_arlock = Output(Bool())
-    val lsu_axi_arcache = Output(UInt(4.W))
-    val lsu_axi_arprot = Output(UInt(3.W))
-    val lsu_axi_arqos = Output(UInt(4.W))
-
-    val lsu_axi_rvalid = Input(Bool())
-    val lsu_axi_rready = Output(Bool())
-    val lsu_axi_rid = Input(UInt(LSU_BUS_TAG.W))
-    val lsu_axi_rdata = Input(UInt(64.W))
-    val lsu_axi_rresp = Input(UInt(2.W))
-    val lsu_axi_rlast = Input(Bool())
-
-
-    // AXI IFU Signals
-    val ifu_axi_awvalid = Output(Bool())
-    val ifu_axi_awready = Input(Bool())
-    val ifu_axi_awid = Output(UInt(IFU_BUS_TAG.W))
-    val ifu_axi_awaddr = Output(UInt(32.W))
-    val ifu_axi_awregion = Output(UInt(4.W))
-    val ifu_axi_awlen = Output(UInt(8.W))
-    val ifu_axi_awsize = Output(UInt(3.W))
-    val ifu_axi_awburst = Output(UInt(2.W))
-    val ifu_axi_awlock = Output(Bool())
-    val ifu_axi_awcache = Output(UInt(4.W))
-    val ifu_axi_awprot = Output(UInt(3.W))
-    val ifu_axi_awqos = Output(UInt(4.W))
-
-    val ifu_axi_wvalid = Output(Bool())
-    val ifu_axi_wready = Input(Bool())
-    val ifu_axi_wdata = Output(UInt(64.W))
-    val ifu_axi_wstrb = Output(UInt(8.W))
-    val ifu_axi_wlast = Output(Bool())
-
-    val ifu_axi_bvalid = Input(Bool())
-    val ifu_axi_bready = Output(Bool())
-    val ifu_axi_bresp = Input(UInt(2.W))
-    val ifu_axi_bid = Input(UInt(IFU_BUS_TAG.W))
-
-    val ifu_axi_arvalid = Output(Bool())
-    val ifu_axi_arready = Input(Bool())
-    val ifu_axi_arid = Output(UInt(IFU_BUS_TAG.W))
-    val ifu_axi_araddr = Output(UInt(32.W))
-    val ifu_axi_arregion = Output(UInt(4.W))
-    val ifu_axi_arlen = Output(UInt(8.W))
-    val ifu_axi_arsize = Output(UInt(3.W))
-    val ifu_axi_arburst = Output(UInt(2.W))
-    val ifu_axi_arlock = Output(Bool())
-    val ifu_axi_arcache = Output(UInt(4.W))
-    val ifu_axi_arprot = Output(UInt(3.W))
-    val ifu_axi_arqos = Output(UInt(4.W))
-
-    val ifu_axi_rvalid = Input(Bool())
-    val ifu_axi_rready = Output(Bool())
-    val ifu_axi_rid = Input(UInt(IFU_BUS_TAG.W))
-    val ifu_axi_rdata = Input(UInt(64.W))
-    val ifu_axi_rresp = Input(UInt(2.W))
-    val ifu_axi_rlast = Input(Bool())
-
-    // SB AXI Signals
-    val sb_axi_awvalid = Output(Bool())
-    val sb_axi_awready = Input(Bool())
-    val sb_axi_awid = Output(UInt(SB_BUS_TAG.W))
-    val sb_axi_awaddr = Output(UInt(32.W))
-    val sb_axi_awregion = Output(UInt(4.W))
-    val sb_axi_awlen = Output(UInt(8.W))
-    val sb_axi_awsize = Output(UInt(3.W))
-    val sb_axi_awburst = Output(UInt(2.W))
-    val sb_axi_awlock = Output(Bool())
-    val sb_axi_awcache = Output(UInt(4.W))
-    val sb_axi_awprot = Output(UInt(3.W))
-    val sb_axi_awqos = Output(UInt(4.W))
-
-    val sb_axi_wvalid = Output(Bool())
-    val sb_axi_wready = Input(Bool())
-    val sb_axi_wdata = Output(UInt(64.W))
-    val sb_axi_wstrb = Output(UInt(8.W))
-    val sb_axi_wlast = Output(Bool())
-
-    val sb_axi_bvalid = Input(Bool())
-    val sb_axi_bready = Output(Bool())
-    val sb_axi_bresp = Input(UInt(2.W))
-    val sb_axi_bid = Input(UInt(SB_BUS_TAG.W))
-
-    val sb_axi_arvalid = Output(Bool())
-    val sb_axi_arready = Input(Bool())
-    val sb_axi_arid = Output(UInt(SB_BUS_TAG.W))
-    val sb_axi_araddr = Output(UInt(32.W))
-    val sb_axi_arregion = Output(UInt(4.W))
-    val sb_axi_arlen = Output(UInt(8.W))
-    val sb_axi_arsize = Output(UInt(3.W))
-    val sb_axi_arburst = Output(UInt(2.W))
-    val sb_axi_arlock = Output(Bool())
-    val sb_axi_arcache = Output(UInt(4.W))
-    val sb_axi_arprot = Output(UInt(3.W))
-    val sb_axi_arqos = Output(UInt(4.W))
-
-    val sb_axi_rvalid = Input(Bool())
-    val sb_axi_rready = Output(Bool())
-    val sb_axi_rid = Input(UInt(SB_BUS_TAG.W))
-    val sb_axi_rdata = Input(UInt(64.W))
-    val sb_axi_rresp = Input(UInt(2.W))
-    val sb_axi_rlast = Input(Bool())
+//    val lsu_axi_awvalid = Output(Bool())
+//    val lsu_axi_awready = Input(Bool())
+//    val lsu_axi_awid = Output(UInt(LSU_BUS_TAG.W))
+//    val lsu_axi_awaddr = Output(UInt(32.W))
+//    val lsu_axi_awregion = Output(UInt(4.W))
+//    val lsu_axi_awlen = Output(UInt(8.W))
+//    val lsu_axi_awsize = Output(UInt(3.W))
+//    val lsu_axi_awburst = Output(UInt(2.W))
+//    val lsu_axi_awlock = Output(Bool())
+//    val lsu_axi_awcache = Output(UInt(4.W))
+//    val lsu_axi_awprot = Output(UInt(3.W))
+//    val lsu_axi_awqos = Output(UInt(4.W))
+//    val lsu_axi_wvalid = Output(Bool())
+//    val lsu_axi_wready = Input(Bool())
+//    val lsu_axi_wdata = Output(UInt(64.W))
+//    val lsu_axi_wstrb = Output(UInt(8.W))
+//    val lsu_axi_wlast = Output(Bool())
+//
+//    val lsu_axi_bvalid = Input(Bool())
+//    val lsu_axi_bready = Output(Bool())
+//    val lsu_axi_bresp = Input(UInt(2.W))
+//    val lsu_axi_bid = Input(UInt(LSU_BUS_TAG.W))
+//
+//    val lsu_axi_arvalid = Output(Bool())
+//    val lsu_axi_arready = Input(Bool())
+//    val lsu_axi_arid = Output(UInt(LSU_BUS_TAG.W))
+//    val lsu_axi_araddr = Output(UInt(32.W))
+//    val lsu_axi_arregion = Output(UInt(4.W))
+//    val lsu_axi_arlen = Output(UInt(8.W))
+//    val lsu_axi_arsize = Output(UInt(3.W))
+//    val lsu_axi_arburst = Output(UInt(2.W))
+//    val lsu_axi_arlock = Output(Bool())
+//    val lsu_axi_arcache = Output(UInt(4.W))
+//    val lsu_axi_arprot = Output(UInt(3.W))
+//    val lsu_axi_arqos = Output(UInt(4.W))
+//
+//    val lsu_axi_rvalid = Input(Bool())
+//    val lsu_axi_rready = Output(Bool())
+//    val lsu_axi_rid = Input(UInt(LSU_BUS_TAG.W))
+//    val lsu_axi_rdata = Input(UInt(64.W))
+//    val lsu_axi_rresp = Input(UInt(2.W))
+//    val lsu_axi_rlast = Input(Bool())
+//
+//
+//    // AXI IFU Signals
+//    val ifu_axi_awvalid = Output(Bool())
+//    val ifu_axi_awready = Input(Bool())
+//    val ifu_axi_awid = Output(UInt(IFU_BUS_TAG.W))
+//    val ifu_axi_awaddr = Output(UInt(32.W))
+//    val ifu_axi_awregion = Output(UInt(4.W))
+//    val ifu_axi_awlen = Output(UInt(8.W))
+//    val ifu_axi_awsize = Output(UInt(3.W))
+//    val ifu_axi_awburst = Output(UInt(2.W))
+//    val ifu_axi_awlock = Output(Bool())
+//    val ifu_axi_awcache = Output(UInt(4.W))
+//    val ifu_axi_awprot = Output(UInt(3.W))
+//    val ifu_axi_awqos = Output(UInt(4.W))
+//
+//    val ifu_axi_wvalid = Output(Bool())
+//    val ifu_axi_wready = Input(Bool())
+//    val ifu_axi_wdata = Output(UInt(64.W))
+//    val ifu_axi_wstrb = Output(UInt(8.W))
+//    val ifu_axi_wlast = Output(Bool())
+//
+//    val ifu_axi_bvalid = Input(Bool())
+//    val ifu_axi_bready = Output(Bool())
+//    val ifu_axi_bresp = Input(UInt(2.W))
+//    val ifu_axi_bid = Input(UInt(IFU_BUS_TAG.W))
+//
+//    val ifu_axi_arvalid = Output(Bool())
+//    val ifu_axi_arready = Input(Bool())
+//    val ifu_axi_arid = Output(UInt(IFU_BUS_TAG.W))
+//    val ifu_axi_araddr = Output(UInt(32.W))
+//    val ifu_axi_arregion = Output(UInt(4.W))
+//    val ifu_axi_arlen = Output(UInt(8.W))
+//    val ifu_axi_arsize = Output(UInt(3.W))
+//    val ifu_axi_arburst = Output(UInt(2.W))
+//    val ifu_axi_arlock = Output(Bool())
+//    val ifu_axi_arcache = Output(UInt(4.W))
+//    val ifu_axi_arprot = Output(UInt(3.W))
+//    val ifu_axi_arqos = Output(UInt(4.W))
+//
+//    val ifu_axi_rvalid = Input(Bool())
+//    val ifu_axi_rready = Output(Bool())
+//    val ifu_axi_rid = Input(UInt(IFU_BUS_TAG.W))
+//    val ifu_axi_rdata = Input(UInt(64.W))
+//    val ifu_axi_rresp = Input(UInt(2.W))
+//    val ifu_axi_rlast = Input(Bool())
+//
+//    // SB AXI Signals
+//    val sb_axi_awvalid = Output(Bool())
+//    val sb_axi_awready = Input(Bool())
+//    val sb_axi_awid = Output(UInt(SB_BUS_TAG.W))
+//    val sb_axi_awaddr = Output(UInt(32.W))
+//    val sb_axi_awregion = Output(UInt(4.W))
+//    val sb_axi_awlen = Output(UInt(8.W))
+//    val sb_axi_awsize = Output(UInt(3.W))
+//    val sb_axi_awburst = Output(UInt(2.W))
+//    val sb_axi_awlock = Output(Bool())
+//    val sb_axi_awcache = Output(UInt(4.W))
+//    val sb_axi_awprot = Output(UInt(3.W))
+//    val sb_axi_awqos = Output(UInt(4.W))
+//
+//    val sb_axi_wvalid = Output(Bool())
+//    val sb_axi_wready = Input(Bool())
+//    val sb_axi_wdata = Output(UInt(64.W))
+//    val sb_axi_wstrb = Output(UInt(8.W))
+//    val sb_axi_wlast = Output(Bool())
+//
+//    val sb_axi_bvalid = Input(Bool())
+//    val sb_axi_bready = Output(Bool())
+//    val sb_axi_bresp = Input(UInt(2.W))
+//    val sb_axi_bid = Input(UInt(SB_BUS_TAG.W))
+//
+//    val sb_axi_arvalid = Output(Bool())
+//    val sb_axi_arready = Input(Bool())
+//    val sb_axi_arid = Output(UInt(SB_BUS_TAG.W))
+//    val sb_axi_araddr = Output(UInt(32.W))
+//    val sb_axi_arregion = Output(UInt(4.W))
+//    val sb_axi_arlen = Output(UInt(8.W))
+//    val sb_axi_arsize = Output(UInt(3.W))
+//    val sb_axi_arburst = Output(UInt(2.W))
+//    val sb_axi_arlock = Output(Bool())
+//    val sb_axi_arcache = Output(UInt(4.W))
+//    val sb_axi_arprot = Output(UInt(3.W))
+//    val sb_axi_arqos = Output(UInt(4.W))
+//
+//    val sb_axi_rvalid = Input(Bool())
+//    val sb_axi_rready = Output(Bool())
+//    val sb_axi_rid = Input(UInt(SB_BUS_TAG.W))
+//    val sb_axi_rdata = Input(UInt(64.W))
+//    val sb_axi_rresp = Input(UInt(2.W))
+//    val sb_axi_rlast = Input(Bool())
 
     // DMA signals
-    val dma_axi_awvalid       = Input(Bool())
-    val dma_axi_awready       = Output(Bool())
-    val dma_axi_awid          = Input(UInt(DMA_BUS_TAG.W))
-    val dma_axi_awaddr        = Input(UInt(32.W))
-    val dma_axi_awsize        = Input(UInt(3.W))
-    val dma_axi_awprot        = Input(UInt(3.W))
-    val dma_axi_awlen         = Input(UInt(8.W))
-    val dma_axi_awburst       = Input(UInt(2.W))
-
-    val dma_axi_wvalid        = Input(Bool())
-    val dma_axi_wready        = Output(Bool())
-    val dma_axi_wdata         = Input(UInt(64.W))
-    val dma_axi_wstrb         = Input(UInt(8.W))
-    val dma_axi_wlast   = Input(Bool())
-
-    val dma_axi_bvalid        = Output(Bool())
-    val dma_axi_bready        = Input(Bool())
-    val dma_axi_bresp         = Output(UInt(2.W))
-    val dma_axi_bid           = Output(UInt(DMA_BUS_TAG.W))
-
-    // AXI Read Channels
-    val dma_axi_arvalid       = Input(Bool())
-    val dma_axi_arready       = Output(Bool())
-    val dma_axi_arid          = Input(UInt(DMA_BUS_TAG.W))
-    val dma_axi_araddr        = Input(UInt(32.W))
-    val dma_axi_arsize        = Input(UInt(3.W))
-    val dma_axi_arprot = Input(UInt(3.W))
-    val dma_axi_arlen = Input(UInt(8.W))
-    val dma_axi_arburst = Input(UInt(2.W))
-
-    val dma_axi_rvalid        = Output(Bool())
-    val dma_axi_rready        = Input(Bool())
-    val dma_axi_rid           = Output(UInt(DMA_BUS_TAG.W))
-    val dma_axi_rdata         = Output(UInt(64.W))
-    val dma_axi_rresp         = Output(UInt(2.W))
-    val dma_axi_rlast         = Output(Bool())
+//    val dma_axi_awvalid       = Input(Bool())
+//    val dma_axi_awready       = Output(Bool())
+//    val dma_axi_awid          = Input(UInt(DMA_BUS_TAG.W))
+//    val dma_axi_awaddr        = Input(UInt(32.W))
+//    val dma_axi_awsize        = Input(UInt(3.W))
+//    val dma_axi_awprot        = Input(UInt(3.W))
+//    val dma_axi_awlen         = Input(UInt(8.W))
+//    val dma_axi_awburst       = Input(UInt(2.W))
+//
+//    val dma_axi_wvalid        = Input(Bool())
+//    val dma_axi_wready        = Output(Bool())
+//    val dma_axi_wdata         = Input(UInt(64.W))
+//    val dma_axi_wstrb         = Input(UInt(8.W))
+//    val dma_axi_wlast   = Input(Bool())
+//
+//    val dma_axi_bvalid        = Output(Bool())
+//    val dma_axi_bready        = Input(Bool())
+//    val dma_axi_bresp         = Output(UInt(2.W))
+//    val dma_axi_bid           = Output(UInt(DMA_BUS_TAG.W))
+//
+//    // AXI Read Channels
+//    val dma_axi_arvalid       = Input(Bool())
+//    val dma_axi_arready       = Output(Bool())
+//    val dma_axi_arid          = Input(UInt(DMA_BUS_TAG.W))
+//    val dma_axi_araddr        = Input(UInt(32.W))
+//    val dma_axi_arsize        = Input(UInt(3.W))
+//    val dma_axi_arprot = Input(UInt(3.W))
+//    val dma_axi_arlen = Input(UInt(8.W))
+//    val dma_axi_arburst = Input(UInt(2.W))
+//
+//    val dma_axi_rvalid        = Output(Bool())
+//    val dma_axi_rready        = Input(Bool())
+//    val dma_axi_rid           = Output(UInt(DMA_BUS_TAG.W))
+//    val dma_axi_rdata         = Output(UInt(64.W))
+//    val dma_axi_rresp         = Output(UInt(2.W))
+//    val dma_axi_rlast         = Output(Bool())
+    val lsu_axi = new axi_channels()
+    val ifu_axi = new axi_channels()
+    val sb_axi = new axi_channels()
+    val dma_axi = Flipped(new axi_channels())
 
     // AHB Lite Bus
 //    val haddr = Output(UInt(32.W))
@@ -442,79 +447,83 @@ class el2_swerv_wrapper extends Module with el2_lib with RequireAsyncReset {
 
   //-------------------------- LSU AXI signals--------------------------
   // AXI Write Channels
-  swerv.io.lsu_axi_awready := io.lsu_axi_awready
-  swerv.io.lsu_axi_wready := io.lsu_axi_wready
-
-  swerv.io.lsu_axi_bvalid := io.lsu_axi_bvalid
-  swerv.io.lsu_axi_bresp := io.lsu_axi_bresp
-  swerv.io.lsu_axi_bid := io.lsu_axi_bid
+  swerv.io.lsu_axi <> io.lsu_axi
+//  swerv.io.lsu_axi_awready := io.lsu_axi_awready
+//  swerv.io.lsu_axi_wready := io.lsu_axi_wready
+//
+//  swerv.io.lsu_axi_bvalid := io.lsu_axi_bvalid
+//  swerv.io.lsu_axi_bresp := io.lsu_axi_bresp
+//  swerv.io.lsu_axi_bid := io.lsu_axi_bid
 
   // AXI Read Channels
-  swerv.io.lsu_axi_arready := io.lsu_axi_arready
-  swerv.io.lsu_axi_rvalid := io.lsu_axi_rvalid
-  swerv.io.lsu_axi_rid := io.lsu_axi_rid
-  swerv.io.lsu_axi_rdata := io.lsu_axi_rdata
-  swerv.io.lsu_axi_rresp := io.lsu_axi_rresp
-  swerv.io.lsu_axi_rlast := io.lsu_axi_rlast
+//  swerv.io.lsu_axi_arready := io.lsu_axi_arready
+//  swerv.io.lsu_axi_rvalid := io.lsu_axi_rvalid
+//  swerv.io.lsu_axi_rid := io.lsu_axi_rid
+//  swerv.io.lsu_axi_rdata := io.lsu_axi_rdata
+//  swerv.io.lsu_axi_rresp := io.lsu_axi_rresp
+//  swerv.io.lsu_axi_rlast := io.lsu_axi_rlast
 
   //-------------------------- IFU AXI signals--------------------------
   // AXI Write Channels
-  swerv.io.ifu_axi_awready := io.ifu_axi_awready
-  swerv.io.ifu_axi_wready := io.ifu_axi_wready
-  swerv.io.ifu_axi_bvalid := io.ifu_axi_bvalid
-  swerv.io.ifu_axi_bresp := io.ifu_axi_bresp
-  swerv.io.ifu_axi_bid := io.ifu_axi_bid
-
-  // AXI Read Channels
-  swerv.io.ifu_axi_arready := io.ifu_axi_arready
-  swerv.io.ifu_axi_rvalid := io.ifu_axi_rvalid
-  swerv.io.ifu_axi_rid := io.ifu_axi_rid
-  swerv.io.ifu_axi_rdata := io.ifu_axi_rdata
-  swerv.io.ifu_axi_rresp := io.ifu_axi_rresp
-  swerv.io.ifu_axi_rlast := io.ifu_axi_rlast
+  swerv.io.ifu_axi <> io.ifu_axi
+//  swerv.io.ifu_axi_awready := io.ifu_axi_awready
+//  swerv.io.ifu_axi_wready := io.ifu_axi_wready
+//  swerv.io.ifu_axi_bvalid := io.ifu_axi_bvalid
+//  swerv.io.ifu_axi_bresp := io.ifu_axi_bresp
+//  swerv.io.ifu_axi_bid := io.ifu_axi_bid
+//
+//  // AXI Read Channels
+//  swerv.io.ifu_axi_arready := io.ifu_axi_arready
+//  swerv.io.ifu_axi_rvalid := io.ifu_axi_rvalid
+//  swerv.io.ifu_axi_rid := io.ifu_axi_rid
+//  swerv.io.ifu_axi_rdata := io.ifu_axi_rdata
+//  swerv.io.ifu_axi_rresp := io.ifu_axi_rresp
+//  swerv.io.ifu_axi_rlast := io.ifu_axi_rlast
 
   //-------------------------- SB AXI signals--------------------------
   // AXI Write Channels
-  swerv.io.sb_axi_awready := io.sb_axi_awready
-  swerv.io.sb_axi_wready := io.sb_axi_wready
-
-  swerv.io.sb_axi_bvalid := io.sb_axi_bvalid
-  swerv.io.sb_axi_bresp := io.sb_axi_bresp
-  swerv.io.sb_axi_bid := io.sb_axi_bid
+  swerv.io.sb_axi <> io.sb_axi
+//  swerv.io.sb_axi_awready := io.sb_axi_awready
+//  swerv.io.sb_axi_wready := io.sb_axi_wready
+//
+//  swerv.io.sb_axi_bvalid := io.sb_axi_bvalid
+//  swerv.io.sb_axi_bresp := io.sb_axi_bresp
+//  swerv.io.sb_axi_bid := io.sb_axi_bid
 
   // AXI Read Channels
-  swerv.io.sb_axi_arready := io.sb_axi_arready
-  swerv.io.sb_axi_rvalid := io.sb_axi_rvalid
-  swerv.io.sb_axi_rid := io.sb_axi_rid
-  swerv.io.sb_axi_rdata := io.sb_axi_rdata
-  swerv.io.sb_axi_rresp := io.sb_axi_rresp
-  swerv.io.sb_axi_rlast := io.sb_axi_rlast
+//  swerv.io.sb_axi_arready := io.sb_axi_arready
+//  swerv.io.sb_axi_rvalid := io.sb_axi_rvalid
+//  swerv.io.sb_axi_rid := io.sb_axi_rid
+//  swerv.io.sb_axi_rdata := io.sb_axi_rdata
+//  swerv.io.sb_axi_rresp := io.sb_axi_rresp
+//  swerv.io.sb_axi_rlast := io.sb_axi_rlast
 
   //-------------------------- DMA AXI signals--------------------------
   // AXI Write Channels
-  swerv.io.dma_axi_awvalid := io.dma_axi_awvalid
-  swerv.io.dma_axi_awid := io.dma_axi_awid
-  swerv.io.dma_axi_awaddr := io.dma_axi_awaddr
-  swerv.io.dma_axi_awsize := io.dma_axi_awsize
-  swerv.io.dma_axi_awprot := io.dma_axi_awprot
-  swerv.io.dma_axi_awlen := io.dma_axi_awlen
-  swerv.io.dma_axi_awburst := io.dma_axi_awburst
-
-  swerv.io.dma_axi_wvalid := io.dma_axi_wvalid
-  swerv.io.dma_axi_wdata := io.dma_axi_wdata
-  swerv.io.dma_axi_wstrb := io.dma_axi_wstrb
-  swerv.io.dma_axi_wlast := io.dma_axi_wlast
-  swerv.io.dma_axi_bready := io.dma_axi_bready
-
-  // AXI Read Channels
-  swerv.io.dma_axi_arvalid := io.dma_axi_arvalid
-  swerv.io.dma_axi_arid := io.dma_axi_arid
-  swerv.io.dma_axi_araddr := io.dma_axi_araddr
-  swerv.io.dma_axi_arsize := io.dma_axi_arsize
-  swerv.io.dma_axi_arprot := io.dma_axi_arprot
-  swerv.io.dma_axi_arlen := io.dma_axi_arlen
-  swerv.io.dma_axi_arburst := io.dma_axi_arburst
-  swerv.io.dma_axi_rready := io.dma_axi_rready
+  swerv.io.dma_axi <> io.dma_axi
+//  swerv.io.dma_axi_awvalid := io.dma_axi_awvalid
+//  swerv.io.dma_axi_awid := io.dma_axi_awid
+//  swerv.io.dma_axi_awaddr := io.dma_axi_awaddr
+//  swerv.io.dma_axi_awsize := io.dma_axi_awsize
+//  swerv.io.dma_axi_awprot := io.dma_axi_awprot
+//  swerv.io.dma_axi_awlen := io.dma_axi_awlen
+//  swerv.io.dma_axi_awburst := io.dma_axi_awburst
+//
+//  swerv.io.dma_axi_wvalid := io.dma_axi_wvalid
+//  swerv.io.dma_axi_wdata := io.dma_axi_wdata
+//  swerv.io.dma_axi_wstrb := io.dma_axi_wstrb
+//  swerv.io.dma_axi_wlast := io.dma_axi_wlast
+//  swerv.io.dma_axi_bready := io.dma_axi_bready
+//
+//  // AXI Read Channels
+//  swerv.io.dma_axi_arvalid := io.dma_axi_arvalid
+//  swerv.io.dma_axi_arid := io.dma_axi_arid
+//  swerv.io.dma_axi_araddr := io.dma_axi_araddr
+//  swerv.io.dma_axi_arsize := io.dma_axi_arsize
+//  swerv.io.dma_axi_arprot := io.dma_axi_arprot
+//  swerv.io.dma_axi_arlen := io.dma_axi_arlen
+//  swerv.io.dma_axi_arburst := io.dma_axi_arburst
+//  swerv.io.dma_axi_rready := io.dma_axi_rready
 
   // DMA Slave
   swerv.io.dma_hsel := io.dma_hsel
@@ -581,118 +590,118 @@ class el2_swerv_wrapper extends Module with el2_lib with RequireAsyncReset {
 
   //-------------------------- LSU AXI signals--------------------------
   // AXI Write Channels
-  io.lsu_axi_awvalid := swerv.io.lsu_axi_awvalid
-  io.lsu_axi_awid := swerv.io.lsu_axi_awid
-  io.lsu_axi_awaddr := swerv.io.lsu_axi_awaddr
-  io.lsu_axi_awregion := swerv.io.lsu_axi_awregion
-  io.lsu_axi_awlen := swerv.io.lsu_axi_awlen
-  io.lsu_axi_awsize := swerv.io.lsu_axi_awsize
-  io.lsu_axi_awburst := swerv.io.lsu_axi_awburst
-  io.lsu_axi_awlock := swerv.io.lsu_axi_awlock
-  io.lsu_axi_awcache := swerv.io.lsu_axi_awcache
-  io.lsu_axi_awprot := swerv.io.lsu_axi_awprot
-  io.lsu_axi_awqos := swerv.io.lsu_axi_awqos
-
-  io.lsu_axi_wvalid := swerv.io.lsu_axi_wvalid
-  io.lsu_axi_wdata := swerv.io.lsu_axi_wdata
-  io.lsu_axi_wstrb := swerv.io.lsu_axi_wstrb
-  io.lsu_axi_wlast := swerv.io.lsu_axi_wlast
-  io.lsu_axi_bready := swerv.io.lsu_axi_bready
-
-  // AXI Read Channels
-  io.lsu_axi_arvalid := swerv.io.lsu_axi_arvalid
-  io.lsu_axi_arid := swerv.io.lsu_axi_arid
-  io.lsu_axi_araddr := swerv.io.lsu_axi_araddr
-  io.lsu_axi_arregion := swerv.io.lsu_axi_arregion
-  io.lsu_axi_arlen := swerv.io.lsu_axi_arlen
-  io.lsu_axi_arsize := swerv.io.lsu_axi_arsize
-  io.lsu_axi_arburst := swerv.io.lsu_axi_arburst
-  io.lsu_axi_arlock := swerv.io.lsu_axi_arlock
-  io.lsu_axi_arcache := swerv.io.lsu_axi_arcache
-  io.lsu_axi_arprot := swerv.io.lsu_axi_arprot
-  io.lsu_axi_arqos := swerv.io.lsu_axi_arqos
-  io.lsu_axi_rready := swerv.io.lsu_axi_rready
-  // AXI Write Channels
-  io.ifu_axi_awvalid := swerv.io.ifu_axi_awvalid
-  io.ifu_axi_awid := swerv.io.ifu_axi_awid
-  io.ifu_axi_awaddr := swerv.io.ifu_axi_awaddr
-  io.ifu_axi_awregion := swerv.io.ifu_axi_awregion
-  io.ifu_axi_awlen := swerv.io.ifu_axi_awlen
-  io.ifu_axi_awsize := swerv.io.ifu_axi_awsize
-  io.ifu_axi_awburst := swerv.io.ifu_axi_awburst
-  io.ifu_axi_awlock := swerv.io.ifu_axi_awlock
-  io.ifu_axi_awcache := swerv.io.ifu_axi_awcache
-  io.ifu_axi_awprot := swerv.io.ifu_axi_awprot
-  io.ifu_axi_awqos := swerv.io.ifu_axi_awqos
-  io.ifu_axi_wvalid := swerv.io.ifu_axi_wvalid
-  io.ifu_axi_wdata := swerv.io.ifu_axi_wdata
-  io.ifu_axi_wstrb := swerv.io.ifu_axi_wstrb
-  io.ifu_axi_wlast := swerv.io.ifu_axi_wlast
-
-  io.ifu_axi_bready := swerv.io.ifu_axi_bready
-
-  // AXI Read Channels
-  io.ifu_axi_arvalid := swerv.io.ifu_axi_arvalid
-  io.ifu_axi_arid := swerv.io.ifu_axi_arid
-  io.ifu_axi_araddr := swerv.io.ifu_axi_araddr
-  io.ifu_axi_arregion := swerv.io.ifu_axi_arregion
-  io.ifu_axi_arlen := swerv.io.ifu_axi_arlen
-  io.ifu_axi_arsize := swerv.io.ifu_axi_arsize
-  io.ifu_axi_arburst := swerv.io.ifu_axi_arburst
-  io.ifu_axi_arlock := swerv.io.ifu_axi_arlock
-  io.ifu_axi_arcache := swerv.io.ifu_axi_arcache
-  io.ifu_axi_arprot := swerv.io.ifu_axi_arprot
-  io.ifu_axi_arqos := swerv.io.ifu_axi_arqos
-  io.ifu_axi_rready := swerv.io.ifu_axi_rready
+//  io.lsu_axi_awvalid := swerv.io.lsu_axi_awvalid
+//  io.lsu_axi_awid := swerv.io.lsu_axi_awid
+//  io.lsu_axi_awaddr := swerv.io.lsu_axi_awaddr
+//  io.lsu_axi_awregion := swerv.io.lsu_axi_awregion
+//  io.lsu_axi_awlen := swerv.io.lsu_axi_awlen
+//  io.lsu_axi_awsize := swerv.io.lsu_axi_awsize
+//  io.lsu_axi_awburst := swerv.io.lsu_axi_awburst
+//  io.lsu_axi_awlock := swerv.io.lsu_axi_awlock
+//  io.lsu_axi_awcache := swerv.io.lsu_axi_awcache
+//  io.lsu_axi_awprot := swerv.io.lsu_axi_awprot
+//  io.lsu_axi_awqos := swerv.io.lsu_axi_awqos
+//
+//  io.lsu_axi_wvalid := swerv.io.lsu_axi_wvalid
+//  io.lsu_axi_wdata := swerv.io.lsu_axi_wdata
+//  io.lsu_axi_wstrb := swerv.io.lsu_axi_wstrb
+//  io.lsu_axi_wlast := swerv.io.lsu_axi_wlast
+//  io.lsu_axi_bready := swerv.io.lsu_axi_bready
+//
+//  // AXI Read Channels
+//  io.lsu_axi_arvalid := swerv.io.lsu_axi_arvalid
+//  io.lsu_axi_arid := swerv.io.lsu_axi_arid
+//  io.lsu_axi_araddr := swerv.io.lsu_axi_araddr
+//  io.lsu_axi_arregion := swerv.io.lsu_axi_arregion
+//  io.lsu_axi_arlen := swerv.io.lsu_axi_arlen
+//  io.lsu_axi_arsize := swerv.io.lsu_axi_arsize
+//  io.lsu_axi_arburst := swerv.io.lsu_axi_arburst
+//  io.lsu_axi_arlock := swerv.io.lsu_axi_arlock
+//  io.lsu_axi_arcache := swerv.io.lsu_axi_arcache
+//  io.lsu_axi_arprot := swerv.io.lsu_axi_arprot
+//  io.lsu_axi_arqos := swerv.io.lsu_axi_arqos
+//  io.lsu_axi_rready := swerv.io.lsu_axi_rready
+//  // AXI Write Channels
+//  io.ifu_axi_awvalid := swerv.io.ifu_axi_awvalid
+//  io.ifu_axi_awid := swerv.io.ifu_axi_awid
+//  io.ifu_axi_awaddr := swerv.io.ifu_axi_awaddr
+//  io.ifu_axi_awregion := swerv.io.ifu_axi_awregion
+//  io.ifu_axi_awlen := swerv.io.ifu_axi_awlen
+//  io.ifu_axi_awsize := swerv.io.ifu_axi_awsize
+//  io.ifu_axi_awburst := swerv.io.ifu_axi_awburst
+//  io.ifu_axi_awlock := swerv.io.ifu_axi_awlock
+//  io.ifu_axi_awcache := swerv.io.ifu_axi_awcache
+//  io.ifu_axi_awprot := swerv.io.ifu_axi_awprot
+//  io.ifu_axi_awqos := swerv.io.ifu_axi_awqos
+//  io.ifu_axi_wvalid := swerv.io.ifu_axi_wvalid
+//  io.ifu_axi_wdata := swerv.io.ifu_axi_wdata
+//  io.ifu_axi_wstrb := swerv.io.ifu_axi_wstrb
+//  io.ifu_axi_wlast := swerv.io.ifu_axi_wlast
+//
+//  io.ifu_axi_bready := swerv.io.ifu_axi_bready
+//
+//  // AXI Read Channels
+//  io.ifu_axi_arvalid := swerv.io.ifu_axi_arvalid
+//  io.ifu_axi_arid := swerv.io.ifu_axi_arid
+//  io.ifu_axi_araddr := swerv.io.ifu_axi_araddr
+//  io.ifu_axi_arregion := swerv.io.ifu_axi_arregion
+//  io.ifu_axi_arlen := swerv.io.ifu_axi_arlen
+//  io.ifu_axi_arsize := swerv.io.ifu_axi_arsize
+//  io.ifu_axi_arburst := swerv.io.ifu_axi_arburst
+//  io.ifu_axi_arlock := swerv.io.ifu_axi_arlock
+//  io.ifu_axi_arcache := swerv.io.ifu_axi_arcache
+//  io.ifu_axi_arprot := swerv.io.ifu_axi_arprot
+//  io.ifu_axi_arqos := swerv.io.ifu_axi_arqos
+//  io.ifu_axi_rready := swerv.io.ifu_axi_rready
   //-------------------------- SB AXI signals--------------------------
   // AXI Write Channels
-  io.sb_axi_awvalid := swerv.io.sb_axi_awvalid
-  io.sb_axi_awid := swerv.io.sb_axi_awid
-  io.sb_axi_awaddr := swerv.io.sb_axi_awaddr
-  io.sb_axi_awregion := swerv.io.sb_axi_awregion
-  io.sb_axi_awlen := swerv.io.sb_axi_awlen
-  io.sb_axi_awsize := swerv.io.sb_axi_awsize
-  io.sb_axi_awburst := swerv.io.sb_axi_awburst
-  io.sb_axi_awlock := swerv.io.sb_axi_awlock
-  io.sb_axi_awcache := swerv.io.sb_axi_awcache
-  io.sb_axi_awprot := swerv.io.sb_axi_awprot
-  io.sb_axi_awqos := swerv.io.sb_axi_awqos
-
-  io.sb_axi_wvalid:= swerv.io.sb_axi_wvalid
-  io.sb_axi_wdata := swerv.io.sb_axi_wdata
-  io.sb_axi_wstrb := swerv.io.sb_axi_wstrb
-  io.sb_axi_wlast := swerv.io.sb_axi_wlast
-  io.sb_axi_bready := swerv.io.sb_axi_bready
-
-  // AXI Read Channels
-  io.sb_axi_arvalid := swerv.io.sb_axi_arvalid
-  io.sb_axi_arid := swerv.io.sb_axi_arid
-  io.sb_axi_araddr := swerv.io.sb_axi_araddr
-  io.sb_axi_arregion := swerv.io.sb_axi_arregion
-  io.sb_axi_arlen := swerv.io.sb_axi_arlen
-  io.sb_axi_arsize := swerv.io.sb_axi_arsize
-  io.sb_axi_arburst := swerv.io.sb_axi_arburst
-  io.sb_axi_arlock := swerv.io.sb_axi_arlock
-  io.sb_axi_arcache := swerv.io.sb_axi_arcache
-  io.sb_axi_arprot := swerv.io.sb_axi_arprot
-  io.sb_axi_arqos := swerv.io.sb_axi_arqos
-  io.sb_axi_rready := swerv.io.sb_axi_rready
-  //-------------------------- DMA AXI signals--------------------------
+//  io.sb_axi_awvalid := swerv.io.sb_axi_awvalid
+//  io.sb_axi_awid := swerv.io.sb_axi_awid
+//  io.sb_axi_awaddr := swerv.io.sb_axi_awaddr
+//  io.sb_axi_awregion := swerv.io.sb_axi_awregion
+//  io.sb_axi_awlen := swerv.io.sb_axi_awlen
+//  io.sb_axi_awsize := swerv.io.sb_axi_awsize
+//  io.sb_axi_awburst := swerv.io.sb_axi_awburst
+//  io.sb_axi_awlock := swerv.io.sb_axi_awlock
+//  io.sb_axi_awcache := swerv.io.sb_axi_awcache
+//  io.sb_axi_awprot := swerv.io.sb_axi_awprot
+//  io.sb_axi_awqos := swerv.io.sb_axi_awqos
+//
+//  io.sb_axi_wvalid:= swerv.io.sb_axi_wvalid
+//  io.sb_axi_wdata := swerv.io.sb_axi_wdata
+//  io.sb_axi_wstrb := swerv.io.sb_axi_wstrb
+//  io.sb_axi_wlast := swerv.io.sb_axi_wlast
+//  io.sb_axi_bready := swerv.io.sb_axi_bready
+//
+//  // AXI Read Channels
+//  io.sb_axi_arvalid := swerv.io.sb_axi_arvalid
+//  io.sb_axi_arid := swerv.io.sb_axi_arid
+//  io.sb_axi_araddr := swerv.io.sb_axi_araddr
+//  io.sb_axi_arregion := swerv.io.sb_axi_arregion
+//  io.sb_axi_arlen := swerv.io.sb_axi_arlen
+//  io.sb_axi_arsize := swerv.io.sb_axi_arsize
+//  io.sb_axi_arburst := swerv.io.sb_axi_arburst
+//  io.sb_axi_arlock := swerv.io.sb_axi_arlock
+//  io.sb_axi_arcache := swerv.io.sb_axi_arcache
+//  io.sb_axi_arprot := swerv.io.sb_axi_arprot
+//  io.sb_axi_arqos := swerv.io.sb_axi_arqos
+//  io.sb_axi_rready := swerv.io.sb_axi_rready
+//  //-------------------------- DMA AXI signals--------------------------
   // AXI Write Channels
-  io.dma_axi_awready := swerv.io.dma_axi_awready
-  io.dma_axi_wready := swerv.io.dma_axi_wready
-
-  io.dma_axi_bvalid := swerv.io.dma_axi_bvalid
-  io.dma_axi_bresp := swerv.io.dma_axi_bresp
-  io.dma_axi_bid := swerv.io.dma_axi_bid
-
-  // AXI Read Channels
-  io.dma_axi_arready := swerv.io.dma_axi_arready
-  io.dma_axi_rvalid := swerv.io.dma_axi_rvalid
-  io.dma_axi_rid := swerv.io.dma_axi_rid
-  io.dma_axi_rdata := swerv.io.dma_axi_rdata
-  io.dma_axi_rresp := swerv.io.dma_axi_rresp
-  io.dma_axi_rlast := swerv.io.dma_axi_rlast
+//  io.dma_axi_awready := swerv.io.dma_axi_awready
+//  io.dma_axi_wready := swerv.io.dma_axi_wready
+//
+//  io.dma_axi_bvalid := swerv.io.dma_axi_bvalid
+//  io.dma_axi_bresp := swerv.io.dma_axi_bresp
+//  io.dma_axi_bid := swerv.io.dma_axi_bid
+//
+//  // AXI Read Channels
+//  io.dma_axi_arready := swerv.io.dma_axi_arready
+//  io.dma_axi_rvalid := swerv.io.dma_axi_rvalid
+//  io.dma_axi_rid := swerv.io.dma_axi_rid
+//  io.dma_axi_rdata := swerv.io.dma_axi_rdata
+//  io.dma_axi_rresp := swerv.io.dma_axi_rresp
+//  io.dma_axi_rlast := swerv.io.dma_axi_rlast
 
   // DMA Slave
   io.dma_hrdata := swerv.io.dma_hrdata

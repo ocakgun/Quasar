@@ -186,7 +186,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 
   val iccm_dma_sb_error             = Input(Bool())            // ICCM DMA single bit error
 
-//  val exu_flush_final               = Input(Bool())             // slot0 flush
+  val exu_flush_final               = Input(Bool())             // slot0 flush
 
 //  val exu_npc_r                     = Input(UInt(31.W))            // next PC
 
@@ -446,7 +446,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
 //  decode.io.exu_csr_rs1_x                      :=  io.exu_csr_rs1_x
   decode.io.lsu_result_m                       :=  io.lsu_result_m
   decode.io.lsu_result_corr_r                  :=  io.lsu_result_corr_r
-//  decode.io.exu_flush_final                    :=  io.exu_flush_final
+  decode.io.exu_flush_final                    :=  io.exu_flush_final
 //  decode.io.exu_i0_pc_x                        :=  io.exu_i0_pc_x
   decode.io.dec_i0_instr_d                     :=  instbuff.io.dec_i0_instr_d
   decode.io.dec_ib0_valid_d                    :=  instbuff.io.dec_ib0_valid_d

@@ -32,10 +32,10 @@ class el2_pic_ctrl extends Module with RequireAsyncReset with el2_lib {
   def el2_cmp_and_mux (a_id : UInt, a_priority : UInt, b_id : UInt, b_priority : UInt) =
     (Mux(a_priority<b_priority, b_id, a_id), Mux(a_priority<b_priority, b_priority, a_priority))
 
-  def el2_configurable_gw (extintsrc_req_sync : UInt, meigwctrl_polarity : UInt, meigwctrl_type : UInt, meigwclr : UInt) = {
+  def el2_configurable_gw (clk : Clock, extintsrc_req_sync : UInt, meigwctrl_polarity : UInt, meigwctrl_type : UInt, meigwclr : UInt) = {
     val gw_int_pending = WireInit(UInt(1.W),0.U)
     val gw_int_pending_in =  (extintsrc_req_sync ^ meigwctrl_polarity) | (gw_int_pending & !meigwclr)
-    gw_int_pending := RegNext(gw_int_pending_in,0.U)
+    gw_int_pending := withClock(clk){RegNext(gw_int_pending_in,0.U)}
     Mux(meigwctrl_type.asBool(), ((extintsrc_req_sync ^  meigwctrl_polarity) | gw_int_pending), (extintsrc_req_sync ^  meigwctrl_polarity))
   }
 
@@ -69,7 +69,7 @@ class el2_pic_ctrl extends Module with RequireAsyncReset with el2_lib {
   val GW_CONFIG = WireInit(UInt(PIC_TOTAL_INT_PLUS1.W), init=0.U)
 
   val intpend_rd_out               = WireInit(0.U(32.W))
-  val intenable_rd_out             = WireInit(0.U(1.W))
+//  val intenable_rd_out             = WireInit(0.U(1.W))
   val intpriority_reg_inv          = Wire(Vec(PIC_TOTAL_INT_PLUS1,UInt(INTPRIORITY_BITS.W)))
   val intpend_reg_extended         = WireInit(0.U (INTPEND_SIZE.W))
   val selected_int_priority        = WireInit(0.U (INTPRIORITY_BITS.W))
@@ -159,7 +159,7 @@ class el2_pic_ctrl extends Module with RequireAsyncReset with el2_lib {
   (0 until PIC_TOTAL_INT_PLUS1).map (i => if(i>0){ gw_config_reg(i)  := withClock(gw_config_c1_clk){RegEnable(picm_wr_data_ff(1,0),0.U,gw_config_reg_we(i).asBool)}} else  gw_config_reg(i)  := 0.U(2.W))
 
   val extintsrc_req_gw =  (0 until PIC_TOTAL_INT_PLUS1).map(i=>if(i>0)
-    el2_configurable_gw(extintsrc_req_sync(i), gw_config_reg(i)(0), gw_config_reg(i)(1), gw_clear_reg_we(i).asBool())
+    el2_configurable_gw(io.free_clk, extintsrc_req_sync(i), gw_config_reg(i)(0), gw_config_reg(i)(1), gw_clear_reg_we(i).asBool())
   else 0.U)
 
   //val intpriord = WireInit(Bool(), false.B)
@@ -287,10 +287,10 @@ class el2_pic_ctrl extends Module with RequireAsyncReset with el2_lib {
   intpend_reg_extended  := Cat(Fill(INTPEND_SIZE-PIC_TOTAL_INT_PLUS1,0.U),(0 until PIC_TOTAL_INT_PLUS1/*extintsrc_req_gw.size*/).map(i => extintsrc_req_gw(i)).reverse.reduce(Cat(_,_)))
 
   val intpend_rd_part_out = Wire(Vec(INT_GRPS,UInt(32.W)))
-    (0 until INT_GRPS).map (i=> intpend_rd_part_out(i) := Fill(32,(intpend_reg_read & picm_raddr_ff(5,2)) === i.asUInt) & intpend_reg_extended((32*i)+31,32*i))//.reverse.reduce(Cat(_,_))
+    (0 until INT_GRPS).map (i=> intpend_rd_part_out(i) := Fill(32,(intpend_reg_read & (picm_raddr_ff(5,2) === i.asUInt)) & intpend_reg_extended((32*i)+31,32*i)))//.reverse.reduce(Cat(_,_))
   intpend_rd_out         := (0 until INT_GRPS).map (i=>intpend_rd_part_out(i)).reduce (_|_)
-  for(i <- 0 until PIC_TOTAL_INT_PLUS1) { when (intenable_reg_re(i).asBool){ intenable_rd_out := intenable_reg(i)}.otherwise {intenable_rd_out :=0.U} }
-
+  //for(i <- 0 until PIC_TOTAL_INT_PLUS1) { when (intenable_reg_re(i).asBool){ intenable_rd_out := intenable_reg(i)}.otherwise {intenable_rd_out :=0.U} }
+  val intenable_rd_out = MuxCase(0.U,(0 until PIC_TOTAL_INT_PLUS1).map (i=> intenable_reg_re(i).asBool -> intenable_reg(i) ))
   val intpriority_rd_out  = MuxCase(0.U,(0 until PIC_TOTAL_INT_PLUS1).map (i=> intpriority_reg_re(i).asBool -> intpriority_reg(i)))
   val gw_config_rd_out    = MuxCase(0.U,(0 until PIC_TOTAL_INT_PLUS1).map (i=> gw_config_reg_re(i).asBool -> gw_config_reg(i)))
   //////////////////////////////////////////////////////////////////////////////////////////////////

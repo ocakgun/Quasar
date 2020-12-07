@@ -492,12 +492,12 @@ module el2_exu_div_ctl(
   input         io_scan_mode,
   input  [31:0] io_dividend,
   input  [31:0] io_divisor,
+  output [31:0] io_exu_div_result,
+  output        io_exu_div_wren,
   input         io_dec_div_div_p_valid,
   input         io_dec_div_div_p_bits_unsign,
   input         io_dec_div_div_p_bits_rem,
-  input         io_dec_div_dec_div_cancel,
-  output [31:0] io_dec_div_exu_div_result,
-  output        io_dec_div_exu_div_wren
+  input         io_dec_div_dec_div_cancel
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_0;
@@ -1081,8 +1081,8 @@ module el2_exu_div_ctl(
     .io_en(rvclkhdr_3_io_en),
     .io_scan_mode(rvclkhdr_3_io_scan_mode)
   );
-  assign io_dec_div_exu_div_result = _T_1389 | _T_1388; // @[el2_exu_div_ctl.scala 196:29]
-  assign io_dec_div_exu_div_wren = finish_ff & _T; // @[el2_exu_div_ctl.scala 166:28]
+  assign io_exu_div_result = _T_1389 | _T_1388; // @[el2_exu_div_ctl.scala 196:21]
+  assign io_exu_div_wren = finish_ff & _T; // @[el2_exu_div_ctl.scala 166:20]
   assign rvclkhdr_io_clk = clock; // @[el2_lib.scala 484:17]
   assign rvclkhdr_io_en = _T_610 | finish_ff; // @[el2_lib.scala 485:16]
   assign rvclkhdr_io_scan_mode = io_scan_mode; // @[el2_lib.scala 486:23]
@@ -1321,6 +1321,7 @@ endmodule
 module el2_exu(
   input         clock,
   input         reset,
+  input         io_scan_mode,
   input         io_dec_exu_dec_alu_dec_i0_alu_decode_d,
   input         io_dec_exu_dec_alu_dec_csr_ren_d,
   input  [11:0] io_dec_exu_dec_alu_dec_i0_br_immed_d,
@@ -1330,8 +1331,6 @@ module el2_exu(
   input         io_dec_exu_dec_div_div_p_bits_unsign,
   input         io_dec_exu_dec_div_div_p_bits_rem,
   input         io_dec_exu_dec_div_dec_div_cancel,
-  output [31:0] io_dec_exu_dec_div_exu_div_result,
-  output        io_dec_exu_dec_div_exu_div_wren,
   input  [1:0]  io_dec_exu_decode_exu_dec_data_en,
   input  [1:0]  io_dec_exu_decode_exu_dec_ctl_en,
   input         io_dec_exu_decode_exu_i0_ap_land,
@@ -1400,50 +1399,51 @@ module el2_exu(
   input  [30:0] io_dec_exu_decode_exu_pred_correct_npc_x,
   input         io_dec_exu_decode_exu_dec_extint_stall,
   output [31:0] io_dec_exu_decode_exu_exu_i0_result_x,
-  output [1:0]  io_dec_exu_decode_exu_exu_i0_br_hist_r,
-  output        io_dec_exu_decode_exu_exu_i0_br_error_r,
-  output        io_dec_exu_decode_exu_exu_i0_br_start_error_r,
-  output [7:0]  io_dec_exu_decode_exu_exu_i0_br_index_r,
-  output        io_dec_exu_decode_exu_exu_i0_br_valid_r,
-  output        io_dec_exu_decode_exu_exu_i0_br_mp_r,
-  output        io_dec_exu_decode_exu_exu_i0_br_middle_r,
-  output [7:0]  io_dec_exu_decode_exu_exu_i0_br_fghr_r,
-  output        io_dec_exu_decode_exu_exu_i0_br_way_r,
-  output        io_dec_exu_decode_exu_exu_pmu_i0_br_misp,
-  output        io_dec_exu_decode_exu_exu_pmu_i0_br_ataken,
-  output        io_dec_exu_decode_exu_exu_pmu_i0_pc4,
   output [31:0] io_dec_exu_decode_exu_exu_csr_rs1_x,
-  output [30:0] io_dec_exu_decode_exu_exu_npc_r,
-  input  [31:0] io_dec_exu_decode_exu_dbg_cmd_wrdata,
   input  [29:0] io_dec_exu_tlu_exu_dec_tlu_meihap,
   input         io_dec_exu_tlu_exu_dec_tlu_flush_lower_r,
   input  [30:0] io_dec_exu_tlu_exu_dec_tlu_flush_path_r,
+  output [1:0]  io_dec_exu_tlu_exu_exu_i0_br_hist_r,
+  output        io_dec_exu_tlu_exu_exu_i0_br_error_r,
+  output        io_dec_exu_tlu_exu_exu_i0_br_start_error_r,
+  output [7:0]  io_dec_exu_tlu_exu_exu_i0_br_index_r,
+  output        io_dec_exu_tlu_exu_exu_i0_br_valid_r,
+  output        io_dec_exu_tlu_exu_exu_i0_br_mp_r,
+  output        io_dec_exu_tlu_exu_exu_i0_br_middle_r,
+  output        io_dec_exu_tlu_exu_exu_pmu_i0_br_misp,
+  output        io_dec_exu_tlu_exu_exu_pmu_i0_br_ataken,
+  output        io_dec_exu_tlu_exu_exu_pmu_i0_pc4,
+  output [30:0] io_dec_exu_tlu_exu_exu_npc_r,
   input  [30:0] io_dec_exu_ib_exu_dec_i0_pc_d,
   input         io_dec_exu_ib_exu_dec_debug_wdata_rs1_d,
   input  [31:0] io_dec_exu_gpr_exu_gpr_i0_rs1_d,
   input  [31:0] io_dec_exu_gpr_exu_gpr_i0_rs2_d,
-  input         io_scan_mode,
+  output [7:0]  io_exu_bp_exu_i0_br_fghr_r,
+  output        io_exu_bp_exu_i0_br_way_r,
+  output        io_exu_bp_exu_mp_pkt_valid,
+  output        io_exu_bp_exu_mp_pkt_bits_misp,
+  output        io_exu_bp_exu_mp_pkt_bits_ataken,
+  output        io_exu_bp_exu_mp_pkt_bits_boffset,
+  output        io_exu_bp_exu_mp_pkt_bits_pc4,
+  output [1:0]  io_exu_bp_exu_mp_pkt_bits_hist,
+  output [11:0] io_exu_bp_exu_mp_pkt_bits_toffset,
+  output        io_exu_bp_exu_mp_pkt_bits_br_error,
+  output        io_exu_bp_exu_mp_pkt_bits_br_start_error,
+  output [30:0] io_exu_bp_exu_mp_pkt_bits_prett,
+  output        io_exu_bp_exu_mp_pkt_bits_pcall,
+  output        io_exu_bp_exu_mp_pkt_bits_pret,
+  output        io_exu_bp_exu_mp_pkt_bits_pja,
+  output        io_exu_bp_exu_mp_pkt_bits_way,
+  output [7:0]  io_exu_bp_exu_mp_eghr,
+  output [7:0]  io_exu_bp_exu_mp_fghr,
+  output [7:0]  io_exu_bp_exu_mp_index,
+  output [4:0]  io_exu_bp_exu_mp_btag,
+  output [31:0] io_exu_div_result,
+  output        io_exu_div_wren,
+  input  [31:0] io_dbg_cmd_wrdata,
   output [31:0] io_exu_lsu_rs1_d,
   output [31:0] io_exu_lsu_rs2_d,
-  output [30:0] io_exu_flush_path_final,
-  output        io_exu_mp_pkt_valid,
-  output        io_exu_mp_pkt_bits_misp,
-  output        io_exu_mp_pkt_bits_ataken,
-  output        io_exu_mp_pkt_bits_boffset,
-  output        io_exu_mp_pkt_bits_pc4,
-  output [1:0]  io_exu_mp_pkt_bits_hist,
-  output [11:0] io_exu_mp_pkt_bits_toffset,
-  output        io_exu_mp_pkt_bits_br_error,
-  output        io_exu_mp_pkt_bits_br_start_error,
-  output [30:0] io_exu_mp_pkt_bits_prett,
-  output        io_exu_mp_pkt_bits_pcall,
-  output        io_exu_mp_pkt_bits_pret,
-  output        io_exu_mp_pkt_bits_pja,
-  output        io_exu_mp_pkt_bits_way,
-  output [7:0]  io_exu_mp_eghr,
-  output [7:0]  io_exu_mp_fghr,
-  output [7:0]  io_exu_mp_index,
-  output [4:0]  io_exu_mp_btag
+  output [30:0] io_exu_flush_path_final
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_0;
@@ -1557,89 +1557,89 @@ module el2_exu(
   wire  rvclkhdr_17_io_clk; // @[el2_lib.scala 508:23]
   wire  rvclkhdr_17_io_en; // @[el2_lib.scala 508:23]
   wire  rvclkhdr_17_io_scan_mode; // @[el2_lib.scala 508:23]
-  wire  i_alu_clock; // @[el2_exu.scala 220:19]
-  wire  i_alu_reset; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_dec_alu_dec_i0_alu_decode_d; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_dec_alu_dec_csr_ren_d; // @[el2_exu.scala 220:19]
-  wire [11:0] i_alu_io_dec_alu_dec_i0_br_immed_d; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_dec_alu_exu_flush_final; // @[el2_exu.scala 220:19]
-  wire [30:0] i_alu_io_dec_alu_exu_i0_pc_x; // @[el2_exu.scala 220:19]
-  wire [30:0] i_alu_io_dec_i0_pc_d; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_scan_mode; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_flush_upper_x; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_dec_tlu_flush_lower_r; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_enable; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_land; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_lor; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_lxor; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_sll; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_srl; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_sra; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_beq; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_bne; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_blt; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_bge; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_add; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_sub; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_slt; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_unsign; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_jal; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_predict_t; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_predict_nt; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_csr_write; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_i0_ap_csr_imm; // @[el2_exu.scala 220:19]
-  wire [31:0] i_alu_io_a_in; // @[el2_exu.scala 220:19]
-  wire [31:0] i_alu_io_b_in; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_pp_in_valid; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_pp_in_bits_boffset; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_pp_in_bits_pc4; // @[el2_exu.scala 220:19]
-  wire [1:0] i_alu_io_pp_in_bits_hist; // @[el2_exu.scala 220:19]
-  wire [11:0] i_alu_io_pp_in_bits_toffset; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_pp_in_bits_br_error; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_pp_in_bits_br_start_error; // @[el2_exu.scala 220:19]
-  wire [30:0] i_alu_io_pp_in_bits_prett; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_pp_in_bits_pcall; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_pp_in_bits_pret; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_pp_in_bits_pja; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_pp_in_bits_way; // @[el2_exu.scala 220:19]
-  wire [31:0] i_alu_io_result_ff; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_flush_upper_out; // @[el2_exu.scala 220:19]
-  wire [30:0] i_alu_io_flush_path_out; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_pred_correct_out; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_predict_p_out_valid; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_predict_p_out_bits_misp; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_predict_p_out_bits_ataken; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_predict_p_out_bits_boffset; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_predict_p_out_bits_pc4; // @[el2_exu.scala 220:19]
-  wire [1:0] i_alu_io_predict_p_out_bits_hist; // @[el2_exu.scala 220:19]
-  wire [11:0] i_alu_io_predict_p_out_bits_toffset; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_predict_p_out_bits_br_error; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_predict_p_out_bits_br_start_error; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_predict_p_out_bits_pcall; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_predict_p_out_bits_pret; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_predict_p_out_bits_pja; // @[el2_exu.scala 220:19]
-  wire  i_alu_io_predict_p_out_bits_way; // @[el2_exu.scala 220:19]
-  wire  i_mul_clock; // @[el2_exu.scala 237:19]
-  wire  i_mul_reset; // @[el2_exu.scala 237:19]
-  wire  i_mul_io_scan_mode; // @[el2_exu.scala 237:19]
-  wire  i_mul_io_mul_p_valid; // @[el2_exu.scala 237:19]
-  wire  i_mul_io_mul_p_bits_rs1_sign; // @[el2_exu.scala 237:19]
-  wire  i_mul_io_mul_p_bits_rs2_sign; // @[el2_exu.scala 237:19]
-  wire  i_mul_io_mul_p_bits_low; // @[el2_exu.scala 237:19]
-  wire [31:0] i_mul_io_rs1_in; // @[el2_exu.scala 237:19]
-  wire [31:0] i_mul_io_rs2_in; // @[el2_exu.scala 237:19]
-  wire [31:0] i_mul_io_result_x; // @[el2_exu.scala 237:19]
-  wire  i_div_clock; // @[el2_exu.scala 244:19]
-  wire  i_div_reset; // @[el2_exu.scala 244:19]
-  wire  i_div_io_scan_mode; // @[el2_exu.scala 244:19]
-  wire [31:0] i_div_io_dividend; // @[el2_exu.scala 244:19]
-  wire [31:0] i_div_io_divisor; // @[el2_exu.scala 244:19]
-  wire  i_div_io_dec_div_div_p_valid; // @[el2_exu.scala 244:19]
-  wire  i_div_io_dec_div_div_p_bits_unsign; // @[el2_exu.scala 244:19]
-  wire  i_div_io_dec_div_div_p_bits_rem; // @[el2_exu.scala 244:19]
-  wire  i_div_io_dec_div_dec_div_cancel; // @[el2_exu.scala 244:19]
-  wire [31:0] i_div_io_dec_div_exu_div_result; // @[el2_exu.scala 244:19]
-  wire  i_div_io_dec_div_exu_div_wren; // @[el2_exu.scala 244:19]
+  wire  i_alu_clock; // @[el2_exu.scala 219:19]
+  wire  i_alu_reset; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_dec_alu_dec_i0_alu_decode_d; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_dec_alu_dec_csr_ren_d; // @[el2_exu.scala 219:19]
+  wire [11:0] i_alu_io_dec_alu_dec_i0_br_immed_d; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_dec_alu_exu_flush_final; // @[el2_exu.scala 219:19]
+  wire [30:0] i_alu_io_dec_alu_exu_i0_pc_x; // @[el2_exu.scala 219:19]
+  wire [30:0] i_alu_io_dec_i0_pc_d; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_scan_mode; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_flush_upper_x; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_dec_tlu_flush_lower_r; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_enable; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_land; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_lor; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_lxor; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_sll; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_srl; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_sra; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_beq; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_bne; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_blt; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_bge; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_add; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_sub; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_slt; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_unsign; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_jal; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_predict_t; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_predict_nt; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_csr_write; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_i0_ap_csr_imm; // @[el2_exu.scala 219:19]
+  wire [31:0] i_alu_io_a_in; // @[el2_exu.scala 219:19]
+  wire [31:0] i_alu_io_b_in; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_pp_in_valid; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_pp_in_bits_boffset; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_pp_in_bits_pc4; // @[el2_exu.scala 219:19]
+  wire [1:0] i_alu_io_pp_in_bits_hist; // @[el2_exu.scala 219:19]
+  wire [11:0] i_alu_io_pp_in_bits_toffset; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_pp_in_bits_br_error; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_pp_in_bits_br_start_error; // @[el2_exu.scala 219:19]
+  wire [30:0] i_alu_io_pp_in_bits_prett; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_pp_in_bits_pcall; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_pp_in_bits_pret; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_pp_in_bits_pja; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_pp_in_bits_way; // @[el2_exu.scala 219:19]
+  wire [31:0] i_alu_io_result_ff; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_flush_upper_out; // @[el2_exu.scala 219:19]
+  wire [30:0] i_alu_io_flush_path_out; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_pred_correct_out; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_predict_p_out_valid; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_predict_p_out_bits_misp; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_predict_p_out_bits_ataken; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_predict_p_out_bits_boffset; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_predict_p_out_bits_pc4; // @[el2_exu.scala 219:19]
+  wire [1:0] i_alu_io_predict_p_out_bits_hist; // @[el2_exu.scala 219:19]
+  wire [11:0] i_alu_io_predict_p_out_bits_toffset; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_predict_p_out_bits_br_error; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_predict_p_out_bits_br_start_error; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_predict_p_out_bits_pcall; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_predict_p_out_bits_pret; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_predict_p_out_bits_pja; // @[el2_exu.scala 219:19]
+  wire  i_alu_io_predict_p_out_bits_way; // @[el2_exu.scala 219:19]
+  wire  i_mul_clock; // @[el2_exu.scala 236:19]
+  wire  i_mul_reset; // @[el2_exu.scala 236:19]
+  wire  i_mul_io_scan_mode; // @[el2_exu.scala 236:19]
+  wire  i_mul_io_mul_p_valid; // @[el2_exu.scala 236:19]
+  wire  i_mul_io_mul_p_bits_rs1_sign; // @[el2_exu.scala 236:19]
+  wire  i_mul_io_mul_p_bits_rs2_sign; // @[el2_exu.scala 236:19]
+  wire  i_mul_io_mul_p_bits_low; // @[el2_exu.scala 236:19]
+  wire [31:0] i_mul_io_rs1_in; // @[el2_exu.scala 236:19]
+  wire [31:0] i_mul_io_rs2_in; // @[el2_exu.scala 236:19]
+  wire [31:0] i_mul_io_result_x; // @[el2_exu.scala 236:19]
+  wire  i_div_clock; // @[el2_exu.scala 243:19]
+  wire  i_div_reset; // @[el2_exu.scala 243:19]
+  wire  i_div_io_scan_mode; // @[el2_exu.scala 243:19]
+  wire [31:0] i_div_io_dividend; // @[el2_exu.scala 243:19]
+  wire [31:0] i_div_io_divisor; // @[el2_exu.scala 243:19]
+  wire [31:0] i_div_io_exu_div_result; // @[el2_exu.scala 243:19]
+  wire  i_div_io_exu_div_wren; // @[el2_exu.scala 243:19]
+  wire  i_div_io_dec_div_div_p_valid; // @[el2_exu.scala 243:19]
+  wire  i_div_io_dec_div_div_p_bits_unsign; // @[el2_exu.scala 243:19]
+  wire  i_div_io_dec_div_div_p_bits_rem; // @[el2_exu.scala 243:19]
+  wire  i_div_io_dec_div_dec_div_cancel; // @[el2_exu.scala 243:19]
   wire [15:0] _T = {io_dec_exu_decode_exu_i0_predict_fghr_d,io_dec_exu_decode_exu_i0_predict_index_d}; // @[Cat.scala 29:58]
   reg [30:0] i0_flush_path_x; // @[el2_lib.scala 514:16]
   reg [31:0] _T_3; // @[el2_lib.scala 514:16]
@@ -1677,79 +1677,79 @@ module el2_exu(
   reg [30:0] i0_flush_path_upper_r; // @[el2_lib.scala 514:16]
   reg [24:0] pred_temp2; // @[el2_lib.scala 514:16]
   wire [30:0] _T_23 = {pred_temp2,pred_temp1}; // @[Cat.scala 29:58]
-  wire  _T_149 = ~io_dec_exu_tlu_exu_dec_tlu_flush_lower_r; // @[el2_exu.scala 270:6]
-  wire  i0_predict_p_d_valid = i_alu_io_predict_p_out_valid; // @[el2_exu.scala 119:52 el2_exu.scala 234:41]
-  wire  _T_145 = i0_predict_p_d_valid & io_dec_exu_dec_alu_dec_i0_alu_decode_d; // @[el2_exu.scala 263:54]
-  wire  i0_valid_d = _T_145 & _T_149; // @[el2_exu.scala 263:95]
-  wire  _T_150 = _T_149 & i0_valid_d; // @[el2_exu.scala 270:48]
+  wire  _T_149 = ~io_dec_exu_tlu_exu_dec_tlu_flush_lower_r; // @[el2_exu.scala 269:6]
+  wire  i0_predict_p_d_valid = i_alu_io_predict_p_out_valid; // @[el2_exu.scala 118:52 el2_exu.scala 233:41]
+  wire  _T_145 = i0_predict_p_d_valid & io_dec_exu_dec_alu_dec_i0_alu_decode_d; // @[el2_exu.scala 262:54]
+  wire  i0_valid_d = _T_145 & _T_149; // @[el2_exu.scala 262:95]
+  wire  _T_150 = _T_149 & i0_valid_d; // @[el2_exu.scala 269:48]
   reg [7:0] ghr_d; // @[el2_lib.scala 514:16]
-  wire  i0_predict_p_d_bits_ataken = i_alu_io_predict_p_out_bits_ataken; // @[el2_exu.scala 119:52 el2_exu.scala 234:41]
-  wire  i0_taken_d = i0_predict_p_d_bits_ataken & io_dec_exu_dec_alu_dec_i0_alu_decode_d; // @[el2_exu.scala 264:59]
+  wire  i0_predict_p_d_bits_ataken = i_alu_io_predict_p_out_bits_ataken; // @[el2_exu.scala 118:52 el2_exu.scala 233:41]
+  wire  i0_taken_d = i0_predict_p_d_bits_ataken & io_dec_exu_dec_alu_dec_i0_alu_decode_d; // @[el2_exu.scala 263:59]
   wire [7:0] _T_153 = {ghr_d[6:0],i0_taken_d}; // @[Cat.scala 29:58]
   wire [7:0] _T_159 = _T_150 ? _T_153 : 8'h0; // @[Mux.scala 27:72]
-  wire  _T_155 = ~i0_valid_d; // @[el2_exu.scala 271:50]
-  wire  _T_156 = _T_149 & _T_155; // @[el2_exu.scala 271:48]
+  wire  _T_155 = ~i0_valid_d; // @[el2_exu.scala 270:50]
+  wire  _T_156 = _T_149 & _T_155; // @[el2_exu.scala 270:48]
   wire [7:0] _T_160 = _T_156 ? ghr_d : 8'h0; // @[Mux.scala 27:72]
   wire [7:0] _T_162 = _T_159 | _T_160; // @[Mux.scala 27:72]
   wire [7:0] _T_161 = io_dec_exu_tlu_exu_dec_tlu_flush_lower_r ? ghr_x : 8'h0; // @[Mux.scala 27:72]
   wire [7:0] ghr_d_ns = _T_162 | _T_161; // @[Mux.scala 27:72]
-  wire  _T_39 = ghr_d_ns != ghr_d; // @[el2_exu.scala 167:39]
+  wire  _T_39 = ghr_d_ns != ghr_d; // @[el2_exu.scala 166:39]
   reg  mul_valid_x; // @[el2_lib.scala 514:16]
-  wire  _T_40 = io_dec_exu_decode_exu_mul_p_valid != mul_valid_x; // @[el2_exu.scala 167:89]
-  wire  _T_41 = _T_39 | _T_40; // @[el2_exu.scala 167:50]
+  wire  _T_40 = io_dec_exu_decode_exu_mul_p_valid != mul_valid_x; // @[el2_exu.scala 166:89]
+  wire  _T_41 = _T_39 | _T_40; // @[el2_exu.scala 166:50]
   reg  flush_lower_ff; // @[el2_lib.scala 514:16]
-  wire  _T_42 = io_dec_exu_tlu_exu_dec_tlu_flush_lower_r != flush_lower_ff; // @[el2_exu.scala 167:151]
-  wire  i0_rs1_bypass_en_d = io_dec_exu_decode_exu_dec_i0_rs1_bypass_en_d[0] | io_dec_exu_decode_exu_dec_i0_rs1_bypass_en_d[1]; // @[el2_exu.scala 168:84]
-  wire  i0_rs2_bypass_en_d = io_dec_exu_decode_exu_dec_i0_rs2_bypass_en_d[0] | io_dec_exu_decode_exu_dec_i0_rs2_bypass_en_d[1]; // @[el2_exu.scala 169:84]
+  wire  _T_42 = io_dec_exu_tlu_exu_dec_tlu_flush_lower_r != flush_lower_ff; // @[el2_exu.scala 166:151]
+  wire  i0_rs1_bypass_en_d = io_dec_exu_decode_exu_dec_i0_rs1_bypass_en_d[0] | io_dec_exu_decode_exu_dec_i0_rs1_bypass_en_d[1]; // @[el2_exu.scala 167:84]
+  wire  i0_rs2_bypass_en_d = io_dec_exu_decode_exu_dec_i0_rs2_bypass_en_d[0] | io_dec_exu_decode_exu_dec_i0_rs2_bypass_en_d[1]; // @[el2_exu.scala 168:84]
   wire [31:0] _T_52 = io_dec_exu_decode_exu_dec_i0_rs1_bypass_en_d[0] ? io_dec_exu_decode_exu_dec_i0_rs1_bypass_data_d : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_53 = io_dec_exu_decode_exu_dec_i0_rs1_bypass_en_d[1] ? io_dec_exu_decode_exu_exu_i0_result_x : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] i0_rs1_bypass_data_d = _T_52 | _T_53; // @[Mux.scala 27:72]
   wire [31:0] _T_59 = io_dec_exu_decode_exu_dec_i0_rs2_bypass_en_d[0] ? io_dec_exu_decode_exu_dec_i0_rs2_bypass_data_d : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_60 = io_dec_exu_decode_exu_dec_i0_rs2_bypass_en_d[1] ? io_dec_exu_decode_exu_exu_i0_result_x : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] i0_rs2_bypass_data_d = _T_59 | _T_60; // @[Mux.scala 27:72]
-  wire  _T_63 = ~i0_rs1_bypass_en_d; // @[el2_exu.scala 183:6]
-  wire  _T_64 = _T_63 & io_dec_exu_decode_exu_dec_i0_select_pc_d; // @[el2_exu.scala 183:26]
+  wire  _T_63 = ~i0_rs1_bypass_en_d; // @[el2_exu.scala 182:6]
+  wire  _T_64 = _T_63 & io_dec_exu_decode_exu_dec_i0_select_pc_d; // @[el2_exu.scala 182:26]
   wire [31:0] _T_66 = {io_dec_exu_ib_exu_dec_i0_pc_d,1'h0}; // @[Cat.scala 29:58]
-  wire  _T_68 = _T_63 & io_dec_exu_ib_exu_dec_debug_wdata_rs1_d; // @[el2_exu.scala 184:26]
-  wire  _T_71 = ~io_dec_exu_ib_exu_dec_debug_wdata_rs1_d; // @[el2_exu.scala 185:28]
-  wire  _T_72 = _T_63 & _T_71; // @[el2_exu.scala 185:26]
-  wire  _T_73 = _T_72 & io_dec_exu_decode_exu_dec_i0_rs1_en_d; // @[el2_exu.scala 185:69]
+  wire  _T_68 = _T_63 & io_dec_exu_ib_exu_dec_debug_wdata_rs1_d; // @[el2_exu.scala 183:26]
+  wire  _T_71 = ~io_dec_exu_ib_exu_dec_debug_wdata_rs1_d; // @[el2_exu.scala 184:28]
+  wire  _T_72 = _T_63 & _T_71; // @[el2_exu.scala 184:26]
+  wire  _T_73 = _T_72 & io_dec_exu_decode_exu_dec_i0_rs1_en_d; // @[el2_exu.scala 184:69]
   wire [31:0] _T_75 = i0_rs1_bypass_en_d ? i0_rs1_bypass_data_d : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_76 = _T_64 ? _T_66 : 32'h0; // @[Mux.scala 27:72]
-  wire [31:0] _T_77 = _T_68 ? io_dec_exu_decode_exu_dbg_cmd_wrdata : 32'h0; // @[Mux.scala 27:72]
+  wire [31:0] _T_77 = _T_68 ? io_dbg_cmd_wrdata : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_78 = _T_73 ? io_dec_exu_gpr_exu_gpr_i0_rs1_d : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_79 = _T_75 | _T_76; // @[Mux.scala 27:72]
   wire [31:0] _T_80 = _T_79 | _T_77; // @[Mux.scala 27:72]
   wire [31:0] i0_rs1_d = _T_80 | _T_78; // @[Mux.scala 27:72]
-  wire  _T_82 = ~i0_rs2_bypass_en_d; // @[el2_exu.scala 189:6]
-  wire  _T_83 = _T_82 & io_dec_exu_decode_exu_dec_i0_rs2_en_d; // @[el2_exu.scala 189:26]
+  wire  _T_82 = ~i0_rs2_bypass_en_d; // @[el2_exu.scala 188:6]
+  wire  _T_83 = _T_82 & io_dec_exu_decode_exu_dec_i0_rs2_en_d; // @[el2_exu.scala 188:26]
   wire [31:0] _T_88 = _T_83 ? io_dec_exu_gpr_exu_gpr_i0_rs2_d : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_89 = _T_82 ? io_dec_exu_decode_exu_dec_i0_immed_d : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_90 = i0_rs2_bypass_en_d ? i0_rs2_bypass_data_d : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_91 = _T_88 | _T_89; // @[Mux.scala 27:72]
   wire [31:0] _T_92 = _T_91 | _T_90; // @[Mux.scala 27:72]
-  wire  _T_94 = ~io_dec_exu_decode_exu_dec_extint_stall; // @[el2_exu.scala 196:28]
-  wire  _T_95 = _T_63 & _T_94; // @[el2_exu.scala 196:26]
-  wire  _T_96 = _T_95 & io_dec_exu_decode_exu_dec_i0_rs1_en_d; // @[el2_exu.scala 196:68]
-  wire  _T_99 = i0_rs1_bypass_en_d & _T_94; // @[el2_exu.scala 197:25]
+  wire  _T_94 = ~io_dec_exu_decode_exu_dec_extint_stall; // @[el2_exu.scala 195:28]
+  wire  _T_95 = _T_63 & _T_94; // @[el2_exu.scala 195:26]
+  wire  _T_96 = _T_95 & io_dec_exu_decode_exu_dec_i0_rs1_en_d; // @[el2_exu.scala 195:68]
+  wire  _T_99 = i0_rs1_bypass_en_d & _T_94; // @[el2_exu.scala 196:25]
   wire [31:0] _T_102 = {io_dec_exu_tlu_exu_dec_tlu_meihap,2'h0}; // @[Cat.scala 29:58]
   wire [31:0] _T_103 = _T_96 ? io_dec_exu_gpr_exu_gpr_i0_rs1_d : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_104 = _T_99 ? i0_rs1_bypass_data_d : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_105 = io_dec_exu_decode_exu_dec_extint_stall ? _T_102 : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_106 = _T_103 | _T_104; // @[Mux.scala 27:72]
-  wire  _T_111 = _T_82 & _T_94; // @[el2_exu.scala 202:26]
-  wire  _T_112 = _T_111 & io_dec_exu_decode_exu_dec_i0_rs2_en_d; // @[el2_exu.scala 202:68]
-  wire  _T_115 = i0_rs2_bypass_en_d & _T_94; // @[el2_exu.scala 203:25]
+  wire  _T_111 = _T_82 & _T_94; // @[el2_exu.scala 201:26]
+  wire  _T_112 = _T_111 & io_dec_exu_decode_exu_dec_i0_rs2_en_d; // @[el2_exu.scala 201:68]
+  wire  _T_115 = i0_rs2_bypass_en_d & _T_94; // @[el2_exu.scala 202:25]
   wire [31:0] _T_117 = _T_112 ? io_dec_exu_gpr_exu_gpr_i0_rs2_d : 32'h0; // @[Mux.scala 27:72]
   wire [31:0] _T_118 = _T_115 ? i0_rs2_bypass_data_d : 32'h0; // @[Mux.scala 27:72]
-  wire  _T_122 = _T_63 & io_dec_exu_decode_exu_dec_i0_rs1_en_d; // @[el2_exu.scala 207:26]
+  wire  _T_122 = _T_63 & io_dec_exu_decode_exu_dec_i0_rs1_en_d; // @[el2_exu.scala 206:26]
   wire [31:0] _T_125 = _T_122 ? io_dec_exu_gpr_exu_gpr_i0_rs1_d : 32'h0; // @[Mux.scala 27:72]
   wire [7:0] _T_167 = {ghr_x[6:0],i0_taken_x}; // @[Cat.scala 29:58]
-  wire [20:0] final_predpipe_mp = i0_flush_upper_x ? predpipe_x : 21'h0; // @[el2_exu.scala 288:49]
-  wire  _T_179 = i0_flush_upper_x & _T_149; // @[el2_exu.scala 290:67]
-  wire [30:0] i0_flush_path_d = i_alu_io_flush_path_out; // @[el2_exu.scala 118:52 el2_exu.scala 233:41]
-  wire [31:0] pred_correct_npc_r = {{1'd0}, _T_23}; // @[el2_exu.scala 123:50 el2_exu.scala 154:41]
-  wire [31:0] _T_188 = i0_pred_correct_upper_r ? pred_correct_npc_r : {{1'd0}, i0_flush_path_upper_r}; // @[el2_exu.scala 308:80]
+  wire [20:0] final_predpipe_mp = i0_flush_upper_x ? predpipe_x : 21'h0; // @[el2_exu.scala 287:49]
+  wire  _T_179 = i0_flush_upper_x & _T_149; // @[el2_exu.scala 289:67]
+  wire [30:0] i0_flush_path_d = i_alu_io_flush_path_out; // @[el2_exu.scala 117:52 el2_exu.scala 232:41]
+  wire [31:0] pred_correct_npc_r = {{1'd0}, _T_23}; // @[el2_exu.scala 122:50 el2_exu.scala 153:41]
+  wire [31:0] _T_188 = i0_pred_correct_upper_r ? pred_correct_npc_r : {{1'd0}, i0_flush_path_upper_r}; // @[el2_exu.scala 307:72]
   wire [31:0] i0_rs2_d = _T_92; // @[Mux.scala 27:72 Mux.scala 27:72]
   rvclkhdr rvclkhdr ( // @[el2_lib.scala 508:23]
     .io_l1clk(rvclkhdr_io_l1clk),
@@ -1859,7 +1859,7 @@ module el2_exu(
     .io_en(rvclkhdr_17_io_en),
     .io_scan_mode(rvclkhdr_17_io_scan_mode)
   );
-  el2_exu_alu_ctl i_alu ( // @[el2_exu.scala 220:19]
+  el2_exu_alu_ctl i_alu ( // @[el2_exu.scala 219:19]
     .clock(i_alu_clock),
     .reset(i_alu_reset),
     .io_dec_alu_dec_i0_alu_decode_d(i_alu_io_dec_alu_dec_i0_alu_decode_d),
@@ -1923,7 +1923,7 @@ module el2_exu(
     .io_predict_p_out_bits_pja(i_alu_io_predict_p_out_bits_pja),
     .io_predict_p_out_bits_way(i_alu_io_predict_p_out_bits_way)
   );
-  el2_exu_mul_ctl i_mul ( // @[el2_exu.scala 237:19]
+  el2_exu_mul_ctl i_mul ( // @[el2_exu.scala 236:19]
     .clock(i_mul_clock),
     .reset(i_mul_reset),
     .io_scan_mode(i_mul_io_scan_mode),
@@ -1935,59 +1935,59 @@ module el2_exu(
     .io_rs2_in(i_mul_io_rs2_in),
     .io_result_x(i_mul_io_result_x)
   );
-  el2_exu_div_ctl i_div ( // @[el2_exu.scala 244:19]
+  el2_exu_div_ctl i_div ( // @[el2_exu.scala 243:19]
     .clock(i_div_clock),
     .reset(i_div_reset),
     .io_scan_mode(i_div_io_scan_mode),
     .io_dividend(i_div_io_dividend),
     .io_divisor(i_div_io_divisor),
+    .io_exu_div_result(i_div_io_exu_div_result),
+    .io_exu_div_wren(i_div_io_exu_div_wren),
     .io_dec_div_div_p_valid(i_div_io_dec_div_div_p_valid),
     .io_dec_div_div_p_bits_unsign(i_div_io_dec_div_div_p_bits_unsign),
     .io_dec_div_div_p_bits_rem(i_div_io_dec_div_div_p_bits_rem),
-    .io_dec_div_dec_div_cancel(i_div_io_dec_div_dec_div_cancel),
-    .io_dec_div_exu_div_result(i_div_io_dec_div_exu_div_result),
-    .io_dec_div_exu_div_wren(i_div_io_dec_div_exu_div_wren)
+    .io_dec_div_dec_div_cancel(i_div_io_dec_div_dec_div_cancel)
   );
-  assign io_dec_exu_dec_alu_exu_flush_final = i_alu_io_dec_alu_exu_flush_final; // @[el2_exu.scala 221:20]
-  assign io_dec_exu_dec_alu_exu_i0_pc_x = i_alu_io_dec_alu_exu_i0_pc_x; // @[el2_exu.scala 221:20]
-  assign io_dec_exu_dec_div_exu_div_result = i_div_io_dec_div_exu_div_result; // @[el2_exu.scala 245:20]
-  assign io_dec_exu_dec_div_exu_div_wren = i_div_io_dec_div_exu_div_wren; // @[el2_exu.scala 245:20]
-  assign io_dec_exu_decode_exu_exu_i0_result_x = mul_valid_x ? i_mul_io_result_x : i_alu_io_result_ff; // @[el2_exu.scala 254:58]
-  assign io_dec_exu_decode_exu_exu_i0_br_hist_r = i0_pp_r_bits_hist; // @[el2_exu.scala 281:74]
-  assign io_dec_exu_decode_exu_exu_i0_br_error_r = i0_pp_r_bits_br_error; // @[el2_exu.scala 282:58]
-  assign io_dec_exu_decode_exu_exu_i0_br_start_error_r = i0_pp_r_bits_br_start_error; // @[el2_exu.scala 284:55]
-  assign io_dec_exu_decode_exu_exu_i0_br_index_r = predpipe_r[12:5]; // @[el2_exu.scala 286:66]
-  assign io_dec_exu_decode_exu_exu_i0_br_valid_r = i0_pp_r_valid; // @[el2_exu.scala 278:55]
-  assign io_dec_exu_decode_exu_exu_i0_br_mp_r = i0_pp_r_bits_misp; // @[el2_exu.scala 279:55]
-  assign io_dec_exu_decode_exu_exu_i0_br_middle_r = i0_pp_r_bits_pc4 ^ i0_pp_r_bits_boffset; // @[el2_exu.scala 283:55]
-  assign io_dec_exu_decode_exu_exu_i0_br_fghr_r = predpipe_r[20:13]; // @[el2_exu.scala 285:74]
-  assign io_dec_exu_decode_exu_exu_i0_br_way_r = i0_pp_r_bits_way; // @[el2_exu.scala 280:55]
-  assign io_dec_exu_decode_exu_exu_pmu_i0_br_misp = i0_pp_r_bits_misp; // @[el2_exu.scala 258:50]
-  assign io_dec_exu_decode_exu_exu_pmu_i0_br_ataken = i0_pp_r_bits_ataken; // @[el2_exu.scala 259:50]
-  assign io_dec_exu_decode_exu_exu_pmu_i0_pc4 = i0_pp_r_bits_pc4; // @[el2_exu.scala 260:50]
-  assign io_dec_exu_decode_exu_exu_csr_rs1_x = _T_3; // @[el2_exu.scala 140:57]
-  assign io_dec_exu_decode_exu_exu_npc_r = _T_188[30:0]; // @[el2_exu.scala 308:74]
-  assign io_exu_lsu_rs1_d = _T_106 | _T_105; // @[el2_exu.scala 195:19]
-  assign io_exu_lsu_rs2_d = _T_117 | _T_118; // @[el2_exu.scala 201:19]
-  assign io_exu_flush_path_final = io_dec_exu_tlu_exu_dec_tlu_flush_lower_r ? io_dec_exu_tlu_exu_dec_tlu_flush_path_r : i0_flush_path_d; // @[el2_exu.scala 307:50]
-  assign io_exu_mp_pkt_valid = 1'h0; // @[el2_exu.scala 129:47]
-  assign io_exu_mp_pkt_bits_misp = i0_flush_upper_x & i0_predict_p_x_bits_misp; // @[el2_exu.scala 294:41]
-  assign io_exu_mp_pkt_bits_ataken = i0_flush_upper_x & i0_predict_p_x_bits_ataken; // @[el2_exu.scala 298:41]
-  assign io_exu_mp_pkt_bits_boffset = i0_flush_upper_x & i0_predict_p_x_bits_boffset; // @[el2_exu.scala 299:41]
-  assign io_exu_mp_pkt_bits_pc4 = i0_flush_upper_x & i0_predict_p_x_bits_pc4; // @[el2_exu.scala 300:41]
-  assign io_exu_mp_pkt_bits_hist = i0_flush_upper_x ? i0_predict_p_x_bits_hist : 2'h0; // @[el2_exu.scala 301:58]
-  assign io_exu_mp_pkt_bits_toffset = i0_flush_upper_x ? i0_predict_p_x_bits_toffset : 12'h0; // @[el2_exu.scala 302:50]
-  assign io_exu_mp_pkt_bits_br_error = 1'h0; // @[el2_exu.scala 128:41]
-  assign io_exu_mp_pkt_bits_br_start_error = 1'h0; // @[el2_exu.scala 127:36]
-  assign io_exu_mp_pkt_bits_prett = 31'h0; // @[el2_exu.scala 126:49]
-  assign io_exu_mp_pkt_bits_pcall = i0_flush_upper_x & i0_predict_p_x_bits_pcall; // @[el2_exu.scala 295:41]
-  assign io_exu_mp_pkt_bits_pret = i0_flush_upper_x & i0_predict_p_x_bits_pret; // @[el2_exu.scala 297:41]
-  assign io_exu_mp_pkt_bits_pja = i0_flush_upper_x & i0_predict_p_x_bits_pja; // @[el2_exu.scala 296:41]
-  assign io_exu_mp_pkt_bits_way = i0_flush_upper_x & i0_predict_p_x_bits_way; // @[el2_exu.scala 293:41]
-  assign io_exu_mp_eghr = final_predpipe_mp[20:13]; // @[el2_exu.scala 306:36]
-  assign io_exu_mp_fghr = _T_179 ? ghr_d : ghr_x; // @[el2_exu.scala 303:36]
-  assign io_exu_mp_index = final_predpipe_mp[12:5]; // @[el2_exu.scala 304:58]
-  assign io_exu_mp_btag = final_predpipe_mp[4:0]; // @[el2_exu.scala 305:58]
+  assign io_dec_exu_dec_alu_exu_flush_final = i_alu_io_dec_alu_exu_flush_final; // @[el2_exu.scala 220:20]
+  assign io_dec_exu_dec_alu_exu_i0_pc_x = i_alu_io_dec_alu_exu_i0_pc_x; // @[el2_exu.scala 220:20]
+  assign io_dec_exu_decode_exu_exu_i0_result_x = mul_valid_x ? i_mul_io_result_x : i_alu_io_result_ff; // @[el2_exu.scala 253:58]
+  assign io_dec_exu_decode_exu_exu_csr_rs1_x = _T_3; // @[el2_exu.scala 139:57]
+  assign io_dec_exu_tlu_exu_exu_i0_br_hist_r = i0_pp_r_bits_hist; // @[el2_exu.scala 280:66]
+  assign io_dec_exu_tlu_exu_exu_i0_br_error_r = i0_pp_r_bits_br_error; // @[el2_exu.scala 281:58]
+  assign io_dec_exu_tlu_exu_exu_i0_br_start_error_r = i0_pp_r_bits_br_start_error; // @[el2_exu.scala 283:52]
+  assign io_dec_exu_tlu_exu_exu_i0_br_index_r = predpipe_r[12:5]; // @[el2_exu.scala 285:58]
+  assign io_dec_exu_tlu_exu_exu_i0_br_valid_r = i0_pp_r_valid; // @[el2_exu.scala 277:52]
+  assign io_dec_exu_tlu_exu_exu_i0_br_mp_r = i0_pp_r_bits_misp; // @[el2_exu.scala 278:52]
+  assign io_dec_exu_tlu_exu_exu_i0_br_middle_r = i0_pp_r_bits_pc4 ^ i0_pp_r_bits_boffset; // @[el2_exu.scala 282:52]
+  assign io_dec_exu_tlu_exu_exu_pmu_i0_br_misp = i0_pp_r_bits_misp; // @[el2_exu.scala 257:47]
+  assign io_dec_exu_tlu_exu_exu_pmu_i0_br_ataken = i0_pp_r_bits_ataken; // @[el2_exu.scala 258:47]
+  assign io_dec_exu_tlu_exu_exu_pmu_i0_pc4 = i0_pp_r_bits_pc4; // @[el2_exu.scala 259:47]
+  assign io_dec_exu_tlu_exu_exu_npc_r = _T_188[30:0]; // @[el2_exu.scala 307:66]
+  assign io_exu_bp_exu_i0_br_fghr_r = predpipe_r[20:13]; // @[el2_exu.scala 284:58]
+  assign io_exu_bp_exu_i0_br_way_r = i0_pp_r_bits_way; // @[el2_exu.scala 279:43]
+  assign io_exu_bp_exu_mp_pkt_valid = 1'h0; // @[el2_exu.scala 128:55]
+  assign io_exu_bp_exu_mp_pkt_bits_misp = i0_flush_upper_x & i0_predict_p_x_bits_misp; // @[el2_exu.scala 293:48]
+  assign io_exu_bp_exu_mp_pkt_bits_ataken = i0_flush_upper_x & i0_predict_p_x_bits_ataken; // @[el2_exu.scala 297:48]
+  assign io_exu_bp_exu_mp_pkt_bits_boffset = i0_flush_upper_x & i0_predict_p_x_bits_boffset; // @[el2_exu.scala 298:48]
+  assign io_exu_bp_exu_mp_pkt_bits_pc4 = i0_flush_upper_x & i0_predict_p_x_bits_pc4; // @[el2_exu.scala 299:48]
+  assign io_exu_bp_exu_mp_pkt_bits_hist = i0_flush_upper_x ? i0_predict_p_x_bits_hist : 2'h0; // @[el2_exu.scala 300:66]
+  assign io_exu_bp_exu_mp_pkt_bits_toffset = i0_flush_upper_x ? i0_predict_p_x_bits_toffset : 12'h0; // @[el2_exu.scala 301:58]
+  assign io_exu_bp_exu_mp_pkt_bits_br_error = 1'h0; // @[el2_exu.scala 127:49]
+  assign io_exu_bp_exu_mp_pkt_bits_br_start_error = 1'h0; // @[el2_exu.scala 126:43]
+  assign io_exu_bp_exu_mp_pkt_bits_prett = 31'h0; // @[el2_exu.scala 125:57]
+  assign io_exu_bp_exu_mp_pkt_bits_pcall = i0_flush_upper_x & i0_predict_p_x_bits_pcall; // @[el2_exu.scala 294:48]
+  assign io_exu_bp_exu_mp_pkt_bits_pret = i0_flush_upper_x & i0_predict_p_x_bits_pret; // @[el2_exu.scala 296:48]
+  assign io_exu_bp_exu_mp_pkt_bits_pja = i0_flush_upper_x & i0_predict_p_x_bits_pja; // @[el2_exu.scala 295:48]
+  assign io_exu_bp_exu_mp_pkt_bits_way = i0_flush_upper_x & i0_predict_p_x_bits_way; // @[el2_exu.scala 292:48]
+  assign io_exu_bp_exu_mp_eghr = final_predpipe_mp[20:13]; // @[el2_exu.scala 305:43]
+  assign io_exu_bp_exu_mp_fghr = _T_179 ? ghr_d : ghr_x; // @[el2_exu.scala 302:43]
+  assign io_exu_bp_exu_mp_index = final_predpipe_mp[12:5]; // @[el2_exu.scala 303:66]
+  assign io_exu_bp_exu_mp_btag = final_predpipe_mp[4:0]; // @[el2_exu.scala 304:58]
+  assign io_exu_div_result = i_div_io_exu_div_result; // @[el2_exu.scala 251:33]
+  assign io_exu_div_wren = i_div_io_exu_div_wren; // @[el2_exu.scala 250:41]
+  assign io_exu_lsu_rs1_d = _T_106 | _T_105; // @[el2_exu.scala 194:19]
+  assign io_exu_lsu_rs2_d = _T_117 | _T_118; // @[el2_exu.scala 200:19]
+  assign io_exu_flush_path_final = io_dec_exu_tlu_exu_dec_tlu_flush_lower_r ? io_dec_exu_tlu_exu_dec_tlu_flush_path_r : i0_flush_path_d; // @[el2_exu.scala 306:50]
   assign rvclkhdr_io_clk = clock; // @[el2_lib.scala 510:18]
   assign rvclkhdr_io_en = io_dec_exu_decode_exu_dec_data_en[1]; // @[el2_lib.scala 511:17]
   assign rvclkhdr_io_scan_mode = io_scan_mode; // @[el2_lib.scala 512:24]
@@ -2044,65 +2044,65 @@ module el2_exu(
   assign rvclkhdr_17_io_scan_mode = io_scan_mode; // @[el2_lib.scala 512:24]
   assign i_alu_clock = clock;
   assign i_alu_reset = reset;
-  assign i_alu_io_dec_alu_dec_i0_alu_decode_d = io_dec_exu_dec_alu_dec_i0_alu_decode_d; // @[el2_exu.scala 221:20]
-  assign i_alu_io_dec_alu_dec_csr_ren_d = io_dec_exu_dec_alu_dec_csr_ren_d; // @[el2_exu.scala 221:20]
-  assign i_alu_io_dec_alu_dec_i0_br_immed_d = io_dec_exu_dec_alu_dec_i0_br_immed_d; // @[el2_exu.scala 221:20]
-  assign i_alu_io_dec_i0_pc_d = io_dec_exu_ib_exu_dec_i0_pc_d; // @[el2_exu.scala 229:41]
-  assign i_alu_io_scan_mode = io_scan_mode; // @[el2_exu.scala 222:33]
-  assign i_alu_io_flush_upper_x = i0_flush_upper_x; // @[el2_exu.scala 225:33]
-  assign i_alu_io_dec_tlu_flush_lower_r = io_dec_exu_tlu_exu_dec_tlu_flush_lower_r; // @[el2_exu.scala 226:41]
-  assign i_alu_io_enable = io_dec_exu_decode_exu_dec_ctl_en[1]; // @[el2_exu.scala 223:41]
-  assign i_alu_io_i0_ap_land = io_dec_exu_decode_exu_i0_ap_land; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_lor = io_dec_exu_decode_exu_i0_ap_lor; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_lxor = io_dec_exu_decode_exu_i0_ap_lxor; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_sll = io_dec_exu_decode_exu_i0_ap_sll; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_srl = io_dec_exu_decode_exu_i0_ap_srl; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_sra = io_dec_exu_decode_exu_i0_ap_sra; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_beq = io_dec_exu_decode_exu_i0_ap_beq; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_bne = io_dec_exu_decode_exu_i0_ap_bne; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_blt = io_dec_exu_decode_exu_i0_ap_blt; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_bge = io_dec_exu_decode_exu_i0_ap_bge; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_add = io_dec_exu_decode_exu_i0_ap_add; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_sub = io_dec_exu_decode_exu_i0_ap_sub; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_slt = io_dec_exu_decode_exu_i0_ap_slt; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_unsign = io_dec_exu_decode_exu_i0_ap_unsign; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_jal = io_dec_exu_decode_exu_i0_ap_jal; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_predict_t = io_dec_exu_decode_exu_i0_ap_predict_t; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_predict_nt = io_dec_exu_decode_exu_i0_ap_predict_nt; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_csr_write = io_dec_exu_decode_exu_i0_ap_csr_write; // @[el2_exu.scala 230:49]
-  assign i_alu_io_i0_ap_csr_imm = io_dec_exu_decode_exu_i0_ap_csr_imm; // @[el2_exu.scala 230:49]
-  assign i_alu_io_a_in = _T_80 | _T_78; // @[el2_exu.scala 227:33]
-  assign i_alu_io_b_in = i0_rs2_d; // @[el2_exu.scala 228:33]
-  assign i_alu_io_pp_in_valid = io_dec_exu_decode_exu_dec_i0_predict_p_d_valid; // @[el2_exu.scala 224:41]
-  assign i_alu_io_pp_in_bits_boffset = io_dec_exu_ib_exu_dec_i0_pc_d[0]; // @[el2_exu.scala 224:41]
-  assign i_alu_io_pp_in_bits_pc4 = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_pc4; // @[el2_exu.scala 224:41]
-  assign i_alu_io_pp_in_bits_hist = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_hist; // @[el2_exu.scala 224:41]
-  assign i_alu_io_pp_in_bits_toffset = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_toffset; // @[el2_exu.scala 224:41]
-  assign i_alu_io_pp_in_bits_br_error = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_br_error; // @[el2_exu.scala 224:41]
-  assign i_alu_io_pp_in_bits_br_start_error = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_br_start_error; // @[el2_exu.scala 224:41]
-  assign i_alu_io_pp_in_bits_prett = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_prett; // @[el2_exu.scala 224:41]
-  assign i_alu_io_pp_in_bits_pcall = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_pcall; // @[el2_exu.scala 224:41]
-  assign i_alu_io_pp_in_bits_pret = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_pret; // @[el2_exu.scala 224:41]
-  assign i_alu_io_pp_in_bits_pja = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_pja; // @[el2_exu.scala 224:41]
-  assign i_alu_io_pp_in_bits_way = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_way; // @[el2_exu.scala 224:41]
+  assign i_alu_io_dec_alu_dec_i0_alu_decode_d = io_dec_exu_dec_alu_dec_i0_alu_decode_d; // @[el2_exu.scala 220:20]
+  assign i_alu_io_dec_alu_dec_csr_ren_d = io_dec_exu_dec_alu_dec_csr_ren_d; // @[el2_exu.scala 220:20]
+  assign i_alu_io_dec_alu_dec_i0_br_immed_d = io_dec_exu_dec_alu_dec_i0_br_immed_d; // @[el2_exu.scala 220:20]
+  assign i_alu_io_dec_i0_pc_d = io_dec_exu_ib_exu_dec_i0_pc_d; // @[el2_exu.scala 228:41]
+  assign i_alu_io_scan_mode = io_scan_mode; // @[el2_exu.scala 221:33]
+  assign i_alu_io_flush_upper_x = i0_flush_upper_x; // @[el2_exu.scala 224:33]
+  assign i_alu_io_dec_tlu_flush_lower_r = io_dec_exu_tlu_exu_dec_tlu_flush_lower_r; // @[el2_exu.scala 225:41]
+  assign i_alu_io_enable = io_dec_exu_decode_exu_dec_ctl_en[1]; // @[el2_exu.scala 222:41]
+  assign i_alu_io_i0_ap_land = io_dec_exu_decode_exu_i0_ap_land; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_lor = io_dec_exu_decode_exu_i0_ap_lor; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_lxor = io_dec_exu_decode_exu_i0_ap_lxor; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_sll = io_dec_exu_decode_exu_i0_ap_sll; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_srl = io_dec_exu_decode_exu_i0_ap_srl; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_sra = io_dec_exu_decode_exu_i0_ap_sra; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_beq = io_dec_exu_decode_exu_i0_ap_beq; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_bne = io_dec_exu_decode_exu_i0_ap_bne; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_blt = io_dec_exu_decode_exu_i0_ap_blt; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_bge = io_dec_exu_decode_exu_i0_ap_bge; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_add = io_dec_exu_decode_exu_i0_ap_add; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_sub = io_dec_exu_decode_exu_i0_ap_sub; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_slt = io_dec_exu_decode_exu_i0_ap_slt; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_unsign = io_dec_exu_decode_exu_i0_ap_unsign; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_jal = io_dec_exu_decode_exu_i0_ap_jal; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_predict_t = io_dec_exu_decode_exu_i0_ap_predict_t; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_predict_nt = io_dec_exu_decode_exu_i0_ap_predict_nt; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_csr_write = io_dec_exu_decode_exu_i0_ap_csr_write; // @[el2_exu.scala 229:49]
+  assign i_alu_io_i0_ap_csr_imm = io_dec_exu_decode_exu_i0_ap_csr_imm; // @[el2_exu.scala 229:49]
+  assign i_alu_io_a_in = _T_80 | _T_78; // @[el2_exu.scala 226:33]
+  assign i_alu_io_b_in = i0_rs2_d; // @[el2_exu.scala 227:33]
+  assign i_alu_io_pp_in_valid = io_dec_exu_decode_exu_dec_i0_predict_p_d_valid; // @[el2_exu.scala 223:41]
+  assign i_alu_io_pp_in_bits_boffset = io_dec_exu_ib_exu_dec_i0_pc_d[0]; // @[el2_exu.scala 223:41]
+  assign i_alu_io_pp_in_bits_pc4 = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_pc4; // @[el2_exu.scala 223:41]
+  assign i_alu_io_pp_in_bits_hist = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_hist; // @[el2_exu.scala 223:41]
+  assign i_alu_io_pp_in_bits_toffset = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_toffset; // @[el2_exu.scala 223:41]
+  assign i_alu_io_pp_in_bits_br_error = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_br_error; // @[el2_exu.scala 223:41]
+  assign i_alu_io_pp_in_bits_br_start_error = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_br_start_error; // @[el2_exu.scala 223:41]
+  assign i_alu_io_pp_in_bits_prett = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_prett; // @[el2_exu.scala 223:41]
+  assign i_alu_io_pp_in_bits_pcall = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_pcall; // @[el2_exu.scala 223:41]
+  assign i_alu_io_pp_in_bits_pret = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_pret; // @[el2_exu.scala 223:41]
+  assign i_alu_io_pp_in_bits_pja = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_pja; // @[el2_exu.scala 223:41]
+  assign i_alu_io_pp_in_bits_way = io_dec_exu_decode_exu_dec_i0_predict_p_d_bits_way; // @[el2_exu.scala 223:41]
   assign i_mul_clock = clock;
   assign i_mul_reset = reset;
-  assign i_mul_io_scan_mode = io_scan_mode; // @[el2_exu.scala 238:33]
-  assign i_mul_io_mul_p_valid = io_dec_exu_decode_exu_mul_p_valid; // @[el2_exu.scala 239:41]
-  assign i_mul_io_mul_p_bits_rs1_sign = io_dec_exu_decode_exu_mul_p_bits_rs1_sign; // @[el2_exu.scala 239:41]
-  assign i_mul_io_mul_p_bits_rs2_sign = io_dec_exu_decode_exu_mul_p_bits_rs2_sign; // @[el2_exu.scala 239:41]
-  assign i_mul_io_mul_p_bits_low = io_dec_exu_decode_exu_mul_p_bits_low; // @[el2_exu.scala 239:41]
-  assign i_mul_io_rs1_in = _T_125 | _T_75; // @[el2_exu.scala 240:41]
-  assign i_mul_io_rs2_in = _T_91 | _T_90; // @[el2_exu.scala 241:41]
+  assign i_mul_io_scan_mode = io_scan_mode; // @[el2_exu.scala 237:33]
+  assign i_mul_io_mul_p_valid = io_dec_exu_decode_exu_mul_p_valid; // @[el2_exu.scala 238:41]
+  assign i_mul_io_mul_p_bits_rs1_sign = io_dec_exu_decode_exu_mul_p_bits_rs1_sign; // @[el2_exu.scala 238:41]
+  assign i_mul_io_mul_p_bits_rs2_sign = io_dec_exu_decode_exu_mul_p_bits_rs2_sign; // @[el2_exu.scala 238:41]
+  assign i_mul_io_mul_p_bits_low = io_dec_exu_decode_exu_mul_p_bits_low; // @[el2_exu.scala 238:41]
+  assign i_mul_io_rs1_in = _T_125 | _T_75; // @[el2_exu.scala 239:41]
+  assign i_mul_io_rs2_in = _T_91 | _T_90; // @[el2_exu.scala 240:41]
   assign i_div_clock = clock;
   assign i_div_reset = reset;
-  assign i_div_io_scan_mode = io_scan_mode; // @[el2_exu.scala 246:33]
-  assign i_div_io_dividend = _T_125 | _T_75; // @[el2_exu.scala 249:33]
-  assign i_div_io_divisor = _T_91 | _T_90; // @[el2_exu.scala 250:33]
-  assign i_div_io_dec_div_div_p_valid = io_dec_exu_dec_div_div_p_valid; // @[el2_exu.scala 245:20]
-  assign i_div_io_dec_div_div_p_bits_unsign = io_dec_exu_dec_div_div_p_bits_unsign; // @[el2_exu.scala 245:20]
-  assign i_div_io_dec_div_div_p_bits_rem = io_dec_exu_dec_div_div_p_bits_rem; // @[el2_exu.scala 245:20]
-  assign i_div_io_dec_div_dec_div_cancel = io_dec_exu_dec_div_dec_div_cancel; // @[el2_exu.scala 245:20]
+  assign i_div_io_scan_mode = io_scan_mode; // @[el2_exu.scala 245:33]
+  assign i_div_io_dividend = _T_125 | _T_75; // @[el2_exu.scala 248:33]
+  assign i_div_io_divisor = _T_91 | _T_90; // @[el2_exu.scala 249:33]
+  assign i_div_io_dec_div_div_p_valid = io_dec_exu_dec_div_div_p_valid; // @[el2_exu.scala 244:20]
+  assign i_div_io_dec_div_div_p_bits_unsign = io_dec_exu_dec_div_div_p_bits_unsign; // @[el2_exu.scala 244:20]
+  assign i_div_io_dec_div_div_p_bits_rem = io_dec_exu_dec_div_div_p_bits_rem; // @[el2_exu.scala 244:20]
+  assign i_div_io_dec_div_dec_div_cancel = io_dec_exu_dec_div_dec_div_cancel; // @[el2_exu.scala 244:20]
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
 `define RANDOMIZE
 `endif

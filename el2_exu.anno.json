@@ -1,32 +1,6 @@
 [
   {
     "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_exu|el2_exu>io_exu_lsu_rs2_d",
-    "sources":[
-      "~el2_exu|el2_exu>io_dec_exu_gpr_exu_gpr_i0_rs2_d",
-      "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs2_en_d",
-      "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_extint_stall",
-      "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs2_bypass_data_d",
-      "~el2_exu|el2_exu>io_dec_exu_decode_exu_exu_i0_result_x",
-      "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs2_bypass_en_d"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_exu|el2_exu>io_dec_exu_dec_div_exu_div_wren",
-    "sources":[
-      "~el2_exu|el2_exu>io_dec_exu_dec_div_dec_div_cancel"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~el2_exu|el2_exu>io_exu_mp_fghr",
-    "sources":[
-      "~el2_exu|el2_exu>io_dec_exu_tlu_exu_dec_tlu_flush_lower_r"
-    ]
-  },
-  {
-    "class":"firrtl.transforms.CombinationalPath",
     "sink":"~el2_exu|el2_exu>io_dec_exu_dec_alu_exu_flush_final",
     "sources":[
       "~el2_exu|el2_exu>io_dec_exu_tlu_exu_dec_tlu_flush_lower_r",
@@ -47,7 +21,7 @@
       "~el2_exu|el2_exu>io_dec_exu_gpr_exu_gpr_i0_rs1_d",
       "~el2_exu|el2_exu>io_dec_exu_gpr_exu_gpr_i0_rs2_d",
       "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_immed_d",
-      "~el2_exu|el2_exu>io_dec_exu_decode_exu_dbg_cmd_wrdata",
+      "~el2_exu|el2_exu>io_dbg_cmd_wrdata",
       "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs1_en_d",
       "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs2_en_d",
       "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs2_bypass_en_d",
@@ -58,6 +32,32 @@
       "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_select_pc_d",
       "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs1_bypass_en_d",
       "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs1_bypass_data_d"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_exu|el2_exu>io_exu_bp_exu_mp_fghr",
+    "sources":[
+      "~el2_exu|el2_exu>io_dec_exu_tlu_exu_dec_tlu_flush_lower_r"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_exu|el2_exu>io_exu_lsu_rs2_d",
+    "sources":[
+      "~el2_exu|el2_exu>io_dec_exu_gpr_exu_gpr_i0_rs2_d",
+      "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs2_en_d",
+      "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_extint_stall",
+      "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs2_bypass_data_d",
+      "~el2_exu|el2_exu>io_dec_exu_decode_exu_exu_i0_result_x",
+      "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs2_bypass_en_d"
+    ]
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~el2_exu|el2_exu>io_exu_div_wren",
+    "sources":[
+      "~el2_exu|el2_exu>io_dec_exu_dec_div_dec_div_cancel"
     ]
   },
   {
@@ -89,7 +89,7 @@
       "~el2_exu|el2_exu>io_dec_exu_gpr_exu_gpr_i0_rs2_d",
       "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_immed_d",
       "~el2_exu|el2_exu>io_dec_exu_gpr_exu_gpr_i0_rs1_d",
-      "~el2_exu|el2_exu>io_dec_exu_decode_exu_dbg_cmd_wrdata",
+      "~el2_exu|el2_exu>io_dbg_cmd_wrdata",
       "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs2_en_d",
       "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs2_bypass_en_d",
       "~el2_exu|el2_exu>io_dec_exu_decode_exu_dec_i0_rs2_bypass_data_d",

@@ -1,5 +1,7 @@
 import chisel3._
 import chisel3.util._
+import ifu.axi_channels
+
 import scala.collection._
 import lib._
 
@@ -54,36 +56,37 @@ class el2_dma_ctrl extends Module with el2_lib with RequireAsyncReset {
     val dma_pmu_any_write     = Output(Bool())
 
     // AXI Write Channels
-    val dma_axi_awvalid       = Input(Bool())
-    val dma_axi_awready       = Output(Bool())
-    val dma_axi_awid          = Input(UInt(DMA_BUS_TAG.W))
-    val dma_axi_awaddr        = Input(UInt(32.W))
-    val dma_axi_awsize        = Input(UInt(3.W))
-
-    val dma_axi_wvalid        = Input(Bool())
-    val dma_axi_wready        = Output(Bool())
-    val dma_axi_wdata         = Input(UInt(64.W))
-    val dma_axi_wstrb         = Input(UInt(8.W))
-
-    val dma_axi_bvalid        = Output(Bool())
-    val dma_axi_bready        = Input(Bool())
-    val dma_axi_bresp         = Output(UInt(2.W))
-    val dma_axi_bid           = Output(UInt(DMA_BUS_TAG.W))
-
-    // AXI Read Channels
-    val dma_axi_arvalid       = Input(Bool())
-    val dma_axi_arready       = Output(Bool())
-    val dma_axi_arid          = Input(UInt(DMA_BUS_TAG.W))
-
-    val dma_axi_araddr        = Input(UInt(32.W))
-    val dma_axi_arsize        = Input(UInt(3.W))
-
-    val dma_axi_rvalid        = Output(Bool())
-    val dma_axi_rready        = Input(Bool())
-    val dma_axi_rid           = Output(UInt(DMA_BUS_TAG.W))
-    val dma_axi_rdata         = Output(UInt(64.W))
-    val dma_axi_rresp         = Output(UInt(2.W))
-    val dma_axi_rlast         = Output(Bool())
+    val dma_axi = Flipped(new axi_channels)
+//    val dma_axi_awvalid       = Input(Bool())
+//    val dma_axi_awready       = Output(Bool())
+//    val dma_axi_awid          = Input(UInt(DMA_BUS_TAG.W))
+//    val dma_axi_awaddr        = Input(UInt(32.W))
+//    val dma_axi_awsize        = Input(UInt(3.W))
+//
+//    val dma_axi_wvalid        = Input(Bool())
+//    val dma_axi_wready        = Output(Bool())
+//    val dma_axi_wdata         = Input(UInt(64.W))
+//    val dma_axi_wstrb         = Input(UInt(8.W))
+//
+//    val dma_axi_bvalid        = Output(Bool())
+//    val dma_axi_bready        = Input(Bool())
+//    val dma_axi_bresp         = Output(UInt(2.W))
+//    val dma_axi_bid           = Output(UInt(DMA_BUS_TAG.W))
+//
+//    // AXI Read Channels
+//    val dma_axi_arvalid       = Input(Bool())
+//    val dma_axi_arready       = Output(Bool())
+//    val dma_axi_arid          = Input(UInt(DMA_BUS_TAG.W))
+//
+//    val dma_axi_araddr        = Input(UInt(32.W))
+//    val dma_axi_arsize        = Input(UInt(3.W))
+//
+//    val dma_axi_rvalid        = Output(Bool())
+//    val dma_axi_rready        = Input(Bool())
+//    val dma_axi_rid           = Output(UInt(DMA_BUS_TAG.W))
+//    val dma_axi_rdata         = Output(UInt(64.W))
+//    val dma_axi_rresp         = Output(UInt(2.W))
+//    val dma_axi_rlast         = Output(Bool())
   })
 
 
@@ -456,8 +459,8 @@ class el2_dma_ctrl extends Module with el2_lib with RequireAsyncReset {
 
   // Write channel buffer
 
-  val wrbuf_en          = io.dma_axi_awvalid & io.dma_axi_awready
-  val wrbuf_data_en     = io.dma_axi_wvalid & io.dma_axi_wready
+  val wrbuf_en          = io.dma_axi.aw.valid & io.dma_axi.aw.ready
+  val wrbuf_data_en     = io.dma_axi.w.valid & io.dma_axi.w.ready
   val wrbuf_cmd_sent    = bus_cmd_sent & bus_cmd_write
   val wrbuf_rst         = wrbuf_cmd_sent.asBool & !wrbuf_en
   val wrbuf_data_rst    = wrbuf_cmd_sent.asBool & !wrbuf_data_en
@@ -467,42 +470,42 @@ class el2_dma_ctrl extends Module with el2_lib with RequireAsyncReset {
   wrbuf_data_vld        := withClock(dma_bus_clk) {RegNext(Mux(wrbuf_data_en, 1.U, wrbuf_data_vld) & !wrbuf_data_rst, 0.U)}
 
   val wrbuf_tag         = withClock(dma_bus_clk) {
-    RegEnable(io.dma_axi_awid, 0.U, wrbuf_en)
+    RegEnable(io.dma_axi.aw.bits.id, 0.U, wrbuf_en)
   }
 
   val wrbuf_sz          = withClock(dma_bus_clk) {
-    RegEnable(io.dma_axi_awsize, 0.U, wrbuf_en)
+    RegEnable(io.dma_axi.aw.bits.size, 0.U, wrbuf_en)
   }
 
-  val wrbuf_addr        = rvdffe(io.dma_axi_awaddr, wrbuf_en & io.dma_bus_clk_en, clock, io.scan_mode)
+  val wrbuf_addr        = rvdffe(io.dma_axi.aw.bits.addr, wrbuf_en & io.dma_bus_clk_en, clock, io.scan_mode)
 
-  val wrbuf_data        = rvdffe(io.dma_axi_wdata, wrbuf_data_en & io.dma_bus_clk_en, clock, io.scan_mode)
+  val wrbuf_data        = rvdffe(io.dma_axi.w.bits.data, wrbuf_data_en & io.dma_bus_clk_en, clock, io.scan_mode)
 
   val wrbuf_byteen 		  = withClock(dma_bus_clk) {
-    RegEnable(io.dma_axi_wstrb, 0.U, wrbuf_data_en)
+    RegEnable(io.dma_axi.w.bits.strb, 0.U, wrbuf_data_en)
   }
 
   // Read channel buffer
 
-  val rdbuf_en 			    = io.dma_axi_arvalid & io.dma_axi_arready
+  val rdbuf_en 			    = io.dma_axi.ar.valid & io.dma_axi.ar.ready
   val rdbuf_cmd_sent 	  = bus_cmd_sent & !bus_cmd_write
   val rdbuf_rst 		    = rdbuf_cmd_sent.asBool & !rdbuf_en
 
   rdbuf_vld := withClock(dma_bus_clk) {RegNext(Mux(rdbuf_en, 1.U, rdbuf_vld) & !rdbuf_rst, 0.U)}
 
   val rdbuf_tag 		    = withClock(dma_bus_clk) {
-    RegEnable(io.dma_axi_arid, 0.U, rdbuf_en)
+    RegEnable(io.dma_axi.ar.bits.id, 0.U, rdbuf_en)
   }
 
   val rdbuf_sz 			    = withClock(dma_bus_clk) {
-    RegEnable(io.dma_axi_arsize, 0.U, rdbuf_en)
+    RegEnable(io.dma_axi.ar.bits.size, 0.U, rdbuf_en)
   }
 
-  val rdbuf_addr = rvdffe(io.dma_axi_araddr, rdbuf_en & io.dma_bus_clk_en, clock, io.scan_mode)
+  val rdbuf_addr = rvdffe(io.dma_axi.ar.bits.addr, rdbuf_en & io.dma_bus_clk_en, clock, io.scan_mode)
 
-  io.dma_axi_awready 	  := ~(wrbuf_vld & !wrbuf_cmd_sent)
-  io.dma_axi_wready 	  := ~(wrbuf_data_vld & !wrbuf_cmd_sent)
-  io.dma_axi_arready 	  := ~(rdbuf_vld & !rdbuf_cmd_sent)
+  io.dma_axi.aw.ready 	  := ~(wrbuf_vld & !wrbuf_cmd_sent)
+  io.dma_axi.w.ready 	  := ~(wrbuf_data_vld & !wrbuf_cmd_sent)
+  io.dma_axi.ar.ready 	  := ~(rdbuf_vld & !rdbuf_cmd_sent)
 
   //Generate a single request from read/write channel
 
@@ -537,19 +540,19 @@ class el2_dma_ctrl extends Module with el2_lib with RequireAsyncReset {
 
   // AXI response channel signals
 
-  io.dma_axi_bvalid 	  := axi_rsp_valid & axi_rsp_write
-  io.dma_axi_bresp 	  	:= axi_rsp_error(1,0)
-  io.dma_axi_bid 	    	:= axi_rsp_tag
+  io.dma_axi.b.valid 	  := axi_rsp_valid & axi_rsp_write
+  io.dma_axi.b.bits.resp 	  	:= axi_rsp_error(1,0)
+  io.dma_axi.b.bits.id 	    	:= axi_rsp_tag
 
-  io.dma_axi_rvalid 	  := axi_rsp_valid & !axi_rsp_write
-  io.dma_axi_rresp 	  	:= axi_rsp_error
-  io.dma_axi_rdata 		  := axi_rsp_rdata(63,0)
-  io.dma_axi_rlast 	  	:= 1.U
-  io.dma_axi_rid 		    := axi_rsp_tag
+  io.dma_axi.r.valid 	  := axi_rsp_valid & !axi_rsp_write
+  io.dma_axi.r.bits.resp 	  	:= axi_rsp_error
+  io.dma_axi.r.bits.data 		  := axi_rsp_rdata(63,0)
+  io.dma_axi.r.bits.last 	  	:= 1.U
+  io.dma_axi.r.bits.id 		    := axi_rsp_tag
 
   bus_posted_write_done := 0.U
-  bus_rsp_valid 		    := (io.dma_axi_bvalid | io.dma_axi_rvalid)
-  bus_rsp_sent 			    := ((io.dma_axi_bvalid & io.dma_axi_bready) | (io.dma_axi_rvalid & io.dma_axi_rready))
+  bus_rsp_valid 		    := (io.dma_axi.b.valid | io.dma_axi.r.valid)
+  bus_rsp_sent 			    := ((io.dma_axi.b.valid & io.dma_axi.b.ready) | (io.dma_axi.r.valid & io.dma_axi.r.ready))
 }
 object dma extends App{
   println(chisel3.Driver.emitVerilog(new el2_dma_ctrl))

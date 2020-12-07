@@ -11,18 +11,14 @@ class dec_alu extends Bundle {
   val                  dec_i0_alu_decode_d          = Input(UInt(1.W))          // Valid
   val                  dec_csr_ren_d                = Input(Bool())          // extra decode
   val                  dec_i0_br_immed_d            = Input(UInt(12.W))         // Branch offset
-  val                  exu_flush_final              = Output(UInt(1.W))         // Branch flush or flush entire pipeline
   val                  exu_i0_pc_x                  = Output(UInt(31.W))        // flopped PC
 }
 class dec_div extends Bundle {
   val		div_p					        =Flipped(Valid(new el2_div_pkt_t))                   // DEC {valid, unsigned, rem}
   val		dec_div_cancel			  =Input(UInt(1.W))                           // Cancel the divide operation
-
 }
 
-
 class tlu_exu extends Bundle with el2_lib{
-
   val		dec_tlu_meihap			  =Input(UInt(30.W))                          // External stall mux data
   val   dec_tlu_flush_lower_r	=Input(UInt(1.W))                         	// Flush divide and secondary ALUs
   val		dec_tlu_flush_path_r	=Input(UInt(31.W))                          // Redirect target
@@ -39,7 +35,6 @@ class tlu_exu extends Bundle with el2_lib{
   val		exu_npc_r				      =Output(UInt(31.W))                         // Divide NPC
 }
 class ib_exu extends Bundle {
-
   val dec_i0_pc_d				    =Input(UInt(31.W))                          // Instruction PC
   val	dec_debug_wdata_rs1_d	=Input(UInt(1.W))                           // Debug select to primary I0 RS1
 }
@@ -66,11 +61,7 @@ class decode_exu extends Bundle with el2_lib{
   val		mul_p					        =Flipped(Valid(new el2_mul_pkt_t))                   // DEC {valid, operand signs, low, operand bypass}
   val		pred_correct_npc_x		=Input(UInt(31.W))                          // DEC NPC for correctly predicted branch
   val		dec_extint_stall		  =Input(Bool())                           // External stall mux select
-
-
   val		exu_i0_result_x			  =Output(UInt(32.W))                         // Primary ALU result to DEC
-
-
   val		exu_csr_rs1_x			    =Output(UInt(32.W))                         // RS1 source for a CSR instruction
 
 }
@@ -81,33 +72,37 @@ class dec_exu extends Bundle with el2_lib{
   val tlu_exu = new tlu_exu
   val ib_exu = new ib_exu
   val gpr_exu = new gpr_exu
-//  val gpr_div = new gpr_div
-  //////////////////
 
+}
+class exu_bp extends Bundle with el2_lib{
+  val   exu_i0_br_index_r = Output(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W)) // Way from where the btb got a hit
+  val		exu_i0_br_fghr_r		  =Output(UInt(BHT_GHR_SIZE.W))               // to DEC  I0 branch fghr
+  val		exu_i0_br_way_r			  =Output(UInt(1.W))                          // to DEC  I0 branch way
+  val		exu_mp_pkt				    =Valid(new el2_predict_pkt_t)              // Mispredict branch packet
+  val		exu_mp_eghr				    =Output(UInt(BHT_GHR_SIZE.W))               // Mispredict global history
+  val		exu_mp_fghr				    =Output(UInt(BHT_GHR_SIZE.W))               // Mispredict fghr
+  val		exu_mp_index			    =Output(UInt(((BTB_ADDR_HI-BTB_ADDR_LO)+1).W))  // Mispredict index
+  val		exu_mp_btag				    =Output(UInt(BTB_BTAG_SIZE.W))              // Mispredict btag
 }
 class el2_exu extends Module with el2_lib with RequireAsyncReset{
   val io=IO(new Bundle{
-    val dec_exu = new dec_exu
+
+    val		scan_mode				      = Input(Bool())                              // Scan control
+    val   dec_exu               = new dec_exu
+    val   exu_bp                = new exu_bp
+    //ifc-bp-mem-aln-decode
+    val   exu_flush_final       = Output(UInt(1.W))         // Branch flush or flush entire pipeline
+    //gpr
     val		exu_div_result			  =Output(UInt(32.W))                         // Divide result
     val		exu_div_wren			    =Output(UInt(1.W))                          // Divide write enable to GPR
-    val		exu_i0_br_fghr_r		  =Output(UInt(BHT_GHR_SIZE.W))               // to DEC  I0 branch fghr
-    val		exu_i0_br_way_r			  =Output(UInt(1.W))                          // to DEC  I0 branch way
-    val		scan_mode				      =Input(Bool())                              // Scan control
-      val  	dbg_cmd_wrdata			  =Input(UInt(32.W))                          // Debug data   to primary I0 RS1
-
-//    val		dec_i0_br_immed_d		  =Input(UInt(12.W))                          // Branch immediate
-//    val		dec_i0_alu_decode_d		=Input(UInt(1.W))                           // Valid to X-stage ALU
-//    val		dec_csr_ren_d			    =Input(UInt(1.W))                           // Clear I0 RS1 primary
+    //debug
+    val  	dbg_cmd_wrdata			  =Input(UInt(32.W))                          // Debug data   to primary I0 RS1
+    //lsu
     val		exu_lsu_rs1_d			    =Output(UInt(32.W))                         // LSU operand
     val		exu_lsu_rs2_d			    =Output(UInt(32.W))                         // LSU operand
-//    val		exu_flush_final			  =Output(UInt(1.W))                          // Pipe is being flushed this cycle
+    //ifu_ifc
     val		exu_flush_path_final	=Output(UInt(31.W))                         // Target for the oldest flush source
-//    val		exu_i0_pc_x				    =Output(UInt(31.W))                         // Primary PC  result to DEC
-    val		exu_mp_pkt				    =Valid(new el2_predict_pkt_t)              // Mispredict branch packet
-    val		exu_mp_eghr				    =Output(UInt(BHT_GHR_SIZE.W))               // Mispredict global history
-    val		exu_mp_fghr				    =Output(UInt(BHT_GHR_SIZE.W))               // Mispredict fghr
-    val		exu_mp_index			    =Output(UInt(((BTB_ADDR_HI-BTB_ADDR_LO)+1).W))  // Mispredict index
-    val		exu_mp_btag				    =Output(UInt(BTB_BTAG_SIZE.W))              // Mispredict btag
+
   })
 
   val PREDPIPESIZE 			        = BTB_ADDR_HI - BTB_ADDR_LO + BHT_GHR_SIZE + BTB_BTAG_SIZE +1
@@ -129,10 +124,10 @@ class el2_exu extends Module with el2_lib with RequireAsyncReset{
   val pred_correct_npc_r		    =Wire(UInt(32.W))
   val i0_pred_correct_upper_d	  =Wire(UInt(1.W))
   val i0_flush_upper_d		      =Wire(UInt(1.W))
-  io.exu_mp_pkt.bits.prett			:=0.U
-  io.exu_mp_pkt.bits.br_start_error:=0.U
-  io.exu_mp_pkt.bits.br_error		:=0.U
-  io.exu_mp_pkt.valid			      :=0.U
+  io.exu_bp.exu_mp_pkt.bits.prett			:=0.U
+  io.exu_bp.exu_mp_pkt.bits.br_start_error:=0.U
+  io.exu_bp.exu_mp_pkt.bits.br_error		:=0.U
+  io.exu_bp.exu_mp_pkt.valid			      :=0.U
   i0_pp_r.bits.toffset          := 0.U
 
   val x_data_en                 =  io.dec_exu.decode_exu.dec_data_en(1)
@@ -237,6 +232,7 @@ class el2_exu extends Module with el2_lib with RequireAsyncReset{
   val alu_result_x   		 =i_alu.io.result_ff
   i0_flush_upper_d   		:=i_alu.io.flush_upper_out
   i0_flush_path_d			:=i_alu.io.flush_path_out
+  io.exu_flush_final := i_alu.io.flush_final_out
   i0_predict_p_d			:=i_alu.io.predict_p_out
   i0_pred_correct_upper_d :=i_alu.io.pred_correct_out
 
@@ -283,33 +279,34 @@ class el2_exu extends Module with el2_lib with RequireAsyncReset{
 
   io.dec_exu.tlu_exu.exu_i0_br_valid_r             :=  i0_pp_r.valid
   io.dec_exu.tlu_exu.exu_i0_br_mp_r                :=  i0_pp_r.bits.misp
-  io.exu_i0_br_way_r               :=  i0_pp_r.bits.way
+  io.exu_bp.exu_i0_br_way_r               :=  i0_pp_r.bits.way
   io.dec_exu.tlu_exu.exu_i0_br_hist_r		 		 :=  i0_pp_r.bits.hist
   io.dec_exu.tlu_exu.exu_i0_br_error_r          	 :=  i0_pp_r.bits.br_error
   io.dec_exu.tlu_exu.exu_i0_br_middle_r            :=  i0_pp_r.bits.pc4 ^ i0_pp_r.bits.boffset
   io.dec_exu.tlu_exu.exu_i0_br_start_error_r       :=  i0_pp_r.bits.br_start_error
-  io.exu_i0_br_fghr_r		 		 :=  predpipe_r(PREDPIPESIZE-1,BTB_ADDR_HI+BTB_BTAG_SIZE-BTB_ADDR_LO+1)
+  io.exu_bp.exu_i0_br_fghr_r		 		 :=  predpipe_r(PREDPIPESIZE-1,BTB_ADDR_HI+BTB_BTAG_SIZE-BTB_ADDR_LO+1)
   io.dec_exu.tlu_exu.exu_i0_br_index_r		 	 :=  predpipe_r(BTB_ADDR_HI+BTB_BTAG_SIZE-BTB_ADDR_LO,BTB_BTAG_SIZE)
+  io.exu_bp.exu_i0_br_index_r := io.dec_exu.tlu_exu.exu_i0_br_index_r
   final_predict_mp		 		 :=  Mux(i0_flush_upper_x===1.U,i0_predict_p_x,0.U.asTypeOf(i0_predict_p_x))
   val final_predpipe_mp		  	  =  Mux(i0_flush_upper_x===1.U,predpipe_x,0.U)
 
   val after_flush_eghr              = Mux((i0_flush_upper_x===1.U & !(io.dec_exu.tlu_exu.dec_tlu_flush_lower_r===1.U)),  ghr_d,  ghr_x)
 
 
-  io.exu_mp_pkt.bits.way                :=  final_predict_mp.bits.way
-  io.exu_mp_pkt.bits.misp               :=  final_predict_mp.bits.misp
-  io.exu_mp_pkt.bits.pcall              :=  final_predict_mp.bits.pcall
-  io.exu_mp_pkt.bits.pja                :=  final_predict_mp.bits.pja
-  io.exu_mp_pkt.bits.pret               :=  final_predict_mp.bits.pret
-  io.exu_mp_pkt.bits.ataken             :=  final_predict_mp.bits.ataken
-  io.exu_mp_pkt.bits.boffset            :=  final_predict_mp.bits.boffset
-  io.exu_mp_pkt.bits.pc4                :=  final_predict_mp.bits.pc4
-  io.exu_mp_pkt.bits.hist		 		 :=  final_predict_mp.bits.hist(1,0)
-  io.exu_mp_pkt.bits.toffset		 	 :=  final_predict_mp.bits.toffset(11,0)
-  io.exu_mp_fghr                   :=  after_flush_eghr
-  io.exu_mp_index			 		 :=  final_predpipe_mp(PREDPIPESIZE-BHT_GHR_SIZE-1,BTB_BTAG_SIZE)
-  io.exu_mp_btag			 		 :=  final_predpipe_mp(BTB_BTAG_SIZE-1,0)
-  io.exu_mp_eghr                   :=  final_predpipe_mp(PREDPIPESIZE-1,BTB_ADDR_HI-BTB_ADDR_LO+BTB_BTAG_SIZE+1) // mp ghr for bht write
+  io.exu_bp.exu_mp_pkt.bits.way                :=  final_predict_mp.bits.way
+  io.exu_bp.exu_mp_pkt.bits.misp               :=  final_predict_mp.bits.misp
+  io.exu_bp.exu_mp_pkt.bits.pcall              :=  final_predict_mp.bits.pcall
+  io.exu_bp.exu_mp_pkt.bits.pja                :=  final_predict_mp.bits.pja
+  io.exu_bp.exu_mp_pkt.bits.pret               :=  final_predict_mp.bits.pret
+  io.exu_bp.exu_mp_pkt.bits.ataken             :=  final_predict_mp.bits.ataken
+  io.exu_bp.exu_mp_pkt.bits.boffset            :=  final_predict_mp.bits.boffset
+  io.exu_bp.exu_mp_pkt.bits.pc4                :=  final_predict_mp.bits.pc4
+  io.exu_bp.exu_mp_pkt.bits.hist		 		 :=  final_predict_mp.bits.hist(1,0)
+  io.exu_bp.exu_mp_pkt.bits.toffset		 	 :=  final_predict_mp.bits.toffset(11,0)
+  io.exu_bp.exu_mp_fghr                   :=  after_flush_eghr
+  io.exu_bp.exu_mp_index			 		 :=  final_predpipe_mp(PREDPIPESIZE-BHT_GHR_SIZE-1,BTB_BTAG_SIZE)
+  io.exu_bp.exu_mp_btag			 		 :=  final_predpipe_mp(BTB_BTAG_SIZE-1,0)
+  io.exu_bp.exu_mp_eghr                   :=  final_predpipe_mp(PREDPIPESIZE-1,BTB_ADDR_HI-BTB_ADDR_LO+BTB_BTAG_SIZE+1) // mp ghr for bht write
   io.exu_flush_path_final		 	 := Mux(io.dec_exu.tlu_exu.dec_tlu_flush_lower_r.asBool, io.dec_exu.tlu_exu.dec_tlu_flush_path_r,  i0_flush_path_d)
   io.dec_exu.tlu_exu.exu_npc_r			 		 := Mux(i0_pred_correct_upper_r===1.U,  pred_correct_npc_r, i0_flush_path_upper_r)
 }
