@@ -3579,7 +3579,7 @@ circuit el2_pic_ctrl :
     node _T_1704 = cat(_T_1703, _T_1703) @[Cat.scala 29:58]
     node _T_1705 = cat(_T_1704, _T_1704) @[Cat.scala 29:58]
     intpend_rd_part_out[1] <= _T_1705 @[el2_pic_ctrl.scala 290:56]
-    node _T_1706 = or(intpend_rd_part_out[0], intpend_rd_part_out[1]) @[el2_pic_ctrl.scala 291:89]
+    node _T_1706 = or(intpend_rd_part_out[0], intpend_rd_part_out[1]) @[el2_pic_ctrl.scala 291:58]
     intpend_rd_out <= _T_1706 @[el2_pic_ctrl.scala 291:26]
     node _T_1707 = bits(intenable_reg_re_1, 0, 0) @[el2_pic_ctrl.scala 293:97]
     node _T_1708 = bits(intenable_reg_re_2, 0, 0) @[el2_pic_ctrl.scala 293:97]

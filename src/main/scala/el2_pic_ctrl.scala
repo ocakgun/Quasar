@@ -288,7 +288,7 @@ class el2_pic_ctrl extends Module with RequireAsyncReset with el2_lib {
 
   val intpend_rd_part_out = Wire(Vec(INT_GRPS,UInt(32.W)))
     (0 until INT_GRPS).map (i=> intpend_rd_part_out(i) := Fill(32,(intpend_reg_read & (picm_raddr_ff(5,2) === i.asUInt)) & intpend_reg_extended((32*i)+31,32*i)))//.reverse.reduce(Cat(_,_))
-  intpend_rd_out         := (0 until INT_GRPS).map (i=>intpend_rd_part_out(i)).reduce (_|_)
+  intpend_rd_out         := intpend_rd_part_out.reduce (_|_)
   //for(i <- 0 until PIC_TOTAL_INT_PLUS1) { when (intenable_reg_re(i).asBool){ intenable_rd_out := intenable_reg(i)}.otherwise {intenable_rd_out :=0.U} }
   val intenable_rd_out = MuxCase(0.U,(0 until PIC_TOTAL_INT_PLUS1).map (i=> intenable_reg_re(i).asBool -> intenable_reg(i) ))
   val intpriority_rd_out  = MuxCase(0.U,(0 until PIC_TOTAL_INT_PLUS1).map (i=> intpriority_reg_re(i).asBool -> intpriority_reg(i)))

@@ -1477,7 +1477,7 @@ module el2_pic_ctrl(
   wire [1023:0] _T_1705 = {_T_1700,_T_1700,_T_1700,_T_1700,_T_1700,_T_1700,_T_1700,_T_1700,_T_1703,_T_1704}; // @[Cat.scala 29:58]
   wire [31:0] intpend_rd_part_out_0 = _T_1695[31:0]; // @[el2_pic_ctrl.scala 289:33 el2_pic_ctrl.scala 290:56]
   wire [31:0] intpend_rd_part_out_1 = _T_1705[31:0]; // @[el2_pic_ctrl.scala 289:33 el2_pic_ctrl.scala 290:56]
-  wire [31:0] intpend_rd_out = intpend_rd_part_out_0 | intpend_rd_part_out_1; // @[el2_pic_ctrl.scala 291:89]
+  wire [31:0] intpend_rd_out = intpend_rd_part_out_0 | intpend_rd_part_out_1; // @[el2_pic_ctrl.scala 291:58]
   wire  _T_1738 = intenable_reg_re_31 & intenable_reg_31; // @[Mux.scala 98:16]
   wire  _T_1739 = intenable_reg_re_30 ? intenable_reg_30 : _T_1738; // @[Mux.scala 98:16]
   wire  _T_1740 = intenable_reg_re_29 ? intenable_reg_29 : _T_1739; // @[Mux.scala 98:16]

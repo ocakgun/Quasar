@@ -54,6 +54,11 @@
                     <option name="replacementList" value="$random" />
                     <option name="source" value="axi4_to_ahb.v" />
                   </Body>
+                  <Body>
+                    <option name="offset" value="159032" />
+                    <option name="replacementList" value="$random" />
+                    <option name="source" value="el2_pic_ctrl.v" />
+                  </Body>
                 </list>
               </option>
               <option name="dependencies">
@@ -62,6 +67,7 @@
                   <option value="el2_dec_decode_ctl.v" />
                   <option value="el2_dec_tlu_ctl.v" />
                   <option value="axi4_to_ahb.v" />
+                  <option value="el2_pic_ctrl.v" />
                 </set>
               </option>
             </Define>
@@ -503,6 +509,54 @@
                     </option>
                     <option name="offset" value="13767" />
                     <option name="source" value="axi4_to_ahb.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_GARBAGE_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="158833" />
+                    <option name="source" value="el2_pic_ctrl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_INVALID_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="158890" />
+                    <option name="source" value="el2_pic_ctrl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_REG_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="158941" />
+                    <option name="source" value="el2_pic_ctrl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_MEM_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="158992" />
+                    <option name="source" value="el2_pic_ctrl.v" />
                   </Body>
                 </list>
               </option>
