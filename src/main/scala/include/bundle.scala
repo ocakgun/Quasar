@@ -6,6 +6,32 @@ import ifu._
 import dec._
 import lsu._
 import lib._
+class dec_pic extends Bundle{
+  val pic_claimid               = Input(UInt(8.W))      // PIC claimid
+  val pic_pl                    = Input(UInt(4.W))      // PIC priv level
+  val mhwakeup                  = Input(Bool())      // High priority wakeup
+  val dec_tlu_meicurpl          = Output(UInt(4.W))     // to PIC, Current priv level
+  val dec_tlu_meipt             = Output(UInt(4.W))     // to PIC
+  val mexintpend               = Input(UInt(1.W)) // external interrupt pending
+}
+
+class dec_dma extends Bundle{
+  val dctl_dma = new dctl_dma()
+  val tlu_dma  = new tlu_dma()
+}
+class dctl_dma extends Bundle{
+  val dma_dccm_stall_any            = Input(Bool())            // stall any load/store at decode, pmu event
+}
+class tlu_dma extends Bundle{
+  val dma_pmu_dccm_read             = Input(Bool())      // DMA DCCM read
+  val dma_pmu_dccm_write            = Input(Bool())      // DMA DCCM write
+  val dma_pmu_any_read              = Input(Bool())      // DMA read
+  val dma_pmu_any_write             = Input(Bool())      // DMA write
+  val dec_tlu_dma_qos_prty      = Output(UInt(3.W))       // DMA QoS priority coming from MFDC [18:16]
+  val dma_dccm_stall_any            = Input(Bool())            // stall any load/store at decode, pmu event
+  val dma_iccm_stall_any            = Input(Bool())            // iccm stalled, pmu event
+}
+
 class dec_bp extends Bundle{
   val dec_tlu_br0_r_pkt = Flipped(Valid(new br_tlu_pkt_t))
   val dec_tlu_flush_lower_wb = Input(Bool())
@@ -237,13 +263,13 @@ class dma_ifc extends  Bundle{
 }
 
 class trace_pkt_t extends Bundle{
-  val rv_i_valid_ip      = UInt(2.W)
-  val rv_i_insn_ip       = UInt(32.W)
-  val rv_i_address_ip    = UInt(32.W)
-  val rv_i_exception_ip  = UInt(2.W)
-  val rv_i_ecause_ip     = UInt(5.W)
-  val rv_i_interrupt_ip  = UInt(2.W)
-  val rv_i_tval_ip       = UInt(32.W)
+  val rv_i_valid_ip      = Output(UInt(2.W)  )
+  val rv_i_insn_ip       = Output(UInt(32.W) )
+  val rv_i_address_ip    = Output(UInt(32.W) )
+  val rv_i_exception_ip  = Output(UInt(2.W)  )
+  val rv_i_ecause_ip     = Output(UInt(5.W)  )
+  val rv_i_interrupt_ip  = Output(UInt(2.W)  )
+  val rv_i_tval_ip       = Output(UInt(32.W) )
 }
 
 

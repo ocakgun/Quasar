@@ -1,3 +1,3 @@
-/home/waleedbinehsan/Desktop/SweRV-Chislified-master/gated_latch.v
-/home/waleedbinehsan/Desktop/SweRV-Chislified-master/dmi_wrapper.sv
-/home/waleedbinehsan/Desktop/SweRV-Chislified-master/mem.sv
+/home/abdulhameed.akram/Documents/SweRV-Chislified/gated_latch.v
+/home/abdulhameed.akram/Documents/SweRV-Chislified/dmi_wrapper.sv
+/home/abdulhameed.akram/Documents/SweRV-Chislified/mem.sv
