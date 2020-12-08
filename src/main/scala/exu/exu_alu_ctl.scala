@@ -5,10 +5,9 @@ import chisel3.util._
 import include._
 import lib._
 
-
 class exu_alu_ctl extends Module with lib with RequireAsyncReset{
   val io = IO(new Bundle{
-    val dec_alu = new dec_alu
+    val dec_alu = new dec_alu()
 
     val                  dec_i0_pc_d                  = Input(UInt(31.W))              // for pc=pc+2,4 calculations
     val                  scan_mode                    = Input(UInt(1.W))  // Scan control

@@ -47,40 +47,42 @@ class quasar_bundle extends Bundle with  lib{
   val dec_tlu_perfcnt2 = Output(Bool())
   val dec_tlu_perfcnt3 = Output(Bool())
   val swerv_mem = Flipped(new mem_lsu)
+  val ic = new ic_mem()
+  val iccm = new iccm_mem()
 
-  val iccm_rw_addr = Output(UInt((ICCM_BITS-1).W))
-  val iccm_wren = Output(Bool())
-  val iccm_rden = Output(Bool())
-  val iccm_wr_size = Output(UInt(3.W))
-  val iccm_wr_data = Output(UInt(78.W))
-  val iccm_buf_correct_ecc = Output(Bool())
-  val iccm_correction_state = Output(Bool())
+ // val iccm_rw_addr = Output(UInt((ICCM_BITS-1).W))
+//  val iccm_wren = Output(Bool())
+ // val iccm_rden = Output(Bool())
+//  val iccm_wr_size = Output(UInt(3.W))
+ // val iccm_wr_data = Output(UInt(78.W))
+ // val iccm_buf_correct_ecc = Output(Bool())
+//  val iccm_correction_state = Output(Bool())
 
-  val iccm_rd_data = Input(UInt(64.W))
-  val iccm_rd_data_ecc = Input(UInt(78.W))
+//  val iccm_rd_data = Input(UInt(64.W))
+ // val iccm_rd_data_ecc = Input(UInt(78.W))
 
-  val ic_rw_addr = Output(UInt(31.W))
-  val ic_tag_valid = Output(UInt(ICACHE_NUM_WAYS.W))
-  val ic_wr_en = Output(UInt(ICACHE_NUM_WAYS.W))
-  val ic_rd_en = Output(Bool())
-  val ic_wr_data = Output(Vec(ICACHE_BANKS_WAY, UInt(71.W)))
-  val ic_rd_data = Input(UInt(64.W))
-  val ic_debug_rd_data = Input(UInt(71.W))
-  val ictag_debug_rd_data = Input(UInt(26.W))
-  val ic_debug_wr_data = Output(UInt(71.W))
+ // val ic_rw_addr = Output(UInt(31.W))
+//  val ic_tag_valid = Output(UInt(ICACHE_NUM_WAYS.W))
+ // val ic_wr_en = Output(UInt(ICACHE_NUM_WAYS.W))
+ // val ic_rd_en = Output(Bool())
+ // val ic_wr_data = Output(Vec(ICACHE_BANKS_WAY, UInt(71.W)))
+ // val ic_rd_data = Input(UInt(64.W))
+ // val ic_debug_rd_data = Input(UInt(71.W))
+ // val ictag_debug_rd_data = Input(UInt(26.W))
+ // val ic_debug_wr_data = Output(UInt(71.W))
 
-  val ic_eccerr = Input(UInt(ICACHE_BANKS_WAY.W))
-  val ic_parerr = Input(UInt(ICACHE_BANKS_WAY.W))
-  val ic_premux_data = Output(UInt(64.W))
-  val ic_sel_premux_data = Output(Bool())
+ // val ic_eccerr = Input(UInt(ICACHE_BANKS_WAY.W))
+ // val ic_parerr = Input(UInt(ICACHE_BANKS_WAY.W))
+ // val ic_premux_data = Output(UInt(64.W))
+ // val ic_sel_premux_data = Output(Bool())
 
-  val ic_debug_addr = Output(UInt((ICACHE_INDEX_HI-2).W))
-  val ic_debug_rd_en = Output(Bool())
-  val ic_debug_wr_en = Output(Bool())
-  val ic_debug_tag_array = Output(Bool())
-  val ic_debug_way = Output(UInt(ICACHE_NUM_WAYS.W))
-  val ic_rd_hit = Input(UInt(ICACHE_NUM_WAYS.W))
-  val ic_tag_perr = Input(Bool())
+//  val ic_debug_addr = Output(UInt((ICACHE_INDEX_HI-2).W))
+ // val ic_debug_rd_en = Output(Bool())
+ // val ic_debug_wr_en = Output(Bool())
+//  val ic_debug_tag_array = Output(Bool())
+ // val ic_debug_way = Output(UInt(ICACHE_NUM_WAYS.W))
+ // val ic_rd_hit = Input(UInt(ICACHE_NUM_WAYS.W))
+ // val ic_tag_perr = Input(Bool())
 
   // AHB Lite Bus
   val haddr = Output(UInt(32.W))
@@ -174,7 +176,7 @@ class quasar extends Module with RequireAsyncReset with lib {
   ifu.io.scan_mode := io.scan_mode
   ifu.io.free_clk := free_clk
   ifu.io.active_clk := active_clk
-  ifu.io.iccm_rd_data_ecc := io.iccm_rd_data_ecc
+ // ifu.io.iccm_rd_data_ecc := io.iccm_rd_data_ecc
   ifu.io.exu_flush_final := dec.io.exu_flush_final
   ifu.io.exu_flush_path_final := exu.io.exu_flush_path_final
   ifu.io.ifu.ar.ready := Mux(BUILD_AHB_LITE.B, 0.U, io.ifu_axi.ar.ready)
@@ -184,14 +186,16 @@ class quasar extends Module with RequireAsyncReset with lib {
   ifu.io.ifu.r.bits.resp := Mux(BUILD_AHB_LITE.B, 0.U, io.ifu_axi.r.bits.resp)
   ifu.io.ifu_bus_clk_en := io.ifu_bus_clk_en
   ifu.io.ifu_dma <> dma_ctrl.io.ifu_dma
-  ifu.io.ic_rd_data := io.ic_rd_data
-  ifu.io.ic_debug_rd_data := io.ic_debug_rd_data
-  ifu.io.ictag_debug_rd_data := io.ictag_debug_rd_data
-  ifu.io.ic_eccerr := io.ic_eccerr
-  ifu.io.ic_parerr := io.ic_parerr
-  ifu.io.ic_rd_hit := io.ic_rd_hit
-  ifu.io.ic_tag_perr := io.ic_tag_perr
-  ifu.io.iccm_rd_data := io.iccm_rd_data
+  ifu.io.ic <> io.ic
+  ifu.io.iccm <> io.iccm
+//  ifu.io.ic_rd_data := io.ic_rd_data
+//  ifu.io.ic_debug_rd_data := io.ic_debug_rd_data
+//  ifu.io.ictag_debug_rd_data := io.ictag_debug_rd_data
+//  ifu.io.ic_eccerr := io.ic_eccerr
+//  ifu.io.ic_parerr := io.ic_parerr
+//  ifu.io.ic_rd_hit := io.ic_rd_hit
+//  ifu.io.ic_tag_perr := io.ic_tag_perr
+//  ifu.io.iccm_rd_data := io.iccm_rd_data
   ifu.io.exu_ifu.exu_bp <> exu.io.exu_bp
   ifu.io.exu_ifu.exu_bp.exu_i0_br_fghr_r := exu.io.exu_bp.exu_i0_br_fghr_r
   ifu.io.exu_ifu.exu_bp.exu_i0_br_index_r := exu.io.dec_exu.tlu_exu.exu_i0_br_index_r
@@ -355,26 +359,26 @@ class quasar extends Module with RequireAsyncReset with lib {
   // LSU Outputs
   io.swerv_mem <> lsu.io.dccm
   // IFU Outputs
-  io.iccm_rw_addr := ifu.io.iccm_rw_addr
-  io.iccm_wren := ifu.io.iccm_wren
-  io.iccm_rden := ifu.io.iccm_rden
-  io.iccm_wr_size := ifu.io.iccm_wr_size
-  io.iccm_wr_data := ifu.io.iccm_wr_data
-  io.iccm_buf_correct_ecc := ifu.io.iccm_buf_correct_ecc
-  io.iccm_correction_state := ifu.io.iccm_correction_state
-  io.ic_rw_addr := ifu.io.ic_rw_addr
-  io.ic_tag_valid := ifu.io.ic_tag_valid
-  io.ic_wr_en := ifu.io.ic_wr_en
-  io.ic_rd_en := ifu.io.ic_rd_en
-  io.ic_wr_data := ifu.io.ic_wr_data
-  io.ic_debug_wr_data := ifu.io.ic_debug_wr_data
-  io.ic_premux_data := ifu.io.ic_premux_data
-  io.ic_sel_premux_data := ifu.io.ic_sel_premux_data
-  io.ic_debug_addr := ifu.io.ic_debug_addr
-  io.ic_debug_rd_en := ifu.io.ic_debug_rd_en
-  io.ic_debug_wr_en := ifu.io.ic_debug_wr_en
-  io.ic_debug_tag_array := ifu.io.ic_debug_tag_array
-  io.ic_debug_way := ifu.io.ic_debug_way
+//  io.iccm_rw_addr := ifu.io.iccm_rw_addr
+//  io.iccm_wren := ifu.io.iccm_wren
+//  io.iccm_rden := ifu.io.iccm_rden
+//  io.iccm_wr_size := ifu.io.iccm_wr_size
+//  io.iccm_wr_data := ifu.io.iccm_wr_data
+//  io.iccm_buf_correct_ecc := ifu.io.iccm_buf_correct_ecc
+//  io.iccm_correction_state := ifu.io.iccm_correction_state
+//  io.ic_rw_addr := ifu.io.ic_rw_addr
+//  io.ic_tag_valid := ifu.io.ic_tag_valid
+//  io.ic_wr_en := ifu.io.ic_wr_en
+//  io.ic_rd_en := ifu.io.ic_rd_en
+//  io.ic_wr_data := ifu.io.ic_wr_data
+//  io.ic_debug_wr_data := ifu.io.ic_debug_wr_data
+//  io.ic_premux_data := ifu.io.ic_premux_data
+//  io.ic_sel_premux_data := ifu.io.ic_sel_premux_data
+//  io.ic_debug_addr := ifu.io.ic_debug_addr
+//  io.ic_debug_rd_en := ifu.io.ic_debug_rd_en
+//  io.ic_debug_wr_en := ifu.io.ic_debug_wr_en
+//  io.ic_debug_tag_array := ifu.io.ic_debug_tag_array
+//  io.ic_debug_way := ifu.io.ic_debug_way
 
   // AXI LSU SIDE
   io.lsu_axi <> lsu.io.axi

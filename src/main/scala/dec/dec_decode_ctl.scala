@@ -6,7 +6,6 @@ import chisel3.util._
 import include._
 import lib._
 import exu._
-import ifu._
 import lsu._
 
 class dec_decode_ctl extends Module with lib with RequireAsyncReset{
@@ -91,7 +90,7 @@ class dec_decode_ctl extends Module with lib with RequireAsyncReset{
     val scan_mode                  =   Input(Bool())
 
     val dec_aln = Flipped(new aln_dec)
-    val dbg_dctl = new dbg_dctl
+    val dbg_dctl = new dbg_dctl()
 })
   /////////////////////////////////////////////////////////////////////////////////////////
 //  //packets zero initialization

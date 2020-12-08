@@ -90,9 +90,9 @@ class  lsu_dccm_ctl extends Module with RequireAsyncReset with lib
     val lsu_stbuf_commit_any   = Output(UInt(1.W))
     val lsu_dccm_rden_m        = Output(UInt(1.W))
     val lsu_dccm_rden_r        = Output(UInt(1.W))
-    val dma_dccm_ctl = new dma_dccm_ctl
-    val dccm = Flipped(new mem_lsu)
-    val lsu_pic = new lsu_pic
+    val dma_dccm_ctl = new dma_dccm_ctl()
+    val dccm = Flipped(new mem_lsu())
+    val lsu_pic = new lsu_pic()
     val scan_mode              = Input(UInt(1.W))
   })
   val picm_rd_data_m     = Cat(io.lsu_pic.picm_rd_data,io.lsu_pic.picm_rd_data) //used in both if and else

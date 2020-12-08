@@ -87,7 +87,7 @@ module mem #(
    input  logic [ICACHE_NUM_WAYS-1:0]                ic_debug_way,       // Debug way. Rd or Wr.
 
    output logic [63:0]              ic_rd_data ,        // Data read from Icache. 2x64bits + parity bits. F2 stage. With ECC
-   output logic [25:0]               ictag_debug_rd_data,// Debug icache tag.
+   output logic [25:0]               ic_tag_debug_rd_data,// Debug icache tag.
 
 
    output logic [ICACHE_BANKS_WAY-1:0] ic_eccerr,    // ecc error per bank
@@ -142,7 +142,7 @@ else  begin
    assign   ic_rd_hit[ICACHE_NUM_WAYS-1:0] = '0;
    assign   ic_tag_perr    = '0 ;
    assign   ic_rd_data  = '0 ;
-   assign   ictag_debug_rd_data  = '0 ;
+   assign   ic_stag_debug_rd_data  = '0 ;
 end // else: !if( ICACHE_ENABLE )
 
 

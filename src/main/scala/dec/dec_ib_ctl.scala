@@ -1,10 +1,29 @@
 package dec
-import include._
+
 import chisel3._
 import chisel3.util._
 import exu._
-import ifu.aln_ib
+import include._
 import lib._
+
+class dec_ib_ctl_IO extends Bundle with param{
+  val ifu_ib = Flipped(new aln_ib)
+  val ib_exu = Flipped(new ib_exu)
+  val dbg_ib = new dbg_ib
+  val dec_ib0_valid_d       =Output(UInt(1.W))   // ib0 valid
+  val dec_i0_icaf_type_d    =Output(UInt(2.W)) // i0 instruction access fault type
+  val dec_i0_instr_d        =Output(UInt(32.W)) // i0 inst at decode
+  val dec_i0_pc4_d          =Output(UInt(1.W))  // i0 is 4B inst else 2B
+  val dec_i0_brp            =Valid(new br_pkt_t) // i0 branch packet at decode
+  val dec_i0_bp_index       =Output(UInt(((BTB_ADDR_HI-BTB_ADDR_LO)+1).W))   // i0 branch index
+  val dec_i0_bp_fghr        =Output(UInt(BHT_GHR_SIZE.W))   // BP FGHR
+  val dec_i0_bp_btag        =Output(UInt(BTB_BTAG_SIZE.W))  // BP tag
+  val dec_i0_icaf_d         =Output(UInt(1.W))  // i0 instruction access fault at decode
+  val dec_i0_icaf_f1_d      =Output(UInt(1.W))  // i0 instruction access fault at decode for f1 fetch group
+  val dec_i0_dbecc_d        =Output(UInt(1.W))  // i0 double-bit error at decode
+  val dec_debug_fence_d     =Output(UInt(1.W))  // debug fence inst
+}
+
 class dec_ib_ctl extends Module with param{
   val io=IO(new dec_ib_ctl_IO)
   io.dec_i0_icaf_f1_d         :=io.ifu_ib.ifu_i0_icaf_f1
@@ -59,22 +78,4 @@ class dec_ib_ctl extends Module with param{
   io.dec_i0_instr_d  := Mux(debug_valid.asBool,ib0_debug_in,io.ifu_ib.ifu_i0_instr)
 
 
-}
-
-class dec_ib_ctl_IO extends Bundle with param{
-  val ifu_ib = Flipped(new aln_ib)
-  val ib_exu = Flipped(new ib_exu)
-  val dbg_ib = new dbg_ib
-  val dec_ib0_valid_d       =Output(UInt(1.W))   // ib0 valid
-  val dec_i0_icaf_type_d    =Output(UInt(2.W)) // i0 instruction access fault type
-  val dec_i0_instr_d        =Output(UInt(32.W)) // i0 inst at decode
-  val dec_i0_pc4_d          =Output(UInt(1.W))  // i0 is 4B inst else 2B
-  val dec_i0_brp            =Valid(new br_pkt_t) // i0 branch packet at decode
-  val dec_i0_bp_index       =Output(UInt(((BTB_ADDR_HI-BTB_ADDR_LO)+1).W))   // i0 branch index
-  val dec_i0_bp_fghr        =Output(UInt(BHT_GHR_SIZE.W))   // BP FGHR
-  val dec_i0_bp_btag        =Output(UInt(BTB_BTAG_SIZE.W))  // BP tag
-  val dec_i0_icaf_d         =Output(UInt(1.W))  // i0 instruction access fault at decode
-  val dec_i0_icaf_f1_d      =Output(UInt(1.W))  // i0 instruction access fault at decode for f1 fetch group
-  val dec_i0_dbecc_d        =Output(UInt(1.W))  // i0 double-bit error at decode
-  val dec_debug_fence_d     =Output(UInt(1.W))  // debug fence inst
 }

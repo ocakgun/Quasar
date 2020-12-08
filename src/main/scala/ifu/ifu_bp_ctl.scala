@@ -7,13 +7,6 @@ import chisel3.util._
 import chisel3.experimental.chiselName
 
 @chiselName
-class dec_bp extends Bundle{
-  val dec_tlu_br0_r_pkt = Flipped(Valid(new br_tlu_pkt_t))
-  val dec_tlu_flush_lower_wb = Input(Bool())
-  val dec_tlu_flush_leak_one_wb = Input(Bool())
-  val dec_tlu_bpred_disable = Input(Bool())
-}
-
 class ifu_bp_ctl extends Module with lib with RequireAsyncReset {
   val io = IO (new Bundle {
     val active_clk = Input(Clock())

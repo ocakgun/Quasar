@@ -2,7 +2,7 @@ import chisel3._
 import mem._
 import chisel3.util._
 import dmi._
-import ifu.axi_channels
+import include._
 import lib._
 class quasar_wrapper extends Module with lib with RequireAsyncReset {
   val io = IO(new Bundle{
@@ -107,44 +107,46 @@ class quasar_wrapper extends Module with lib with RequireAsyncReset {
   mem.io.icm_clk_override := swerv.io.icm_clk_override
   mem.io.dec_tlu_core_ecc_disable := swerv.io.dec_tlu_core_ecc_disable
   mem.io.dccm <> swerv.io.swerv_mem
-  mem.io.iccm_rw_addr := swerv.io.iccm_rw_addr
-  mem.io.iccm_buf_correct_ecc := swerv.io.iccm_buf_correct_ecc
-  mem.io.iccm_correction_state := swerv.io.iccm_correction_state
-  mem.io.iccm_wren := swerv.io.iccm_wren
-  mem.io.iccm_rden := swerv.io.iccm_rden
-  mem.io.iccm_wr_size := swerv.io.iccm_wr_size
-  mem.io.iccm_wr_data := swerv.io.iccm_wr_data
+//  mem.io.iccm_rw_addr := swerv.io.iccm_rw_addr
+//  mem.io.iccm_buf_correct_ecc := swerv.io.iccm_buf_correct_ecc
+//  mem.io.iccm_correction_state := swerv.io.iccm_correction_state
+//  mem.io.iccm_wren := swerv.io.iccm_wren
+//  mem.io.iccm_rden := swerv.io.iccm_rden
+//  mem.io.iccm_wr_size := swerv.io.iccm_wr_size
+//  mem.io.iccm_wr_data := swerv.io.iccm_wr_data
 
 
-  mem.io.ic_rw_addr := swerv.io.ic_rw_addr
-  mem.io.ic_tag_valid := swerv.io.ic_tag_valid
-  mem.io.ic_wr_en := swerv.io.ic_wr_en
-  mem.io.ic_rd_en := swerv.io.ic_rd_en
-  mem.io.ic_premux_data := swerv.io.ic_premux_data
-  mem.io.ic_sel_premux_data := swerv.io.ic_sel_premux_data
-  mem.io.ic_wr_data := swerv.io.ic_wr_data
-  mem.io.ic_debug_wr_data := swerv.io.ic_debug_wr_data
-
-  mem.io.ic_debug_addr := swerv.io.ic_debug_addr
-  mem.io.ic_debug_rd_en := swerv.io.ic_debug_rd_en
-  mem.io.ic_debug_wr_en := swerv.io.ic_debug_wr_en
-  mem.io.ic_debug_tag_array := swerv.io.ic_debug_tag_array
-  mem.io.ic_debug_way := swerv.io.ic_debug_way
+//  mem.io.ic_rw_addr := swerv.io.ic_rw_addr
+//  mem.io.ic_tag_valid := swerv.io.ic_tag_valid
+//  mem.io.ic_wr_en := swerv.io.ic_wr_en
+//  mem.io.ic_rd_en := swerv.io.ic_rd_en
+//  mem.io.ic_premux_data := swerv.io.ic_premux_data
+//  mem.io.ic_sel_premux_data := swerv.io.ic_sel_premux_data
+//  mem.io.ic_wr_data := swerv.io.ic_wr_data
+//  mem.io.ic_debug_wr_data := swerv.io.ic_debug_wr_data
+//
+//  mem.io.ic_debug_addr := swerv.io.ic_debug_addr
+//  mem.io.ic_debug_rd_en := swerv.io.ic_debug_rd_en
+//  mem.io.ic_debug_wr_en := swerv.io.ic_debug_wr_en
+//  mem.io.ic_debug_tag_array := swerv.io.ic_debug_tag_array
+//  mem.io.ic_debug_way := swerv.io.ic_debug_way
   mem.io.rst_l := reset
   mem.io.clk := clock
   mem.io.scan_mode := io.scan_mode
   // Memory outputs
   swerv.io.dbg_rst_l := io.dbg_rst_l
-  swerv.io.iccm_rd_data_ecc := mem.io.iccm_rd_data_ecc
+  swerv.io.ic <> mem.io.ic
+  swerv.io.iccm <> mem.io.iccm
+ // swerv.io.iccm_rd_data_ecc := mem.io.iccm_rd_data_ecc
 //  swerv.io.dccm_rd_data_hi := mem.io.dccm_rd_data_hi
-  swerv.io.ic_rd_data := mem.io.ic_rd_data
-  swerv.io.ictag_debug_rd_data := mem.io.ictag_debug_rd_data
-  swerv.io.ic_eccerr := mem.io.ic_eccerr
-  swerv.io.ic_parerr := mem.io.ic_parerr
-  swerv.io.ic_rd_hit := mem.io.ic_rd_hit
-  swerv.io.ic_tag_perr := mem.io.ic_tag_perr
-  swerv.io.ic_debug_rd_data := mem.io.ic_debug_rd_data
-  swerv.io.iccm_rd_data := mem.io.iccm_rd_data
+//  swerv.io.ic_rd_data := mem.io.ic_rd_data
+//  swerv.io.ictag_debug_rd_data := mem.io.ictag_debug_rd_data
+//  swerv.io.ic_eccerr := mem.io.ic_eccerr
+//  swerv.io.ic_parerr := mem.io.ic_parerr
+//  swerv.io.ic_rd_hit := mem.io.ic_rd_hit
+//  swerv.io.ic_tag_perr := mem.io.ic_tag_perr
+//  swerv.io.ic_debug_rd_data := mem.io.ic_debug_rd_data
+//  swerv.io.iccm_rd_data := mem.io.iccm_rd_data
   swerv.io.sb_hready := 0.U
   swerv.io.hrdata := 0.U
   swerv.io.sb_hresp := 0.U
@@ -257,6 +259,6 @@ class quasar_wrapper extends Module with lib with RequireAsyncReset {
   io.dma_hresp := swerv.io.dma_hresp
 
 }
-object SWERV_Wrp extends App {
+object QUASAR_Wrp extends App {
   println((new chisel3.stage.ChiselStage).emitVerilog(new quasar_wrapper()))
 }

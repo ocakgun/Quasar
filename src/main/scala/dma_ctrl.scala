@@ -1,13 +1,10 @@
 
 import chisel3._
 import chisel3.util._
-import dec.dec_dbg
-import ifu.{axi_channels, ifu_dma}
+import include._
 import dbg._
 import scala.collection._
 import lib._
-import lsu.lsu_dma
-
 
 class dma_ctrl extends Module with lib with RequireAsyncReset {
   val io = IO(new Bundle {
@@ -19,8 +16,8 @@ class dma_ctrl extends Module with lib with RequireAsyncReset {
     val dma_dbg_rddata        = Output(UInt(32.W))
     val dma_dbg_cmd_done      = Output(Bool())
     val dma_dbg_cmd_fail      = Output(Bool())
-    val dbg_dma = new dec_dbg
-    val dbg_dma_io = new dbg_dma
+    val dbg_dma = new dec_dbg()
+    val dbg_dma_io = new dbg_dma()
     val iccm_dma_rvalid       = Input(Bool())     // iccm data valid for DMA read
     val iccm_dma_ecc_error    = Input(Bool())     // ECC error on DMA read
     val iccm_dma_rtag         = Input(UInt(3.W))  // Tag of the DMA req

@@ -54,7 +54,7 @@ module ifu_ic_mem
       input  logic [ICACHE_BANKS_WAY-1:0][70:0]  ic_wr_data,         // Data to fill to the Icache. With ECC
       output logic [63:0]                           ic_rd_data ,        // Data read from Icache. 2x64bits + parity bits. F2 stage. With ECC
       output logic [70:0]                           ic_debug_rd_data ,  // Data read from Icache. 2x64bits + parity bits. F2 stage. With ECC
-      output logic [25:0]                           ictag_debug_rd_data,// Debug icache tag.
+      output logic [25:0]                           ic_tag_debug_rd_data,// Debug icache tag.
       input logic  [70:0]                           ic_debug_wr_data,   // Debug wr cache.
 
       output logic [ICACHE_BANKS_WAY-1:0]        ic_eccerr,                 // ecc error per bank
@@ -1853,9 +1853,9 @@ end // block: OTHERS
 
 
    always_comb begin : tag_rd_out
-      ictag_debug_rd_data[25:0] = '0;
+      ic_tag_debug_rd_data[25:0] = '0;
       for ( int j=0; j<ICACHE_NUM_WAYS; j++) begin: debug_rd_out
-         ictag_debug_rd_data[25:0] |=  ICACHE_ECC ? ({26{ic_debug_rd_way_en_ff[j]}} & ic_tag_data_raw[j] ) : {4'b0, ({22{ic_debug_rd_way_en_ff[j]}} & ic_tag_data_raw[j][21:0])};
+         ic_tag_debug_rd_data[25:0] |=  ICACHE_ECC ? ({26{ic_debug_rd_way_en_ff[j]}} & ic_tag_data_raw[j] ) : {4'b0, ({22{ic_debug_rd_way_en_ff[j]}} & ic_tag_data_raw[j][21:0])};
       end
    end
 

@@ -2,7 +2,7 @@ package dbg
 
 import chisel3._
 import chisel3.util._
-import ifu.axi_channels
+import include._
 import lib._
 import dec._
 

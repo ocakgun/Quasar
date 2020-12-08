@@ -9,7 +9,7 @@ import ifu._
 class  lsu_bus_intf extends Module with RequireAsyncReset with lib {
   val io = IO (new Bundle {
     val scan_mode   = Input(Bool())
-    val tlu_busbuff = new tlu_busbuff
+    val tlu_busbuff = new tlu_busbuff()
     val lsu_c1_m_clk        = Input(Clock())
     val lsu_c1_r_clk        = Input(Clock())
     val lsu_c2_r_clk        = Input(Clock())
@@ -23,8 +23,8 @@ class  lsu_bus_intf extends Module with RequireAsyncReset with lib {
     val dec_lsu_valid_raw_d = Input(Bool())
     val lsu_busreq_m        = Input(Bool())
 
-    val lsu_pkt_m           = Flipped(Valid(new lsu_pkt_t))
-    val lsu_pkt_r           = Flipped(Valid(new lsu_pkt_t))
+    val lsu_pkt_m           = Flipped(Valid(new lsu_pkt_t()))
+    val lsu_pkt_r           = Flipped(Valid(new lsu_pkt_t()))
 
     val lsu_addr_d          = Input(UInt(32.W))
     val lsu_addr_m          = Input(UInt(32.W))
@@ -49,7 +49,7 @@ class  lsu_bus_intf extends Module with RequireAsyncReset with lib {
     val lsu_bus_idle_any              = Output(Bool())
     val bus_read_data_m               = Output(UInt(32.W))
 
-    val dctl_busbuff = new dctl_busbuff
+    val dctl_busbuff = new dctl_busbuff()
 
     val lsu_bus_clk_en      = Input(Bool())
   })

@@ -11,8 +11,8 @@ import ifu._
 class  lsu_bus_buffer extends Module with RequireAsyncReset with lib {
   val io = IO(new Bundle {
     val scan_mode = Input(Bool())
-    val tlu_busbuff = new tlu_busbuff
-    val dctl_busbuff = new dctl_busbuff
+    val tlu_busbuff = new tlu_busbuff()
+    val dctl_busbuff = new dctl_busbuff()
     val dec_tlu_force_halt = Input(Bool())
     val lsu_c2_r_clk = Input(Clock())
     val lsu_bus_ibuf_c1_clk = Input(Clock())
@@ -21,8 +21,8 @@ class  lsu_bus_buffer extends Module with RequireAsyncReset with lib {
     val lsu_free_c2_clk = Input(Clock())
     val lsu_busm_clk = Input(Clock())
     val dec_lsu_valid_raw_d = Input(Bool())
-    val lsu_pkt_m = Flipped(Valid(new lsu_pkt_t))
-    val lsu_pkt_r = Flipped(Valid(new lsu_pkt_t))
+    val lsu_pkt_m = Flipped(Valid(new lsu_pkt_t()))
+    val lsu_pkt_r = Flipped(Valid(new lsu_pkt_t()))
     val lsu_addr_m = Input(UInt(32.W))
     val end_addr_m = Input(UInt(32.W))
     val lsu_addr_r = Input(UInt(32.W))

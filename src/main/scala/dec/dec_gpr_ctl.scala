@@ -1,14 +1,29 @@
 package dec
-import chisel3._
 
-import scala.collection._
+import chisel3._
 import chisel3.util._
-import exu.gpr_exu
 import include._
 import lib._
 
+class dec_gpr_ctl_IO extends Bundle{
+	val	raddr0=Input(UInt(5.W))      // logical read addresses
+	val raddr1=Input(UInt(5.W))
+	val	wen0=Input(UInt(1.W))         // write enable
+	val waddr0=Input(UInt(5.W))       // write address
+	val wd0=Input(UInt(32.W))          // write data
+	val wen1=Input(UInt(1.W))         // write enable
+	val waddr1=Input(UInt(5.W))       // write address
+	val wd1=Input(UInt(32.W))          // write data
+	val wen2=Input(UInt(1.W))         // write enable
+	val waddr2=Input(UInt(5.W))       // write address
+	val wd2=Input(UInt(32.W))          // write data
+
+	val scan_mode=Input(Bool())
+	val gpr_exu = Flipped(new gpr_exu())
+}
+
 class dec_gpr_ctl extends Module with lib with RequireAsyncReset{
-	val io		=IO(new el2_dec_gpr_ctl_IO)
+	val io		=IO(new dec_gpr_ctl_IO)
 	val w0v		=Wire(Vec(32,UInt(1.W)))
 	w0v := (0 until 32).map(i => 0.U)
 
@@ -50,19 +65,3 @@ class dec_gpr_ctl extends Module with lib with RequireAsyncReset{
 	io.gpr_exu.gpr_i0_rs2_d:=Mux1H((1 until 32).map(i => (io.raddr1===i.U).asBool -> gpr_out(i)))
 }
 
-class el2_dec_gpr_ctl_IO extends Bundle{
-	val	raddr0=Input(UInt(5.W))      // logical read addresses
-	val raddr1=Input(UInt(5.W))
-	val	wen0=Input(UInt(1.W))         // write enable
-	val  	waddr0=Input(UInt(5.W))       // write address
-	val 	wd0=Input(UInt(32.W))          // write data
-	val   	wen1=Input(UInt(1.W))         // write enable
-	val  	waddr1=Input(UInt(5.W))       // write address
-	val 	wd1=Input(UInt(32.W))          // write data
-	val   	wen2=Input(UInt(1.W))         // write enable
-	val  	waddr2=Input(UInt(5.W))       // write address
-	val 	wd2=Input(UInt(32.W))          // write data
-
-	val     scan_mode=Input(Bool())
-	val gpr_exu = Flipped(new gpr_exu)
-}

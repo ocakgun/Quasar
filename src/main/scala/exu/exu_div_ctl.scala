@@ -14,7 +14,7 @@ class exu_div_ctl extends Module with RequireAsyncReset with lib {
     val divisor            = Input(UInt(32.W))
     val exu_div_result                = Output(UInt(32.W))
     val exu_div_wren         = Output(UInt(1.W))
-    val dec_div = new dec_div
+    val dec_div = new dec_div()
   })
   val run_state            = WireInit(0.U(1.W))
   val count                = WireInit(0.U(6.W))

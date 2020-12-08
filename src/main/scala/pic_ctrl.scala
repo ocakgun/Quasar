@@ -3,7 +3,7 @@ import chisel3.util._
 import include._
 import lib._
 import chisel3.experimental.chiselName
-import lsu.lsu_pic
+
 @chiselName
 class pic_ctrl extends Module with RequireAsyncReset with lib {
   val io = IO (new Bundle {
@@ -12,7 +12,7 @@ class pic_ctrl extends Module with RequireAsyncReset with lib {
     val active_clk             = Input(Clock () )
     val clk_override           = Input(Bool () )
     val extintsrc_req          = Input(UInt (PIC_TOTAL_INT_PLUS1.W))
-    val lsu_pic = Flipped(new lsu_pic)
+    val lsu_pic = Flipped(new lsu_pic())
     val meicurpl               = Input(UInt(4.W))
     val meipt                  = Input(UInt(4.W))
 

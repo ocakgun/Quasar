@@ -1,38 +1,15 @@
 package dec
 import chisel3._
 import chisel3.util._
-import exu._
-import ifu._
-import lsu._
 import include._
 import lib._
-
-class dec_dbg extends Bundle{
-  val dbg_ib = new dbg_ib
-  val dbg_dctl = new dbg_dctl
-
-}
-class dbg_ib extends Bundle{
-  val dbg_cmd_valid           = Input(Bool())    // debugger abstract command valid
-  val dbg_cmd_write           = Input(Bool())    // command is a write
-  val dbg_cmd_type            = Input(UInt(2.W))    //  command type
-  val dbg_cmd_addr            = Input(UInt(32.W))    // command address
-}
-
-class dbg_dctl extends Bundle{
-  val dbg_cmd_wrdata          = Input(UInt(2.W))    // command write data, for fence/fence_i
-}
+import lsu._
 
 class dec_IO extends Bundle with lib {
-  //val clk                   = Input(Clock())
   val free_clk              = Input(Clock())
   val active_clk            = Input(Clock())
   val lsu_fastint_stall_any = Input(Bool())           // needed by lsu for 2nd pass of dma with ecc correction, stall next cycle
-//  val dec_extint_stall      = Output(Bool())
-
-//  val dec_i0_decode_d       = Output(Bool())
   val dec_pause_state_cg    = Output(Bool())          // to top for active state clock gating
-  // val rst_l                 = Input(Bool())           // reset, active low
   val rst_vec               = Input(UInt(31.W))       // [31:1] reset vector, from core pins
 
   val nmi_int               = Input(Bool())           // NMI pin
@@ -48,24 +25,23 @@ class dec_IO extends Bundle with lib {
 
   val core_id               = Input(UInt(28.W))       // [31:4] CORE ID
 
-  // external MPC halt/run interface
   val mpc_debug_halt_req    = Input(Bool())   // Async halt request
   val mpc_debug_run_req     = Input(Bool())   // Async run request
   val mpc_reset_run_req     = Input(Bool())   // Run/halt after reset
   val mpc_debug_halt_ack    = Output(Bool())  // Halt ack
   val mpc_debug_run_ack     = Output(Bool())  // Run ack
   val debug_brkpt_status    = Output(Bool())  // debug breakpoint
-  val lsu_pmu_misaligned_m          =  Input(Bool())      // D side load or store misaligned
-  val dma_pmu_dccm_read             =  Input(Bool())      // DMA DCCM read
-  val dma_pmu_dccm_write            =  Input(Bool())      // DMA DCCM write
-  val dma_pmu_any_read              =  Input(Bool())      // DMA read
-  val dma_pmu_any_write             =  Input(Bool())      // DMA write
+  val lsu_pmu_misaligned_m          = Input(Bool())      // D side load or store misaligned
+  val dma_pmu_dccm_read             = Input(Bool())      // DMA DCCM read
+  val dma_pmu_dccm_write            = Input(Bool())      // DMA DCCM write
+  val dma_pmu_any_read              = Input(Bool())      // DMA read
+  val dma_pmu_any_write             = Input(Bool())      // DMA write
 
-  val lsu_fir_addr    =   Input(UInt(31.W)) //[31:1] Fast int address
-  val lsu_fir_error   =   Input(UInt(2.W))  //[1:0]  Fast int lookup error
+  val lsu_fir_addr                  = Input(UInt(31.W)) //[31:1] Fast int address
+  val lsu_fir_error                 = Input(UInt(2.W))  //[1:0]  Fast int lookup error
 
-  val lsu_trigger_match_m     = Input(UInt(4.W))
-  val lsu_idle_any            = Input(Bool())     // lsu idle for halting
+  val lsu_trigger_match_m           = Input(UInt(4.W))
+  val lsu_idle_any                  = Input(Bool())     // lsu idle for halting
   val lsu_error_pkt_r               = Flipped(Valid(new lsu_error_pkt_t)) // LSU exception/error packet
   val lsu_single_ecc_error_incr     = Input(Bool())// LSU inc SB error counter
   val exu_div_result                = Input(UInt(32.W))    // final div result
@@ -93,8 +69,8 @@ class dec_IO extends Bundle with lib {
   val dec_tlu_meipt             = Output(UInt(4.W))     // to PIC
 
   // Debug start
-  val dbg_halt_req         = Input(Bool())        // DM requests a halt
-  val dbg_resume_req       = Input(Bool())        // DM requests a resume
+  val dbg_halt_req              = Input(Bool())        // DM requests a halt
+  val dbg_resume_req            = Input(Bool())        // DM requests a resume
   val dec_tlu_dbg_halted        = Output(Bool())       // Core is halted and ready for debug command
   val dec_tlu_debug_mode        = Output(Bool())       // Core is in debug mode
   val dec_tlu_resume_ack        = Output(Bool())       // Resume acknowledge
@@ -105,35 +81,34 @@ class dec_IO extends Bundle with lib {
   val dec_dbg_cmd_fail          = Output(Bool())      // abstract command failed (illegal reg address)
 
   val trigger_pkt_any           = Output(Vec(4,new trigger_pkt_t))  // info needed by debug trigger blocks
-  val exu_i0_br_way_r            = Input(Bool())           // way hit or repl
+  val exu_i0_br_way_r           = Input(Bool())           // way hit or repl
   val lsu_p                     = Valid(new lsu_pkt_t) // lsu packet
   val dec_lsu_offset_d          = Output(UInt(12.W)) // 12b offset for load/store addresses
   val dec_tlu_i0_kill_writeb_r  = Output(Bool())   // I0 is flushed, don't writeback any results to arch state
-  val dec_tlu_perfcnt0   = Output(Bool())      // toggles when slot0 perf counter 0 has an event inc
-  val dec_tlu_perfcnt1   = Output(Bool())      // toggles when slot0 perf counter 1 has an event inc
-  val dec_tlu_perfcnt2   = Output(Bool())      // toggles when slot0 perf counter 2 has an event inc
-  val dec_tlu_perfcnt3   = Output(Bool())      // toggles when slot0 perf counter 3 has an event inc
-  val dec_lsu_valid_raw_d = Output(Bool())
-  val rv_trace_pkt     = Output(new trace_pkt_t)        // trace packet
-  val dec_tlu_dma_qos_prty               = Output(UInt(3.W))       // DMA QoS priority coming from MFDC [18:16]
+  val dec_tlu_perfcnt0          = Output(Bool())      // toggles when slot0 perf counter 0 has an event inc
+  val dec_tlu_perfcnt1          = Output(Bool())      // toggles when slot0 perf counter 1 has an event inc
+  val dec_tlu_perfcnt2          = Output(Bool())      // toggles when slot0 perf counter 2 has an event inc
+  val dec_tlu_perfcnt3          = Output(Bool())      // toggles when slot0 perf counter 3 has an event inc
+  val dec_lsu_valid_raw_d       = Output(Bool())
+  val rv_trace_pkt              = Output(new trace_pkt_t)        // trace packet
+  val dec_tlu_dma_qos_prty      = Output(UInt(3.W))       // DMA QoS priority coming from MFDC [18:16]
 
   // clock gating overrides from mcgc
-  val dec_tlu_misc_clk_override   = Output(Bool())       // override misc clock domain gating
-  val dec_tlu_ifu_clk_override    = Output(Bool())       // override fetch clock domain gating
-  val dec_tlu_lsu_clk_override    = Output(Bool())       // override load/store clock domain gating
-  val dec_tlu_bus_clk_override    = Output(Bool())       // override bus clock domain gating
-  val dec_tlu_pic_clk_override    = Output(Bool())       // override PIC clock domain gating
-  val dec_tlu_dccm_clk_override   = Output(Bool())       // override DCCM clock domain gating
-  val dec_tlu_icm_clk_override    = Output(Bool())       // override ICCM clock domain gating
+  val dec_tlu_misc_clk_override = Output(Bool())       // override misc clock domain gating
+  val dec_tlu_ifu_clk_override  = Output(Bool())       // override fetch clock domain gating
+  val dec_tlu_lsu_clk_override  = Output(Bool())       // override load/store clock domain gating
+  val dec_tlu_bus_clk_override  = Output(Bool())       // override bus clock domain gating
+  val dec_tlu_pic_clk_override  = Output(Bool())       // override PIC clock domain gating
+  val dec_tlu_dccm_clk_override = Output(Bool())       // override DCCM clock domain gating
+  val dec_tlu_icm_clk_override  = Output(Bool())       // override ICCM clock domain gating
 
-  val scan_mode                   = Input(Bool())
+  val scan_mode                 = Input(Bool())
   val ifu_dec = Flipped(new ifu_dec)
   val dec_exu = Flipped(new dec_exu)
   val lsu_dec = Flipped (new lsu_dec)
   val lsu_tlu = Flipped (new lsu_tlu)
   val dec_dbg = new dec_dbg
 }
-
 class dec extends Module with param with RequireAsyncReset{
   val io = IO(new dec_IO)
 
@@ -231,7 +206,7 @@ class dec extends Module with param with RequireAsyncReset{
   gpr.io.waddr2       := decode.io.div_waddr_wb
   gpr.io.wd2          := io.exu_div_result
   gpr.io.scan_mode    := io.scan_mode
-  io.dec_exu.gpr_exu := gpr.io.gpr_exu
+  io.dec_exu.gpr_exu <> gpr.io.gpr_exu
   tlu.io.tlu_mem <> io.ifu_dec.dec_mem_ctrl
   tlu.io.tlu_ifc <> io.ifu_dec.dec_ifc
   tlu.io.tlu_bp  <> io.ifu_dec.dec_bp

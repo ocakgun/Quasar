@@ -1,79 +1,11 @@
 package lsu
+
 import lib._
 import chisel3._
 import chisel3.util._
 import include._
 import mem._
-import ifu._
-class lsu_pic extends Bundle {
-  val picm_wren                         = Output(Bool())
-  val picm_rden                         = Output(Bool())
-  val picm_mken                         = Output(Bool())
-  val picm_rdaddr                       = Output(UInt(32.W))
-  val picm_wraddr                       = Output(UInt(32.W))
-  val picm_wr_data                      = Output(UInt(32.W))
-  val picm_rd_data                      = Input(UInt(32.W))
-}
 
-class lsu_dma extends Bundle{
-  val dma_lsc_ctl  = new dma_lsc_ctl
-  val dma_dccm_ctl = new dma_dccm_ctl
-  val dccm_ready   = Output(Bool())
-  val dma_mem_tag  = Input(UInt(3.W))
-
-}
-
-  class dma_lsc_ctl extends Bundle {
-    val dma_dccm_req                      = Input(Bool())
-    val dma_mem_addr                      = Input(UInt(32.W))
-    val dma_mem_sz                        = Input(UInt(3.W))
-    val dma_mem_write                     = Input(Bool())
-    val dma_mem_wdata                     = Input(UInt(64.W))
-  }
-  class dma_dccm_ctl extends Bundle{
-    val dma_mem_addr                      = Input(UInt(32.W))
-    val dma_mem_wdata                     = Input(UInt(64.W))
-    val dccm_dma_rvalid                   = Output(Bool())
-    val dccm_dma_ecc_error                = Output(Bool())
-    val dccm_dma_rtag                     = Output(UInt(3.W))
-    val dccm_dma_rdata                    = Output(UInt(64.W))
-  }
-class lsu_exu extends Bundle{
-  val exu_lsu_rs1_d                     = Input(UInt(32.W))
-  val exu_lsu_rs2_d                     = Input(UInt(32.W))
-}
-class lsu_dec extends Bundle {
-  val tlu_busbuff = new tlu_busbuff
-  val dctl_busbuff = new dctl_busbuff
-
-}
-class tlu_busbuff extends Bundle {
-  val lsu_pmu_bus_trxn                  = Output(Bool())
-  val lsu_pmu_bus_misaligned            = Output(Bool())
-  val lsu_pmu_bus_error                 = Output(Bool())
-  val lsu_pmu_bus_busy                  = Output(Bool())
-  val dec_tlu_external_ldfwd_disable    = Input(Bool())
-  val dec_tlu_wb_coalescing_disable     = Input(Bool())
-  val dec_tlu_sideeffect_posted_disable = Input(Bool())
-  val lsu_imprecise_error_load_any      = Output(Bool())
-  val lsu_imprecise_error_store_any     = Output(Bool())
-  val lsu_imprecise_error_addr_any      = Output(UInt(32.W))
-
-}
-class dctl_busbuff extends Bundle with lib{
-  val lsu_nonblock_load_valid_m         = Output(Bool())
-  val lsu_nonblock_load_tag_m           = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
-  val lsu_nonblock_load_inv_r           = Output(Bool())
-  val lsu_nonblock_load_inv_tag_r       = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
-  val lsu_nonblock_load_data_valid      = Output(Bool())
-  val lsu_nonblock_load_data_error      = Output(Bool())
-  val lsu_nonblock_load_data_tag        = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
-  val lsu_nonblock_load_data            = Output(UInt(32.W))
-}
-class lsu_tlu extends Bundle {
-  val lsu_pmu_load_external_m           = Output(Bool())
-  val lsu_pmu_store_external_m          = Output(Bool())
-}
 class lsu extends Module with RequireAsyncReset with param with lib {
   val io = IO (new Bundle {
     val clk_override                      = Input(Bool())
@@ -92,8 +24,8 @@ class lsu extends Module with RequireAsyncReset with param with lib {
     val dec_tlu_core_ecc_disable          = Input(Bool())
 
     val dec_lsu_offset_d                  = Input(UInt(12.W))
-    val lsu_p                             = Flipped(Valid(new lsu_pkt_t))
-    val trigger_pkt_any                   = Input(Vec(4, new trigger_pkt_t))
+    val lsu_p                             = Flipped(Valid(new lsu_pkt_t()))
+    val trigger_pkt_any                   = Input(Vec(4, new trigger_pkt_t()))
 
     val dec_lsu_valid_raw_d               = Input(Bool())
     val dec_tlu_mrac_ff                   = Input(UInt(32.W))
@@ -108,7 +40,7 @@ class lsu extends Module with RequireAsyncReset with param with lib {
     val lsu_fir_addr                      = Output(UInt(31.W))
     val lsu_fir_error                     = Output(UInt(2.W))
     val lsu_single_ecc_error_incr         = Output(Bool())
-    val lsu_error_pkt_r                   = Valid(new lsu_error_pkt_t)
+    val lsu_error_pkt_r                   = Valid(new lsu_error_pkt_t())
     val lsu_pmu_misaligned_m              = Output(Bool())
     val lsu_trigger_match_m               = Output(UInt(4.W))
 
@@ -125,15 +57,15 @@ class lsu extends Module with RequireAsyncReset with param with lib {
   val lsu_raw_fwd_lo_r             = WireInit(0.U(1.W))
   val lsu_raw_fwd_hi_r             = WireInit(0.U(1.W))
 
-  val lsu_lsc_ctl    = Module(new lsu_lsc_ctl )
+  val lsu_lsc_ctl    = Module(new lsu_lsc_ctl())
   io.lsu_result_m := lsu_lsc_ctl.io.lsu_result_m
   io.lsu_result_corr_r := lsu_lsc_ctl.io.lsu_result_corr_r
-  val dccm_ctl       = Module(new lsu_dccm_ctl )
-  val stbuf          = Module(new lsu_stbuf )
-  val ecc            = Module(new lsu_ecc )
-  val trigger        = Module(new lsu_trigger )
-  val clkdomain      = Module(new lsu_clkdomain )
-  val bus_intf       = Module(new lsu_bus_intf )
+  val dccm_ctl       = Module(new lsu_dccm_ctl())
+  val stbuf          = Module(new lsu_stbuf())
+  val ecc            = Module(new lsu_ecc())
+  val trigger        = Module(new lsu_trigger())
+  val clkdomain      = Module(new lsu_clkdomain())
+  val bus_intf       = Module(new lsu_bus_intf())
 
   val lsu_raw_fwd_lo_m = stbuf.io.stbuf_fwdbyteen_lo_m.orR
   val lsu_raw_fwd_hi_m = stbuf.io.stbuf_fwdbyteen_hi_m.orR

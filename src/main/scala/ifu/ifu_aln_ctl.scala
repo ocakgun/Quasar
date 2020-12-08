@@ -3,29 +3,6 @@ import lib._
 import chisel3._
 import chisel3.util._
 import include._
-class aln_ib extends Bundle with lib{
-  val ifu_i0_icaf             = Output(Bool())
-  val ifu_i0_icaf_type        = Output(UInt(2.W))
-  val ifu_i0_icaf_f1          = Output(Bool())
-  val ifu_i0_dbecc            = Output(Bool())
-  val ifu_i0_bp_index         = Output(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W))
-  val ifu_i0_bp_fghr          = Output(UInt(BHT_GHR_SIZE.W))
-  val ifu_i0_bp_btag          = Output(UInt(BTB_BTAG_SIZE.W))
-  val ifu_i0_valid            = Output(Bool())
-  val ifu_i0_instr            = Output(UInt(32.W))
-  val ifu_i0_pc               = Output(UInt(31.W))
-  val ifu_i0_pc4              = Output(Bool())
-  val i0_brp                  = Valid(new br_pkt_t)
-}
-class aln_dec extends Bundle{
-  val dec_i0_decode_d = Input(Bool()) // Dec
-  val ifu_i0_cinst            = Output(UInt(16.W)) // Dec
-}
-class dec_aln extends Bundle with lib {
-  val aln_dec = new aln_dec
-  val aln_ib = new aln_ib
-  val ifu_pmu_instr_aligned   = Output(Bool()) // TLU
-}
 
 class ifu_aln_ctl extends Module with lib with RequireAsyncReset {
   val io = IO(new Bundle{
@@ -45,7 +22,7 @@ class ifu_aln_ctl extends Module with lib with RequireAsyncReset {
     val ifu_bp_valid_f          = Input(UInt(2.W))
     val ifu_bp_ret_f            = Input(UInt(2.W))
     val exu_flush_final         = Input(Bool())
-    val dec_aln                 = new dec_aln
+    val dec_aln                 = new dec_aln()
     val ifu_fetch_data_f        = Input(UInt(32.W))
     val ifu_fetch_val           = Input(UInt(2.W))
     val ifu_fetch_pc            = Input(UInt(31.W))
@@ -54,21 +31,6 @@ class ifu_aln_ctl extends Module with lib with RequireAsyncReset {
     val ifu_fb_consume2         = Output(Bool())
 
   })
-  io.dec_aln.aln_ib.ifu_i0_valid := 0.U
-  io.dec_aln.aln_ib.ifu_i0_icaf := 0.U
-  io.dec_aln.aln_ib.ifu_i0_icaf_type := 0.U
-  io.dec_aln.aln_ib.ifu_i0_icaf_f1 := 0.U
-  io.dec_aln.aln_ib.ifu_i0_dbecc := 0.U
-  io.dec_aln.aln_ib.ifu_i0_instr := 0.U
-  io.dec_aln.aln_ib.ifu_i0_pc := 0.U
-  io.dec_aln.aln_ib.ifu_i0_pc4 := 0.U
-  io.ifu_fb_consume1 := 0.U
-  io.ifu_fb_consume2 := 0.U
-  io.dec_aln.aln_ib.ifu_i0_bp_index := 0.U
-  io.dec_aln.aln_ib.ifu_i0_bp_fghr := 0.U
-  io.dec_aln.aln_ib.ifu_i0_bp_btag := 0.U
-  io.dec_aln.ifu_pmu_instr_aligned := 0.U
-  io.dec_aln.aln_dec.ifu_i0_cinst := 0.U
   val MHI = 46+BHT_GHR_SIZE // 54
   val MSIZE = 47+BHT_GHR_SIZE // 55
   val BRDATA_SIZE = 12

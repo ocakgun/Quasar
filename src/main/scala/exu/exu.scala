@@ -6,103 +6,25 @@ import chisel3.util._
 import include._
 import lib._
 import chisel3.experimental.chiselName
-import lsu.lsu_exu
 
 @chiselName
-class dec_alu extends Bundle {
-  val                  dec_i0_alu_decode_d          = Input(UInt(1.W))          // Valid
-  val                  dec_csr_ren_d                = Input(Bool())          // extra decode
-  val                  dec_i0_br_immed_d            = Input(UInt(12.W))         // Branch offset
-  val                  exu_i0_pc_x                  = Output(UInt(31.W))        // flopped PC
-}
-class dec_div extends Bundle {
-  val		div_p					        =Flipped(Valid(new div_pkt_t))                   // DEC {valid, unsigned, rem}
-  val		dec_div_cancel			  =Input(UInt(1.W))                           // Cancel the divide operation
-}
-
-class tlu_exu extends Bundle with lib{
-  val		dec_tlu_meihap			  =Input(UInt(30.W))                          // External stall mux data
-  val   dec_tlu_flush_lower_r	=Input(UInt(1.W))                         	// Flush divide and secondary ALUs
-  val		dec_tlu_flush_path_r	=Input(UInt(31.W))                          // Redirect target
-  val		exu_i0_br_hist_r		  =Output(UInt(2.W))                          // to DEC  I0 branch history
-  val		exu_i0_br_error_r		  =Output(UInt(1.W))                          // to DEC  I0 branch error
-  val		exu_i0_br_start_error_r	=Output(UInt(1.W))                       	// to DEC  I0 branch start error
-  val		exu_i0_br_index_r		  =Output(UInt(((BTB_ADDR_HI-BTB_ADDR_LO)+1).W))  // to DEC  I0 branch index
-  val		exu_i0_br_valid_r		  =Output(UInt(1.W))                          // to DEC  I0 branch valid
-  val		exu_i0_br_mp_r			  =Output(UInt(1.W))                          // to DEC  I0 branch mispredict
-  val		exu_i0_br_middle_r		=Output(UInt(1.W))                          // to DEC  I0 branch middle
-  val		exu_pmu_i0_br_misp		=Output(UInt(1.W))                          // to PMU - I0 E4 branch mispredict
-  val		exu_pmu_i0_br_ataken	=Output(UInt(1.W))                          // to PMU - I0 E4 taken
-  val		exu_pmu_i0_pc4			  =Output(UInt(1.W))                          // to PMU - I0 E4 PC
-  val		exu_npc_r				      =Output(UInt(31.W))                         // Divide NPC
-}
-class ib_exu extends Bundle {
-  val dec_i0_pc_d				    =Input(UInt(31.W))                          // Instruction PC
-  val	dec_debug_wdata_rs1_d	=Input(UInt(1.W))                           // Debug select to primary I0 RS1
-}
-class gpr_exu extends Bundle{
-  val		gpr_i0_rs1_d			    =Input(UInt(32.W))                          // DEC data gpr
-  val		gpr_i0_rs2_d			    =Input(UInt(32.W))                          // DEC data gpr
-}
-class decode_exu extends Bundle with lib{
-  val   dec_data_en				    =Input(UInt(2.W))                           // Clock enable {x,r}, one cycle pulse
-  val   dec_ctl_en				    =Input(UInt(2.W))                           // Clock enable {x,r}, two cycle pulse
-  val		i0_ap					        =Input(new alu_pkt_t)                   // DEC alu {valid,predecodes}
-  val  	dec_i0_predict_p_d		=Flipped(Valid(new predict_pkt_t))               // DEC branch predict packet
-  val		i0_predict_fghr_d		  =Input(UInt(BHT_GHR_SIZE.W))                // DEC predict fghr
-  val		i0_predict_index_d		=Input(UInt(((BTB_ADDR_HI-BTB_ADDR_LO)+1).W))   // DEC predict index
-  val		i0_predict_btag_d		  =Input(UInt(BTB_BTAG_SIZE.W))               // DEC predict branch tag
-  val		dec_i0_rs1_en_d			  =Input(UInt(1.W))                           // Qualify GPR RS1 data
-  val		dec_i0_rs2_en_d			  =Input(UInt(1.W))                           // Qualify GPR RS2 data
-  val		dec_i0_immed_d			  =Input(UInt(32.W))                          // DEC data immediate
-  val		dec_i0_rs1_bypass_data_d=Input(UInt(32.W))                      	// DEC bypass data
-  val		dec_i0_rs2_bypass_data_d=Input(UInt(32.W))                      	// DEC bypass data
-  val		dec_i0_select_pc_d		=Input(UInt(1.W))                           // PC select to RS1
-  val		dec_i0_rs1_bypass_en_d	=Input(UInt(2.W))                       	// DEC bypass select  1 - X-stage, 0 - dec bypass data
-  val		dec_i0_rs2_bypass_en_d	=Input(UInt(2.W))                        	// DEC bypass select  1 - X-stage, 0 - dec bypass data
-  val		mul_p					        =Flipped(Valid(new mul_pkt_t))                   // DEC {valid, operand signs, low, operand bypass}
-  val		pred_correct_npc_x		=Input(UInt(31.W))                          // DEC NPC for correctly predicted branch
-  val		dec_extint_stall		  =Input(Bool())                           // External stall mux select
-  val		exu_i0_result_x			  =Output(UInt(32.W))                         // Primary ALU result to DEC
-  val		exu_csr_rs1_x			    =Output(UInt(32.W))                         // RS1 source for a CSR instruction
-
-}
-class dec_exu extends Bundle with lib{
-  val dec_alu = new dec_alu
-  val dec_div = new dec_div
-  val decode_exu = new decode_exu
-  val tlu_exu = new tlu_exu
-  val ib_exu = new ib_exu
-  val gpr_exu = new gpr_exu
-
-}
-class exu_bp extends Bundle with lib{
-  val   exu_i0_br_index_r = Output(UInt((BTB_ADDR_HI-BTB_ADDR_LO+1).W)) // Way from where the btb got a hit
-  val		exu_i0_br_fghr_r		  =Output(UInt(BHT_GHR_SIZE.W))               // to DEC  I0 branch fghr
-  val		exu_i0_br_way_r			  =Output(UInt(1.W))                          // to DEC  I0 branch way
-  val		exu_mp_pkt				    =Valid(new predict_pkt_t)              // Mispredict branch packet
-  val		exu_mp_eghr				    =Output(UInt(BHT_GHR_SIZE.W))               // Mispredict global history
-  val		exu_mp_fghr				    =Output(UInt(BHT_GHR_SIZE.W))               // Mispredict fghr
-  val		exu_mp_index			    =Output(UInt(((BTB_ADDR_HI-BTB_ADDR_LO)+1).W))  // Mispredict index
-  val		exu_mp_btag				    =Output(UInt(BTB_BTAG_SIZE.W))              // Mispredict btag
-}
 class exu extends Module with lib with RequireAsyncReset{
   val io=IO(new Bundle{
 
     val		scan_mode				      = Input(Bool())                              // Scan control
-    val   dec_exu               = new dec_exu
-    val   exu_bp                = new exu_bp
+    val   dec_exu               = new dec_exu()
+    val   exu_bp                = new exu_bp()
     //ifc-bp-mem-aln-decode
     val   exu_flush_final       = Output(UInt(1.W))         // Branch flush or flush entire pipeline
     //gpr
-    val		exu_div_result			  =Output(UInt(32.W))                         // Divide result
-    val		exu_div_wren			    =Output(UInt(1.W))                          // Divide write enable to GPR
+    val		exu_div_result			  = Output(UInt(32.W))                         // Divide result
+    val		exu_div_wren			    = Output(UInt(1.W))                          // Divide write enable to GPR
     //debug
-    val  	dbg_cmd_wrdata			  =Input(UInt(32.W))                          // Debug data   to primary I0 RS1
+    val  	dbg_cmd_wrdata			  = Input(UInt(32.W))                          // Debug data   to primary I0 RS1
     //lsu
-    val lsu_exu = Flipped(new lsu_exu)
+    val lsu_exu                 = Flipped(new lsu_exu())
     //ifu_ifc
-    val		exu_flush_path_final	=Output(UInt(31.W))                         // Target for the oldest flush source
+    val		exu_flush_path_final	= Output(UInt(31.W))                         // Target for the oldest flush source
 
   })
 
@@ -110,21 +32,21 @@ class exu extends Module with lib with RequireAsyncReset{
   val ghr_x_ns 				          = Wire(UInt(BHT_GHR_SIZE.W))
   val ghr_d_ns 				          = Wire(UInt(BHT_GHR_SIZE.W))
   val ghr_d	 				            = Wire(UInt(BHT_GHR_SIZE.W))
-  val i0_taken_d				        =Wire(UInt(1.W))
-  val mul_valid_x				        =Wire(UInt(1.W))
-  val i0_valid_d				        =Wire(UInt(1.W))
-  val flush_lower_ff			      =Wire(UInt(1.W))
-  val data_gate_en			        =Wire(UInt(1.W))
-  val csr_rs1_in_d			        =Wire(UInt(32.W))
-  val i0_predict_newp_d 		    =Wire(Valid(new predict_pkt_t))
-  val i0_flush_path_d			      =Wire(UInt(31.W))
-  val i0_predict_p_d			      =Wire(Valid(new predict_pkt_t))
-  val i0_pp_r					          =Wire(Valid(new predict_pkt_t))
-  val i0_predict_p_x			      =Wire(Valid(new predict_pkt_t))
-  val final_predict_mp		      =Wire(Valid(new predict_pkt_t))
-  val pred_correct_npc_r		    =Wire(UInt(32.W))
-  val i0_pred_correct_upper_d	  =Wire(UInt(1.W))
-  val i0_flush_upper_d		      =Wire(UInt(1.W))
+  val i0_taken_d				        = Wire(UInt(1.W))
+  val mul_valid_x				        = Wire(UInt(1.W))
+  val i0_valid_d				        = Wire(UInt(1.W))
+  val flush_lower_ff			      = Wire(UInt(1.W))
+  val data_gate_en			        = Wire(UInt(1.W))
+  val csr_rs1_in_d			        = Wire(UInt(32.W))
+  val i0_predict_newp_d 		    = Wire(Valid(new predict_pkt_t()))
+  val i0_flush_path_d			      = Wire(UInt(31.W))
+  val i0_predict_p_d			      = Wire(Valid(new predict_pkt_t()))
+  val i0_pp_r					          = Wire(Valid(new predict_pkt_t()))
+  val i0_predict_p_x			      = Wire(Valid(new predict_pkt_t()))
+  val final_predict_mp		      = Wire(Valid(new predict_pkt_t()))
+  val pred_correct_npc_r		    = Wire(UInt(32.W))
+  val i0_pred_correct_upper_d	  = Wire(UInt(1.W))
+  val i0_flush_upper_d		      = Wire(UInt(1.W))
   io.exu_bp.exu_mp_pkt.bits.prett			:=0.U
   io.exu_bp.exu_mp_pkt.bits.br_start_error:=0.U
   io.exu_bp.exu_mp_pkt.bits.br_error		:=0.U

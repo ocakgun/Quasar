@@ -28,7 +28,7 @@ class  lsu_lsc_ctl extends Module with RequireAsyncReset with lib
     val flush_m_up = Input(UInt(1.W))
     val flush_r    = Input(UInt(1.W))
 
-    val lsu_exu = new lsu_exu
+    val lsu_exu = new lsu_exu()
 
     val lsu_p = Flipped(Valid(new lsu_pkt_t()))        // lsu control packet //coming from decode
     val dec_lsu_valid_raw_d = Input(UInt(1.W))   // Raw valid for address computation
@@ -76,7 +76,7 @@ class  lsu_lsc_ctl extends Module with RequireAsyncReset with lib
     val addr_external_m   = Output(UInt(1.W))
 
     // DMA slave
-    val dma_lsc_ctl = new dma_lsc_ctl
+    val dma_lsc_ctl = new dma_lsc_ctl()
 
     // Store buffer related signals
     val lsu_pkt_d    = Valid(new lsu_pkt_t())

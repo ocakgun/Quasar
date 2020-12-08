@@ -1,15 +1,9 @@
 package ifu
 import lib._
 import exu._
+import include._
 import chisel3._
 import chisel3.util._
-
-class dec_ifc extends Bundle{
-  val dec_tlu_flush_noredir_wb = Input(Bool())
-  val dec_tlu_mrac_ff = Input(UInt(32.W))
-  val ifu_pmu_fetch_stall = Output(Bool())
-}
-
 
 class ifu_ifc_ctl extends Module with lib with RequireAsyncReset {
   val io = IO(new Bundle{
@@ -22,14 +16,12 @@ class ifu_ifc_ctl extends Module with lib with RequireAsyncReset {
     val ifu_ic_mb_empty = Input(Bool())
     val ifu_fb_consume1 = Input(Bool())
     val ifu_fb_consume2 = Input(Bool())
-//    val exu_ifc = new exu_ifc()
     val ifu_bp_hit_taken_f = Input(Bool())
     val ifu_bp_btb_target_f = Input(UInt(31.W))
     val ic_dma_active = Input(Bool())
     val ic_write_stall = Input(Bool())
-//    val dma_iccm_stall_any = Input(Bool())
     val dec_ifc = new dec_ifc()
-    val dma_ifc = new dma_ifc
+    val dma_ifc = new dma_ifc()
     val ifc_fetch_addr_f = Output(UInt(31.W))
     val ifc_fetch_addr_bf = Output(UInt(31.W))
 
