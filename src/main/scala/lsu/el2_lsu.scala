@@ -3,22 +3,94 @@ import lib._
 import chisel3._
 import chisel3.util._
 import include._
+import el2_mem._
 import ifu._
+class lsu_pic extends Bundle {
+  val picm_wren                         = Output(Bool())
+  val picm_rden                         = Output(Bool())
+  val picm_mken                         = Output(Bool())
+  val picm_rdaddr                       = Output(UInt(32.W))
+  val picm_wraddr                       = Output(UInt(32.W))
+  val picm_wr_data                      = Output(UInt(32.W))
+  val picm_rd_data                      = Input(UInt(32.W))
+}
 
+class lsu_dma extends Bundle{
+  val dma_lsc_ctl  = new dma_lsc_ctl
+  val dma_dccm_ctl = new dma_dccm_ctl
+  val dccm_ready   = Output(Bool())
+  val dma_mem_tag  = Input(UInt(3.W))
+
+}
+
+  class dma_lsc_ctl extends Bundle {
+    val dma_dccm_req                      = Input(Bool())
+    val dma_mem_addr                      = Input(UInt(32.W))
+    val dma_mem_sz                        = Input(UInt(3.W))
+    val dma_mem_write                     = Input(Bool())
+    val dma_mem_wdata                     = Input(UInt(64.W))
+  }
+  class dma_dccm_ctl extends Bundle{
+    val dma_mem_addr                      = Input(UInt(32.W))
+    val dma_mem_wdata                     = Input(UInt(64.W))
+    val dccm_dma_rvalid                   = Output(Bool())
+    val dccm_dma_ecc_error                = Output(Bool())
+    val dccm_dma_rtag                     = Output(UInt(3.W))
+    val dccm_dma_rdata                    = Output(UInt(64.W))
+  }
+class lsu_exu extends Bundle{
+  val exu_lsu_rs1_d                     = Input(UInt(32.W))
+  val exu_lsu_rs2_d                     = Input(UInt(32.W))
+}
+class lsu_dec extends Bundle {
+  val tlu_busbuff = new tlu_busbuff
+  val dctl_busbuff = new dctl_busbuff
+
+}
+class tlu_busbuff extends Bundle {
+  val lsu_pmu_bus_trxn                  = Output(Bool())
+  val lsu_pmu_bus_misaligned            = Output(Bool())
+  val lsu_pmu_bus_error                 = Output(Bool())
+  val lsu_pmu_bus_busy                  = Output(Bool())
+  val dec_tlu_external_ldfwd_disable    = Input(Bool())
+  val dec_tlu_wb_coalescing_disable     = Input(Bool())
+  val dec_tlu_sideeffect_posted_disable = Input(Bool())
+  val lsu_imprecise_error_load_any      = Output(Bool())
+  val lsu_imprecise_error_store_any     = Output(Bool())
+  val lsu_imprecise_error_addr_any      = Output(UInt(32.W))
+
+}
+class dctl_busbuff extends Bundle with el2_lib{
+  val lsu_nonblock_load_valid_m         = Output(Bool())
+  val lsu_nonblock_load_tag_m           = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
+  val lsu_nonblock_load_inv_r           = Output(Bool())
+  val lsu_nonblock_load_inv_tag_r       = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
+  val lsu_nonblock_load_data_valid      = Output(Bool())
+  val lsu_nonblock_load_data_error      = Output(Bool())
+  val lsu_nonblock_load_data_tag        = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
+  val lsu_nonblock_load_data            = Output(UInt(32.W))
+}
+class lsu_tlu extends Bundle {
+  val lsu_pmu_load_external_m           = Output(Bool())
+  val lsu_pmu_store_external_m          = Output(Bool())
+}
 class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
   val io = IO (new Bundle {
     val clk_override                      = Input(Bool())
+    val lsu_dma = new lsu_dma
+    val lsu_pic = new lsu_pic
+    val lsu_exu = new lsu_exu
+    val lsu_dec = new lsu_dec
+    val dccm = Flipped(new mem_lsu)
+    val lsu_tlu = new lsu_tlu
+    val axi = new axi_channels(LSU_BUS_TAG)
+
     val dec_tlu_flush_lower_r             = Input(Bool())
     val dec_tlu_i0_kill_writeb_r          = Input(Bool())
     val dec_tlu_force_halt                = Input(Bool())
-    // chicken signals
-    val dec_tlu_external_ldfwd_disable    = Input(Bool())
-    val dec_tlu_wb_coalescing_disable     = Input(Bool())
-    val dec_tlu_sideeffect_posted_disable = Input(Bool())
+
     val dec_tlu_core_ecc_disable          = Input(Bool())
 
-    val exu_lsu_rs1_d                     = Input(UInt(32.W))
-    val exu_lsu_rs2_d                     = Input(UInt(32.W))
     val dec_lsu_offset_d                  = Input(UInt(12.W))
     val lsu_p                             = Flipped(Valid(new el2_lsu_pkt_t))
     val trigger_pkt_any                   = Input(Vec(4, new el2_trigger_pkt_t))
@@ -37,66 +109,10 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
     val lsu_fir_error                     = Output(UInt(2.W))
     val lsu_single_ecc_error_incr         = Output(Bool())
     val lsu_error_pkt_r                   = Valid(new el2_lsu_error_pkt_t)
-    val lsu_imprecise_error_load_any      = Output(Bool())
-    val lsu_imprecise_error_store_any     = Output(Bool())
-    val lsu_imprecise_error_addr_any      = Output(UInt(32.W))
-
-    // Non-blocking loads
-    val lsu_nonblock_load_valid_m         = Output(Bool())
-    val lsu_nonblock_load_tag_m           = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
-    val lsu_nonblock_load_inv_r           = Output(Bool())
-    val lsu_nonblock_load_inv_tag_r       = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
-    val lsu_nonblock_load_data_valid      = Output(Bool())
-    val lsu_nonblock_load_data_error      = Output(Bool())
-    val lsu_nonblock_load_data_tag        = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
-    val lsu_nonblock_load_data            = Output(UInt(32.W))
-
-    val lsu_pmu_load_external_m           = Output(Bool())
-    val lsu_pmu_store_external_m          = Output(Bool())
     val lsu_pmu_misaligned_m              = Output(Bool())
-    val lsu_pmu_bus_trxn                  = Output(Bool())
-    val lsu_pmu_bus_misaligned            = Output(Bool())
-    val lsu_pmu_bus_error                 = Output(Bool())
-    val lsu_pmu_bus_busy                  = Output(Bool())
-
     val lsu_trigger_match_m               = Output(UInt(4.W))
-    // DCCM ports
-    val dccm_wren                         = Output(Bool())
-    val dccm_rden                         = Output(Bool())
-    val dccm_wr_addr_lo                   = Output(UInt(DCCM_BITS.W))
-    val dccm_wr_addr_hi                   = Output(UInt(DCCM_BITS.W))
-    val dccm_rd_addr_lo                   = Output(UInt(DCCM_BITS.W))
-    val dccm_rd_addr_hi                   = Output(UInt(DCCM_BITS.W))
-    val dccm_wr_data_lo                   = Output(UInt(DCCM_FDATA_WIDTH.W))
-    val dccm_wr_data_hi                   = Output(UInt(DCCM_FDATA_WIDTH.W))
-    val dccm_rd_data_lo                   = Input(UInt(DCCM_FDATA_WIDTH.W))
-    val dccm_rd_data_hi                   = Input(UInt(DCCM_FDATA_WIDTH.W))
-    // PIC ports
-    val picm_wren                         = Output(Bool())
-    val picm_rden                         = Output(Bool())
-    val picm_mken                         = Output(Bool())
-    val picm_rdaddr                       = Output(UInt(32.W))
-    val picm_wraddr                       = Output(UInt(32.W))
-    val picm_wr_data                      = Output(UInt(32.W))
-    val picm_rd_data                      = Input(UInt(32.W))
 
-    // AXI Write Channels
-
-   val axi = new axi_channels()
     val lsu_bus_clk_en                    = Input(Bool())
-    // DMA slave
-
-    val dma_dccm_req                      = Input(Bool())
-    val dma_mem_write                     = Input(Bool())
-    val dccm_dma_rvalid                   = Output(Bool())
-    val dccm_dma_ecc_error                = Output(Bool())
-    val dma_mem_tag                       = Input(UInt(3.W))
-    val dma_mem_addr                      = Input(UInt(32.W))
-    val dma_mem_sz                        = Input(UInt(3.W))
-    val dma_mem_wdata                     = Input(UInt(64.W))
-    val dccm_dma_rtag                     = Output(UInt(3.W))
-    val dccm_dma_rdata                    = Output(UInt(64.W))
-    val dccm_ready                        = Output(Bool())
 
     val scan_mode                         = Input(Bool())
     val free_clk                          = Input(Clock())
@@ -129,12 +145,12 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
 
   // Ready to accept dma trxns
   // There can't be any inpipe forwarding from non-dma packet to dma packet since they can be flushed so we can't have st in r when dma is in m
-  val dma_mem_tag_d  = io.dma_mem_tag
+  val dma_mem_tag_d  = io.lsu_dma.dma_mem_tag
   val ldst_nodma_mtor = lsu_lsc_ctl.io.lsu_pkt_m.valid & !lsu_lsc_ctl.io.lsu_pkt_m.bits.dma & (lsu_lsc_ctl.io.addr_in_dccm_m | lsu_lsc_ctl.io.addr_in_pic_m) & lsu_lsc_ctl.io.lsu_pkt_m.bits.store
-  io.dccm_ready := !(io.dec_lsu_valid_raw_d | ldst_nodma_mtor | dccm_ctl.io.ld_single_ecc_error_r_ff)
-  val dma_dccm_wen = io.dma_dccm_req & io.dma_mem_write & lsu_lsc_ctl.io.addr_in_dccm_d
-  val dma_pic_wen  = io.dma_dccm_req & io.dma_mem_write & lsu_lsc_ctl.io.addr_in_pic_d
-  dma_dccm_wdata := io.dma_mem_wdata >> Cat(io.dma_mem_addr(2,0), 0.U(3.W)) // Shift the dma data to lower bits to make it consistent to lsu stores
+  io.lsu_dma.dccm_ready := !(io.dec_lsu_valid_raw_d | ldst_nodma_mtor | dccm_ctl.io.ld_single_ecc_error_r_ff)
+  val dma_dccm_wen = io.lsu_dma.dma_lsc_ctl.dma_dccm_req & io.lsu_dma.dma_lsc_ctl.dma_mem_write & lsu_lsc_ctl.io.addr_in_dccm_d
+  val dma_pic_wen  = io.lsu_dma.dma_lsc_ctl.dma_dccm_req & io.lsu_dma.dma_lsc_ctl.dma_mem_write & lsu_lsc_ctl.io.addr_in_pic_d
+  dma_dccm_wdata := io.lsu_dma.dma_lsc_ctl.dma_mem_wdata >> Cat(io.lsu_dma.dma_lsc_ctl.dma_mem_addr(2,0), 0.U(3.W)) // Shift the dma data to lower bits to make it consistent to lsu stores
   dma_dccm_wdata_hi := dma_dccm_wdata(63,32)
   dma_dccm_wdata_lo := dma_dccm_wdata(31,0)
 
@@ -154,8 +170,8 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
   val lsu_busreq_m = lsu_lsc_ctl.io.lsu_pkt_m.valid & ((lsu_lsc_ctl.io.lsu_pkt_m.bits.load | lsu_lsc_ctl.io.lsu_pkt_m.bits.store) & lsu_lsc_ctl.io.addr_external_m) & !flush_m_up & !lsu_lsc_ctl.io.lsu_exc_m & !lsu_lsc_ctl.io.lsu_pkt_m.bits.fast_int
   // PMU signals
   io.lsu_pmu_misaligned_m := lsu_lsc_ctl.io.lsu_pkt_m.valid & ((lsu_lsc_ctl.io.lsu_pkt_m.bits.half & lsu_lsc_ctl.io.lsu_addr_m(0)) | (lsu_lsc_ctl.io.lsu_pkt_m.bits.word & lsu_lsc_ctl.io.lsu_addr_m(1,0).orR))
-  io.lsu_pmu_load_external_m  := lsu_lsc_ctl.io.lsu_pkt_m.valid & lsu_lsc_ctl.io.lsu_pkt_m.bits.load & lsu_lsc_ctl.io.addr_external_m
-  io.lsu_pmu_store_external_m := lsu_lsc_ctl.io.lsu_pkt_m.valid & lsu_lsc_ctl.io.lsu_pkt_m.bits.store & lsu_lsc_ctl.io.addr_external_m
+  io.lsu_tlu.lsu_pmu_load_external_m  := lsu_lsc_ctl.io.lsu_pkt_m.valid & lsu_lsc_ctl.io.lsu_pkt_m.bits.load & lsu_lsc_ctl.io.addr_external_m
+  io.lsu_tlu.lsu_pmu_store_external_m := lsu_lsc_ctl.io.lsu_pkt_m.valid & lsu_lsc_ctl.io.lsu_pkt_m.bits.store & lsu_lsc_ctl.io.addr_external_m
 
   //LSU_LSC_Control
   //Inputs
@@ -173,18 +189,13 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
   lsu_lsc_ctl.io.lsu_double_ecc_error_m      := ecc.io.lsu_double_ecc_error_m
   lsu_lsc_ctl.io.flush_m_up                  := flush_m_up
   lsu_lsc_ctl.io.flush_r                     := flush_r
-  lsu_lsc_ctl.io.exu_lsu_rs1_d               := io.exu_lsu_rs1_d
-  lsu_lsc_ctl.io.exu_lsu_rs2_d               := io.exu_lsu_rs2_d
+  lsu_lsc_ctl.io.lsu_exu                     <> io.lsu_exu
   lsu_lsc_ctl.io.lsu_p                       <> io.lsu_p
   lsu_lsc_ctl.io.dec_lsu_valid_raw_d         := io.dec_lsu_valid_raw_d
   lsu_lsc_ctl.io.dec_lsu_offset_d            := io.dec_lsu_offset_d
   lsu_lsc_ctl.io.picm_mask_data_m            := dccm_ctl.io.picm_mask_data_m
   lsu_lsc_ctl.io.bus_read_data_m             := bus_intf.io.bus_read_data_m
-  lsu_lsc_ctl.io.dma_dccm_req                := io.dma_dccm_req
-  lsu_lsc_ctl.io.dma_mem_addr                := io.dma_mem_addr
-  lsu_lsc_ctl.io.dma_mem_sz                  := io.dma_mem_sz
-  lsu_lsc_ctl.io.dma_mem_write               := io.dma_mem_write
-  lsu_lsc_ctl.io.dma_mem_wdata               := io.dma_mem_wdata
+  lsu_lsc_ctl.io.dma_lsc_ctl         <> io.lsu_dma.dma_lsc_ctl
   lsu_lsc_ctl.io.dec_tlu_mrac_ff             := io.dec_tlu_mrac_ff
   lsu_lsc_ctl.io.scan_mode                   := io.scan_mode
   //Outputs
@@ -200,7 +211,6 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
   dccm_ctl.io.lsu_free_c2_clk                := clkdomain.io.lsu_free_c2_clk
   dccm_ctl.io.lsu_c1_r_clk                   := clkdomain.io.lsu_c1_r_clk
   dccm_ctl.io.lsu_store_c1_r_clk             := clkdomain.io.lsu_store_c1_r_clk
-  //dccm_ctl.io.clk                            := clock
   dccm_ctl.io.lsu_pkt_d                      <> lsu_lsc_ctl.io.lsu_pkt_d
   dccm_ctl.io.lsu_pkt_m                      <> lsu_lsc_ctl.io.lsu_pkt_m
   dccm_ctl.io.lsu_pkt_r                      <> lsu_lsc_ctl.io.lsu_pkt_r
@@ -243,35 +253,15 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
   dccm_ctl.io.dma_dccm_wen                   := dma_dccm_wen
   dccm_ctl.io.dma_pic_wen                    := dma_pic_wen
   dccm_ctl.io.dma_mem_tag_m                  := dma_mem_tag_m
-  dccm_ctl.io.dma_mem_addr                   := io.dma_mem_addr
-  dccm_ctl.io.dma_mem_wdata                  := io.dma_mem_wdata
   dccm_ctl.io.dma_dccm_wdata_lo              := dma_dccm_wdata_lo
   dccm_ctl.io.dma_dccm_wdata_hi              := dma_dccm_wdata_hi
   dccm_ctl.io.dma_dccm_wdata_ecc_hi          := ecc.io.dma_dccm_wdata_ecc_hi
   dccm_ctl.io.dma_dccm_wdata_ecc_lo          := ecc.io.dma_dccm_wdata_ecc_lo
-  dccm_ctl.io.dccm_rd_data_lo                := io.dccm_rd_data_lo
-  dccm_ctl.io.dccm_rd_data_hi                := io.dccm_rd_data_hi
-  dccm_ctl.io.picm_rd_data                   := io.picm_rd_data
   dccm_ctl.io.scan_mode                      := io.scan_mode
   //Outputs
-  io.dccm_dma_rvalid                            := dccm_ctl.io.dccm_dma_rvalid
-  io.dccm_dma_ecc_error                         := dccm_ctl.io.dccm_dma_ecc_error
-  io.dccm_dma_rtag                              := dccm_ctl.io.dccm_dma_rtag
-  io.dccm_dma_rdata                             := dccm_ctl.io.dccm_dma_rdata
-  io.dccm_wren                                  := dccm_ctl.io.dccm_wren
-  io.dccm_rden                                  := dccm_ctl.io.dccm_rden
-  io.dccm_wr_addr_lo                            := dccm_ctl.io.dccm_wr_addr_lo
-  io.dccm_wr_data_lo                            := dccm_ctl.io.dccm_wr_data_lo
-  io.dccm_rd_addr_lo                            := dccm_ctl.io.dccm_rd_addr_lo
-  io.dccm_wr_addr_hi                            := dccm_ctl.io.dccm_wr_addr_hi
-  io.dccm_wr_data_hi                            := dccm_ctl.io.dccm_wr_data_hi
-  io.dccm_rd_addr_hi                            := dccm_ctl.io.dccm_rd_addr_hi
-  io.picm_wren                                  := dccm_ctl.io.picm_wren
-  io.picm_rden                                  := dccm_ctl.io.picm_rden
-  io.picm_mken                                  := dccm_ctl.io.picm_mken
-  io.picm_rdaddr                                := dccm_ctl.io.picm_rdaddr
-  io.picm_wraddr                                := dccm_ctl.io.picm_wraddr
-  io.picm_wr_data                               := dccm_ctl.io.picm_wr_data
+  io.lsu_dma.dma_dccm_ctl <> dccm_ctl.io.dma_dccm_ctl
+  io.dccm <> dccm_ctl.io.dccm
+  io.lsu_pic <> dccm_ctl.io.lsu_pic
   //Store Buffer
   //Inputs
   stbuf.io.lsu_c1_m_clk                         := clkdomain.io.lsu_c1_m_clk
@@ -343,7 +333,7 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
   clkdomain.io.free_clk                          := io.free_clk
   clkdomain.io.clk_override                      := io.clk_override
   clkdomain.io.addr_in_dccm_m                    := lsu_lsc_ctl.io.addr_in_dccm_m
-  clkdomain.io.dma_dccm_req                      := io.dma_dccm_req
+  clkdomain.io.dma_dccm_req                      := io.lsu_dma.dma_lsc_ctl.dma_dccm_req
   clkdomain.io.ldst_stbuf_reqvld_r               := stbuf.io.ldst_stbuf_reqvld_r
   clkdomain.io.stbuf_reqvld_any                  := stbuf.io.stbuf_reqvld_any
   clkdomain.io.stbuf_reqvld_flushed_any          := stbuf.io.stbuf_reqvld_flushed_any
@@ -361,9 +351,7 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
   //Bus Interface
   //Inputs
   bus_intf.io.scan_mode                         := io.scan_mode
-  bus_intf.io.dec_tlu_external_ldfwd_disable    := io.dec_tlu_external_ldfwd_disable
-  bus_intf.io.dec_tlu_wb_coalescing_disable     := io.dec_tlu_wb_coalescing_disable
-  bus_intf.io.dec_tlu_sideeffect_posted_disable := io.dec_tlu_sideeffect_posted_disable
+  io.lsu_dec.tlu_busbuff <> bus_intf.io.tlu_busbuff
   bus_intf.io.lsu_c1_m_clk                      := clkdomain.io.lsu_c1_m_clk
   bus_intf.io.lsu_c1_r_clk                      := clkdomain.io.lsu_c1_r_clk
   bus_intf.io.lsu_c2_r_clk                      := clkdomain.io.lsu_c2_r_clk
@@ -390,22 +378,7 @@ class el2_lsu extends Module with RequireAsyncReset with param with el2_lib {
   bus_intf.io.flush_m_up                        := flush_m_up
   bus_intf.io.flush_r                           := flush_r
   //Outputs
-
-  io.lsu_imprecise_error_load_any               := bus_intf.io.lsu_imprecise_error_load_any
-  io.lsu_imprecise_error_store_any              := bus_intf.io.lsu_imprecise_error_store_any
-  io.lsu_imprecise_error_addr_any               := bus_intf.io.lsu_imprecise_error_addr_any
-  io.lsu_nonblock_load_valid_m                  := bus_intf.io.lsu_nonblock_load_valid_m
-  io.lsu_nonblock_load_tag_m                    := bus_intf.io.lsu_nonblock_load_tag_m
-  io.lsu_nonblock_load_inv_r                    := bus_intf.io.lsu_nonblock_load_inv_r
-  io.lsu_nonblock_load_inv_tag_r                := bus_intf.io.lsu_nonblock_load_inv_tag_r
-  io.lsu_nonblock_load_data_valid               := bus_intf.io.lsu_nonblock_load_data_valid
-  io.lsu_nonblock_load_data_error               := bus_intf.io.lsu_nonblock_load_data_error
-  io.lsu_nonblock_load_data_tag                 := bus_intf.io.lsu_nonblock_load_data_tag
-  io.lsu_nonblock_load_data                     := bus_intf.io.lsu_nonblock_load_data
-  io.lsu_pmu_bus_trxn                           := bus_intf.io.lsu_pmu_bus_trxn
-  io.lsu_pmu_bus_misaligned                     := bus_intf.io.lsu_pmu_bus_misaligned
-  io.lsu_pmu_bus_error                          := bus_intf.io.lsu_pmu_bus_error
-  io.lsu_pmu_bus_busy                           := bus_intf.io.lsu_pmu_bus_busy
+  io.lsu_dec.dctl_busbuff <> bus_intf.io.dctl_busbuff
   io.axi                                        <> bus_intf.io.axi
   bus_intf.io.lsu_bus_clk_en                    := io.lsu_bus_clk_en
 

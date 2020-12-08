@@ -2,22 +2,28 @@ package el2_mem
 import chisel3._
 import chisel3.util.HasBlackBoxResource
 import lib._
+
+class mem_lsu extends Bundle with el2_lib{
+  val wren = Input(Bool())
+  val rden = Input(Bool())
+  val wr_addr_lo = Input(UInt(DCCM_BITS.W))
+  val wr_addr_hi = Input(UInt(DCCM_BITS.W))
+  val rd_addr_lo = Input(UInt(DCCM_BITS.W))
+  val rd_addr_hi = Input(UInt(DCCM_BITS.W))
+  val wr_data_lo = Input(UInt(DCCM_FDATA_WIDTH.W))
+  val wr_data_hi = Input(UInt(DCCM_FDATA_WIDTH.W))
+  val rd_data_lo = Output(UInt(DCCM_FDATA_WIDTH.W))
+  val rd_data_hi = Output(UInt(DCCM_FDATA_WIDTH.W))
+}
+
+
 class Mem_bundle extends Bundle with el2_lib {
   val clk = Input(Clock())
   val rst_l = Input(AsyncReset())
   val dccm_clk_override = Input(Bool())
   val icm_clk_override = Input(Bool())
   val dec_tlu_core_ecc_disable = Input(Bool())
-  val dccm_wren = Input(Bool())
-  val dccm_rden = Input(Bool())
-  val dccm_wr_addr_lo = Input(UInt(DCCM_BITS.W))
-  val dccm_wr_addr_hi = Input(UInt(DCCM_BITS.W))
-  val dccm_rd_addr_lo = Input(UInt(DCCM_BITS.W))
-  val dccm_rd_addr_hi = Input(UInt(DCCM_BITS.W))
-  val dccm_wr_data_lo = Input(UInt(DCCM_FDATA_WIDTH.W))
-  val dccm_wr_data_hi = Input(UInt(DCCM_FDATA_WIDTH.W))
-  val dccm_rd_data_lo = Output(UInt(DCCM_FDATA_WIDTH.W))
-
+  val dccm = new mem_lsu
   val iccm_rw_addr = Input(UInt((ICCM_BITS-1).W))
   val iccm_buf_correct_ecc = Input(Bool())
   val iccm_correction_state = Input(Bool())
@@ -25,8 +31,6 @@ class Mem_bundle extends Bundle with el2_lib {
   val iccm_rden = Input(Bool())
   val iccm_wr_size = Input(UInt(3.W))
   val iccm_wr_data = Input(UInt(78.W))
-
-
   val ic_rw_addr = Input(UInt(31.W))
   val ic_tag_valid = Input(UInt(ICACHE_NUM_WAYS.W))
   val ic_wr_en = Input(UInt(ICACHE_NUM_WAYS.W))
@@ -35,16 +39,13 @@ class Mem_bundle extends Bundle with el2_lib {
   val ic_sel_premux_data = Input(Bool())
   val ic_wr_data = Input(Vec(ICACHE_BANKS_WAY, UInt(71.W)))
   val ic_debug_wr_data = Input(UInt(71.W))
-
   val ic_debug_addr = Input(UInt((ICACHE_INDEX_HI-2).W))
   val ic_debug_rd_en = Input(Bool())
   val ic_debug_wr_en = Input(Bool())
   val ic_debug_tag_array = Input(Bool())
   val ic_debug_way = Input(UInt(ICACHE_NUM_WAYS.W))
   val scan_mode = Input(Bool())
-
   val iccm_rd_data_ecc = Output(UInt(78.W))
-  val dccm_rd_data_hi = Output(UInt(DCCM_FDATA_WIDTH.W))
   val ic_rd_data = Output(UInt(64.W))
   val ictag_debug_rd_data = Output(UInt(26.W))
   val ic_eccerr = Output(UInt(ICACHE_BANKS_WAY.W))
