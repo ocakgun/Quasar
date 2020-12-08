@@ -5,6 +5,7 @@ import chisel3.util._
 import exu._
 import lib._
 import include._
+import lsu.lsu_dma
 class ifu_dec extends Bundle{
   val dec_aln = new dec_aln
   val dec_mem_ctrl = new dec_mem_ctrl
@@ -14,7 +15,21 @@ class ifu_dec extends Bundle{
 class exu_ifu extends Bundle{
   val exu_bp = Flipped(new exu_bp())
 }
-
+class ifu_dma extends Bundle{
+  val dma_ifc  = new dma_ifc
+  val dma_mem_ctl = new dma_mem_ctl
+}
+class dma_mem_ctl extends Bundle{
+  val dma_iccm_req = Input(Bool())
+  val dma_mem_addr = Input(UInt(32.W))
+  val dma_mem_sz = Input(UInt(3.W))
+  val dma_mem_write = Input(Bool())
+  val dma_mem_wdata = Input(UInt(64.W))
+  val dma_mem_tag = Input(UInt(3.W))
+}
+class dma_ifc extends  Bundle{
+  val dma_iccm_stall_any = Input(Bool())
+}
 @chiselName
 class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   val io = IO(new Bundle{
@@ -25,25 +40,16 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
     val ifu_dec = new ifu_dec
     val exu_ifu = new exu_ifu
     // AXI Write Channel
-    val ifu = new axi_channels()
+    val ifu = new axi_channels(IFU_BUS_TAG)
     val ifu_bus_clk_en = Input(Bool())
-
     // DMA signals
-    val dma_iccm_req = Input(Bool())
-    val dma_mem_addr = Input(UInt(32.W))
-    val dma_mem_sz = Input(UInt(3.W))
-    val dma_mem_write = Input(Bool())
-    val dma_mem_wdata = Input(UInt(64.W))
-    val dma_mem_tag = Input(UInt(3.W))
-    val dma_iccm_stall_any = Input(Bool())
-
+    val ifu_dma = new ifu_dma
     // ICCM
     val iccm_dma_ecc_error = Output(Bool())
     val iccm_dma_rvalid = Output(Bool())
     val iccm_dma_rdata = Output(UInt(64.W))
     val iccm_dma_rtag = Output(UInt(3.W))
     val iccm_ready = Output(Bool())
-
     // I$
     val ic_rw_addr = Output(UInt(31.W))
     val ic_wr_en = Output(UInt(ICACHE_NUM_WAYS.W))
@@ -99,7 +105,7 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   ifc_ctl_ch.io.ifu_bp_btb_target_f := bp_ctl_ch.io.ifu_bp_btb_target_f
   ifc_ctl_ch.io.ic_dma_active := mem_ctl_ch.io.ic_dma_active
   ifc_ctl_ch.io.ic_write_stall := mem_ctl_ch.io.ic_write_stall
-  ifc_ctl_ch.io.dma_iccm_stall_any := io.dma_iccm_stall_any
+  ifc_ctl_ch.io.dma_ifc <> io.ifu_dma.dma_ifc
   ifc_ctl_ch.io.ifu_ic_mb_empty := mem_ctl_ch.io.ifu_ic_mb_empty
   ifc_ctl_ch.io.exu_flush_path_final := io.exu_flush_path_final
 
@@ -151,12 +157,13 @@ class el2_ifu extends Module with el2_lib with RequireAsyncReset {
   mem_ctl_ch.io.ifu_bp_inst_mask_f := bp_ctl_ch.io.ifu_bp_inst_mask_f
   mem_ctl_ch.io.ifu_axi <> io.ifu
   mem_ctl_ch.io.ifu_bus_clk_en := io.ifu_bus_clk_en
-  mem_ctl_ch.io.dma_iccm_req := io.dma_iccm_req
-  mem_ctl_ch.io.dma_mem_addr := io.dma_mem_addr
-  mem_ctl_ch.io.dma_mem_sz := io.dma_mem_sz
-  mem_ctl_ch.io.dma_mem_write := io.dma_mem_write
-  mem_ctl_ch.io.dma_mem_wdata := io.dma_mem_wdata
-  mem_ctl_ch.io.dma_mem_tag := io.dma_mem_tag
+  mem_ctl_ch.io.dma_mem_ctl <> io.ifu_dma.dma_mem_ctl///////////////////////////////////////////////////////
+//  mem_ctl_ch.io.dma_iccm_req := io.dma_iccm_req
+//  mem_ctl_ch.io.dma_mem_addr := io.dma_mem_addr
+//  mem_ctl_ch.io.dma_mem_sz := io.dma_mem_sz
+//  mem_ctl_ch.io.dma_mem_write := io.dma_mem_write
+//  mem_ctl_ch.io.dma_mem_wdata := io.dma_mem_wdata
+//  mem_ctl_ch.io.dma_mem_tag := io.dma_mem_tag
   mem_ctl_ch.io.ic_rd_data := io.ic_rd_data
   mem_ctl_ch.io.ic_debug_rd_data := io.ic_debug_rd_data
   mem_ctl_ch.io.ictag_debug_rd_data := io.ictag_debug_rd_data

@@ -192,10 +192,10 @@ class el2_swerv_wrapper extends Module with el2_lib with RequireAsyncReset {
 //    val dma_axi_rdata         = Output(UInt(64.W))
 //    val dma_axi_rresp         = Output(UInt(2.W))
 //    val dma_axi_rlast         = Output(Bool())
-    val lsu_axi = new axi_channels()
-    val ifu_axi = new axi_channels()
-    val sb_axi = new axi_channels()
-    val dma_axi = Flipped(new axi_channels())
+    val lsu_axi = new axi_channels(LSU_BUS_TAG)
+    val ifu_axi = new axi_channels(IFU_BUS_TAG)
+    val sb_axi = new axi_channels(SB_BUS_TAG)
+    val dma_axi = Flipped(new axi_channels(DMA_BUS_TAG))
 
     // AHB Lite Bus
 //    val haddr = Output(UInt(32.W))
@@ -371,16 +371,7 @@ class el2_swerv_wrapper extends Module with el2_lib with RequireAsyncReset {
   mem.io.dccm_clk_override := swerv.io.dccm_clk_override
   mem.io.icm_clk_override := swerv.io.icm_clk_override
   mem.io.dec_tlu_core_ecc_disable := swerv.io.dec_tlu_core_ecc_disable
-  mem.io.dccm_wren := swerv.io.dccm_wren
-  mem.io.dccm_rden := swerv.io.dccm_rden
-  mem.io.dccm_wr_addr_lo := swerv.io.dccm_wr_addr_lo
-  mem.io.dccm_wr_addr_hi := swerv.io.dccm_wr_addr_hi
-  mem.io.dccm_rd_addr_lo := swerv.io.dccm_rd_addr_lo
-
-  mem.io.dccm_wr_data_lo := swerv.io.dccm_wr_data_lo
-  mem.io.dccm_wr_data_hi := swerv.io.dccm_wr_data_hi
-  swerv.io.dccm_rd_data_lo := mem.io.dccm_rd_data_lo
-  mem.io.dccm_rd_addr_hi := swerv.io.dccm_rd_addr_hi
+  mem.io.dccm <> swerv.io.swerv_mem
   mem.io.iccm_rw_addr := swerv.io.iccm_rw_addr
   mem.io.iccm_buf_correct_ecc := swerv.io.iccm_buf_correct_ecc
   mem.io.iccm_correction_state := swerv.io.iccm_correction_state
@@ -410,7 +401,7 @@ class el2_swerv_wrapper extends Module with el2_lib with RequireAsyncReset {
   // Memory outputs
   swerv.io.dbg_rst_l := io.dbg_rst_l
   swerv.io.iccm_rd_data_ecc := mem.io.iccm_rd_data_ecc
-  swerv.io.dccm_rd_data_hi := mem.io.dccm_rd_data_hi
+//  swerv.io.dccm_rd_data_hi := mem.io.dccm_rd_data_hi
   swerv.io.ic_rd_data := mem.io.ic_rd_data
   swerv.io.ictag_debug_rd_data := mem.io.ictag_debug_rd_data
   swerv.io.ic_eccerr := mem.io.ic_eccerr

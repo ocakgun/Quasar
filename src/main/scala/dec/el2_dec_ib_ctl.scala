@@ -10,7 +10,7 @@ class el2_dec_ib_ctl extends Module with param{
   io.dec_i0_icaf_f1_d         :=io.ifu_ib.ifu_i0_icaf_f1
   io.dec_i0_dbecc_d           :=io.ifu_ib.ifu_i0_dbecc
   io.dec_i0_icaf_d            :=io.ifu_ib.ifu_i0_icaf
-  io.ib_exu.dec_i0_pc_d              :=io.ifu_ib.ifu_i0_pc
+  io.ib_exu.dec_i0_pc_d       :=io.ifu_ib.ifu_i0_pc
   io.dec_i0_pc4_d             :=io.ifu_ib.ifu_i0_pc4
   io.dec_i0_icaf_type_d       :=io.ifu_ib.ifu_i0_icaf_type
   io.dec_i0_brp               :=io.ifu_ib.i0_brp
@@ -30,17 +30,17 @@ class el2_dec_ib_ctl extends Module with param{
   // write -> csrrw %x0, %csr, %x0     {csr[11:0],00000001000001110011}
 
 
-  val debug_valid     =io.dbg_cmd_valid & (io.dbg_cmd_type =/= 2.U)
-  val debug_read      =debug_valid & !io.dbg_cmd_write
-  val debug_write     =debug_valid &  io.dbg_cmd_write
+  val debug_valid     =io.dbg_ib.dbg_cmd_valid & (io.dbg_ib.dbg_cmd_type =/= 2.U)
+  val debug_read      =debug_valid & !io.dbg_ib.dbg_cmd_write
+  val debug_write     =debug_valid &  io.dbg_ib.dbg_cmd_write
 
-  val debug_read_gpr  = debug_read  & (io.dbg_cmd_type===0.U)
-  val debug_write_gpr = debug_write & (io.dbg_cmd_type===0.U)
-  val debug_read_csr  = debug_read  & (io.dbg_cmd_type===1.U)
-  val debug_write_csr = debug_write & (io.dbg_cmd_type===1.U)
+  val debug_read_gpr  = debug_read  & (io.dbg_ib.dbg_cmd_type===0.U)
+  val debug_write_gpr = debug_write & (io.dbg_ib.dbg_cmd_type===0.U)
+  val debug_read_csr  = debug_read  & (io.dbg_ib.dbg_cmd_type===1.U)
+  val debug_write_csr = debug_write & (io.dbg_ib.dbg_cmd_type===1.U)
 
-  val dreg            = io.dbg_cmd_addr(4,0)
-  val dcsr            = io.dbg_cmd_addr(11,0)
+  val dreg            = io.dbg_ib.dbg_cmd_addr(4,0)
+  val dcsr            = io.dbg_ib.dbg_cmd_addr(11,0)
 
   val ib0_debug_in    =Mux1H(Seq(
 		  debug_read_gpr.asBool  	->  Cat(Fill(12,0.U(1.W)),dreg,"b110000000110011".U),
@@ -62,13 +62,13 @@ class el2_dec_ib_ctl extends Module with param{
 }
 
 class el2_dec_ib_ctl_IO extends Bundle with param{
-  val dbg_cmd_valid		    =Input(UInt(1.W))  // valid dbg cmd
-  val dbg_cmd_write		    =Input(UInt(1.W))  // dbg cmd is write
-  val dbg_cmd_type		    =Input(UInt(2.W))  // dbg type
-  val dbg_cmd_addr		    =Input(UInt(32.W)) // expand to 31:0
+//  val dbg_cmd_valid		    =Input(UInt(1.W))  // valid dbg cmd
+//  val dbg_cmd_write		    =Input(UInt(1.W))  // dbg cmd is write
+//  val dbg_cmd_type		    =Input(UInt(2.W))  // dbg type
+//  val dbg_cmd_addr		    =Input(UInt(32.W)) // expand to 31:0
   val ifu_ib = Flipped(new aln_ib)
   val ib_exu = Flipped(new ib_exu)
-
+  val dbg_ib = new dbg_ib
   val dec_ib0_valid_d       =Output(UInt(1.W))   // ib0 valid
   val dec_i0_icaf_type_d    =Output(UInt(2.W)) // i0 instruction access fault type
   val dec_i0_instr_d        =Output(UInt(32.W)) // i0 inst at decode

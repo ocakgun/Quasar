@@ -1,10 +1,12 @@
 package exu
 import chisel3._
+
 import scala.collection._
 import chisel3.util._
 import include._
 import lib._
 import chisel3.experimental.chiselName
+import lsu.lsu_exu
 
 @chiselName
 class dec_alu extends Bundle {
@@ -98,8 +100,9 @@ class el2_exu extends Module with el2_lib with RequireAsyncReset{
     //debug
     val  	dbg_cmd_wrdata			  =Input(UInt(32.W))                          // Debug data   to primary I0 RS1
     //lsu
-    val		exu_lsu_rs1_d			    =Output(UInt(32.W))                         // LSU operand
-    val		exu_lsu_rs2_d			    =Output(UInt(32.W))                         // LSU operand
+    val lsu_exu = Flipped(new lsu_exu)
+//    val		exu_lsu_rs1_d			    =Output(UInt(32.W))                         // LSU operand
+//    val		exu_lsu_rs2_d			    =Output(UInt(32.W))                         // LSU operand
     //ifu_ifc
     val		exu_flush_path_final	=Output(UInt(31.W))                         // Target for the oldest flush source
 
@@ -193,13 +196,13 @@ class el2_exu extends Module with el2_lib with RequireAsyncReset{
   ))
   dontTouch(i0_rs2_d)
 
-  io.exu_lsu_rs1_d:=Mux1H(Seq(
+  io.lsu_exu.exu_lsu_rs1_d:=Mux1H(Seq(
     (!i0_rs1_bypass_en_d & !io.dec_exu.decode_exu.dec_extint_stall & io.dec_exu.decode_exu.dec_i0_rs1_en_d).asBool	 	-> io.dec_exu.gpr_exu.gpr_i0_rs1_d,
     (i0_rs1_bypass_en_d & !io.dec_exu.decode_exu.dec_extint_stall).asBool								-> i0_rs1_bypass_data_d,
     (io.dec_exu.decode_exu.dec_extint_stall).asBool													-> Cat(io.dec_exu.tlu_exu.dec_tlu_meihap,0.U(2.W))
   ))
 
-  io.exu_lsu_rs2_d:=Mux1H(Seq(
+  io.lsu_exu.exu_lsu_rs2_d:=Mux1H(Seq(
     (!i0_rs2_bypass_en_d & !io.dec_exu.decode_exu.dec_extint_stall & io.dec_exu.decode_exu.dec_i0_rs2_en_d).asBool 	-> io.dec_exu.gpr_exu.gpr_i0_rs2_d,
     (i0_rs2_bypass_en_d & !io.dec_exu.decode_exu.dec_extint_stall).asBool							-> i0_rs2_bypass_data_d
   ))

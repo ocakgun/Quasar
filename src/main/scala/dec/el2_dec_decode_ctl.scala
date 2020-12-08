@@ -7,26 +7,18 @@ import include._
 import lib._
 import exu._
 import ifu._
+import lsu._
 
 class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   val io = IO(new Bundle{
     val decode_exu = Flipped(new decode_exu)
     val dec_alu = Flipped(new dec_alu)
     val dec_div = Flipped(new dec_div)
+    val dctl_busbuff = Flipped(new dctl_busbuff())
     val dec_tlu_flush_extint          = Input(Bool())
     val dec_tlu_force_halt            = Input(Bool()) // invalidate nonblock load cam on a force halt event
-//    val dec_extint_stall              = Output(Bool())
-
     val dec_i0_inst_wb1               = Output(UInt(32.W))      // 32b instruction at wb+1 for trace encoder
     val dec_i0_pc_wb1                 = Output(UInt(31.W))      // 31b pc at wb+1 for trace encoder
-    val lsu_nonblock_load_valid_m     =   Input(Bool())                         // valid nonblock load at m
-    val lsu_nonblock_load_tag_m       =   Input(UInt(LSU_NUM_NBLOAD_WIDTH.W)) // -> corresponding tag
-    val lsu_nonblock_load_inv_r       =   Input(Bool())                         // invalidate request for nonblock load r
-    val lsu_nonblock_load_inv_tag_r   =   Input(UInt(LSU_NUM_NBLOAD_WIDTH.W)) // -> corresponding tag
-    val lsu_nonblock_load_data_valid  =   Input(Bool())                         // valid nonblock load data back
-    val lsu_nonblock_load_data_error  =   Input(Bool())                         // nonblock load bus error
-    val lsu_nonblock_load_data_tag    =   Input(UInt(LSU_NUM_NBLOAD_WIDTH.W)) // -> corresponding tag
-    val lsu_nonblock_load_data        =   Input(UInt(32.W))                     // nonblock load data
     val dec_i0_trigger_match_d        = Input(UInt(4.W))         // i0 decode trigger matches
     val dec_tlu_wr_pause_r         =   Input(Bool())           // pause instruction at r
     val dec_tlu_pipelining_disable =   Input(Bool())           // pipeline disable - presync, i0 decode only
@@ -35,7 +27,6 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
     val dec_tlu_debug_stall        =   Input(Bool())            // debug stall decode
     val dec_tlu_flush_leak_one_r   =   Input(Bool())            // leak1 instruction
     val dec_debug_fence_d          =   Input(Bool())            // debug fence instruction
-    val dbg_cmd_wrdata             =   Input(UInt(2.W))      // disambiguate fence, fence_i
     val dec_i0_icaf_d              =   Input(Bool())            // icache access fault
     val dec_i0_icaf_f1_d           =   Input(Bool())            // i0 instruction access fault at decode for f1 fetch group
     val dec_i0_icaf_type_d         =   Input(UInt(2.W))      // i0 instruction access fault type
@@ -60,43 +51,23 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
     val dec_i0_pc4_d               =   Input(Bool())           // inst is 4B inst else 2B
     val dec_csr_rddata_d           =   Input(UInt(32.W)) // csr read data at wb
     val dec_csr_legal_d            =   Input(Bool())           // csr indicates legal operation
-//    val exu_csr_rs1_x              =   Input(UInt(32.W))    // rs1 for csr instr
     val lsu_result_m               =   Input(UInt(32.W))    // load result
     val lsu_result_corr_r          =   Input(UInt(32.W))   // load result - corrected data for writing gpr's, not for bypassing
     val exu_flush_final            =   Input(Bool())           // lower flush or i0 flush at X or D
-//    val exu_i0_pc_x                =   Input(UInt(31.W))    // pcs at e1
     val dec_i0_instr_d             =   Input(UInt(32.W))    // inst at decode
     val dec_ib0_valid_d            =   Input(Bool())          // inst valid at decode
-//    val exu_i0_result_x            =   Input(UInt(32.W))    // from primary alu's
     val free_clk                   =   Input(Clock())
     val active_clk                 =   Input(Clock())              // clk except for halt / pause
     val clk_override               =   Input(Bool())              // test stuff
-
-//    val dec_i0_rs1_en_d            =   Output(Bool())     // rs1 enable at decode
-//    val dec_i0_rs2_en_d            =   Output(Bool())
     val dec_i0_rs1_d               =   Output(UInt(5.W))    // rs1 logical source
     val dec_i0_rs2_d               =   Output(UInt(5.W))
-//    val dec_i0_immed_d             =   Output(UInt(32.W))   // 32b immediate data decode
-//    val dec_i0_br_immed_d          =   Output(UInt(12.W))    // 12b branch immediate
-//    val i0_ap                      =   Output(new el2_alu_pkt_t)   // alu packets
-//    val dec_i0_decode_d            =   Output(Bool())     // i0 decode
-//    val dec_i0_alu_decode_d        =   Output(Bool())  // decode to D-stage alu
-//    val dec_i0_rs1_bypass_data_d   =   Output(UInt(32.W)) // i0 rs1 bypass data
-//    val dec_i0_rs2_bypass_data_d   =   Output(UInt(32.W)) // i0 rs2 bypass data
     val dec_i0_waddr_r             =   Output(UInt(5.W))   // i0 logical source to write to gpr's
     val dec_i0_wen_r               =   Output(Bool())   // i0 write enable
     val dec_i0_wdata_r             =   Output(UInt(32.W))   // i0 write data
-//    val dec_i0_select_pc_d         =   Output(Bool()) // i0 select pc for rs1 - branches
-//    val dec_i0_rs1_bypass_en_d     =   Output(UInt(2.W)) // i0 rs1 bypass enable
-//    val dec_i0_rs2_bypass_en_d     =   Output(UInt(2.W)) // i0 rs2 bypass enable
     val lsu_p                      =   Valid(new el2_lsu_pkt_t) // load/store packet
-//    val mul_p                      =   Valid(new el2_mul_pkt_t) // multiply packet
-//    val div_p                      =   Valid(new el2_div_pkt_t) // divide packet
     val div_waddr_wb               =   Output(UInt(5.W)) // DIV write address to GPR
-//    val dec_div_cancel             =   Output(Bool()) // cancel the divide operation
     val dec_lsu_valid_raw_d        =   Output(Bool())
     val dec_lsu_offset_d           =   Output(UInt(12.W))
-//    val dec_csr_ren_d              =   Output(Bool())   // valid csr decode
     val dec_csr_wen_unq_d          =   Output(Bool())   // valid csr with write - for csr legal
     val dec_csr_any_unq_d          =   Output(Bool())   // valid csr - for csr legal
     val dec_csr_rdaddr_d           =   Output(UInt(12.W))   // read address for csr
@@ -108,14 +79,6 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
     val dec_tlu_packet_r           =   Output(new el2_trap_pkt_t)   // trap packet
     val dec_tlu_i0_pc_r            =   Output(UInt(31.W))   // i0 trap pc
     val dec_illegal_inst           =   Output(UInt(32.W))   // illegal inst
-//    val pred_correct_npc_x         =   Output(UInt(31.W))   // npc e2 if the prediction is correct
-
-//    val dec_i0_predict_p_d         = Valid(new el2_predict_pkt_t)      // i0 predict packet decode
-//    val i0_predict_fghr_d          = Output(UInt(BHT_GHR_SIZE.W))   // i0 predict fghr
-//    val i0_predict_index_d         = Output(UInt(((BHT_ADDR_HI-BHT_ADDR_LO)+1).W))    // i0 predict index
-//    val i0_predict_btag_d          = Output(UInt(BTB_BTAG_SIZE.W))  // i0_predict branch tag
-//    val dec_data_en                =   Output(UInt(2.W))    // clock-gating logic
-//    val dec_ctl_en                 =   Output(UInt(2.W))
     val dec_pmu_instr_decoded      =   Output(Bool())    // number of instructions decode this cycle encoded
     val dec_pmu_decode_stall       =   Output(Bool())    // decode is stalled
     val dec_pmu_presync_stall      =   Output(Bool())    // decode has presync stall
@@ -128,6 +91,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
     val scan_mode                  =   Input(Bool())
 
     val dec_aln = Flipped(new aln_dec)
+    val dbg_dctl = new dbg_dctl
 })
   /////////////////////////////////////////////////////////////////////////////////////////
 //  //packets zero initialization
@@ -309,20 +273,20 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   // val found=Wire(UInt(1.W))
   cam_wen := Mux1H((0 until LSU_NUM_NBLOAD).map(i=>(0 to i).map(j=> if(i==j) !cam(j).valid else cam(j).valid).reduce(_.asBool&_.asBool).asBool -> (cam_write << i)))
 
-  cam_write             := io.lsu_nonblock_load_valid_m
-  val cam_write_tag      = io.lsu_nonblock_load_tag_m(LSU_NUM_NBLOAD_WIDTH-1,0)
+  cam_write             := io.dctl_busbuff.lsu_nonblock_load_valid_m
+  val cam_write_tag      = io.dctl_busbuff.lsu_nonblock_load_tag_m(LSU_NUM_NBLOAD_WIDTH-1,0)
 
-  val cam_inv_reset       = io.lsu_nonblock_load_inv_r
-  val cam_inv_reset_tag   = io.lsu_nonblock_load_inv_tag_r
+  val cam_inv_reset       = io.dctl_busbuff.lsu_nonblock_load_inv_r
+  val cam_inv_reset_tag   = io.dctl_busbuff.lsu_nonblock_load_inv_tag_r
 
-  val cam_data_reset        = io.lsu_nonblock_load_data_valid | io.lsu_nonblock_load_data_error
-  val cam_data_reset_tag    = io.lsu_nonblock_load_data_tag
+  val cam_data_reset        = io.dctl_busbuff.lsu_nonblock_load_data_valid | io.dctl_busbuff.lsu_nonblock_load_data_error
+  val cam_data_reset_tag    = io.dctl_busbuff.lsu_nonblock_load_data_tag
 
   val nonblock_load_rd   = Mux(x_d.bits.i0load.asBool, x_d.bits.i0rd, 0.U(5.W))  // rd data
-  val load_data_tag = io.lsu_nonblock_load_data_tag
+  val load_data_tag = io.dctl_busbuff.lsu_nonblock_load_data_tag
   // case of multiple loads to same dest ie. x1 ... you have to invalidate the older one
   // don't writeback a nonblock load
-  val nonblock_load_valid_m_delay=withClock(io.active_clk){RegEnable(io.lsu_nonblock_load_valid_m,0.U, i0_r_ctl_en.asBool)}
+  val nonblock_load_valid_m_delay=withClock(io.active_clk){RegEnable(io.dctl_busbuff.lsu_nonblock_load_valid_m,0.U, i0_r_ctl_en.asBool)}
   val i0_load_kill_wen_r = nonblock_load_valid_m_delay &  r_d.bits.i0load
   for(i <- 0 until  LSU_NUM_NBLOAD){
     cam_inv_reset_val(i) := cam_inv_reset   & (cam_inv_reset_tag === cam(i).bits.tag) & cam(i).valid
@@ -343,7 +307,7 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
     }.otherwise{
       cam_in(i)      := cam(i)
     }
-    when(nonblock_load_valid_m_delay===1.U && (io.lsu_nonblock_load_inv_tag_r === cam(i).bits.tag) && cam(i).valid===1.U){
+    when(nonblock_load_valid_m_delay===1.U && (io.dctl_busbuff.lsu_nonblock_load_inv_tag_r === cam(i).bits.tag) && cam(i).valid===1.U){
       cam_in(i).bits.wb := 1.U
     }
     // force debug halt forces cam valids to 0; highest priority
@@ -358,8 +322,8 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   io.dec_nonblock_load_waddr:=0.U(5.W)
   // cancel if any younger inst (including another nonblock) committing this cycle
   val nonblock_load_cancel = ((r_d_in.bits.i0rd === io.dec_nonblock_load_waddr) & i0_wen_r)
-  io.dec_nonblock_load_wen := (io.lsu_nonblock_load_data_valid && nonblock_load_write.reduce(_|_).asBool && !nonblock_load_cancel)
-  val i0_nonblock_boundary_stall = ((nonblock_load_rd===i0r.rs1) & io.lsu_nonblock_load_valid_m & io.decode_exu.dec_i0_rs1_en_d)|((nonblock_load_rd===i0r.rs2) & io.lsu_nonblock_load_valid_m & io.decode_exu.dec_i0_rs2_en_d)
+  io.dec_nonblock_load_wen := (io.dctl_busbuff.lsu_nonblock_load_data_valid && nonblock_load_write.reduce(_|_).asBool && !nonblock_load_cancel)
+  val i0_nonblock_boundary_stall = ((nonblock_load_rd===i0r.rs1) & io.dctl_busbuff.lsu_nonblock_load_valid_m & io.decode_exu.dec_i0_rs1_en_d)|((nonblock_load_rd===i0r.rs2) & io.dctl_busbuff.lsu_nonblock_load_valid_m & io.decode_exu.dec_i0_rs2_en_d)
 
   i0_nonblock_load_stall := i0_nonblock_boundary_stall
 
@@ -522,8 +486,8 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
 
   val prior_csr_write = x_d.bits.csrwonly | r_d.bits.csrwonly | wbd.bits.csrwonly;
 
-  val debug_fence_i     = io.dec_debug_fence_d & io.dbg_cmd_wrdata(0)
-  val debug_fence_raw   = io.dec_debug_fence_d & io.dbg_cmd_wrdata(1)
+  val debug_fence_i     = io.dec_debug_fence_d & io.dbg_dctl.dbg_cmd_wrdata(0)
+  val debug_fence_raw   = io.dec_debug_fence_d & io.dbg_dctl.dbg_cmd_wrdata(1)
   debug_fence       := debug_fence_raw | debug_fence_i
 
   // some CSR reads need to be presync'd
@@ -814,12 +778,12 @@ class el2_dec_decode_ctl extends Module with el2_lib with RequireAsyncReset{
   io.decode_exu.dec_i0_rs1_bypass_data_d := Mux1H(Seq(
     i0_rs1bypass(1).asBool -> io.lsu_result_m,
     i0_rs1bypass(0).asBool -> i0_result_r,
-    (!i0_rs1bypass(1) & !i0_rs1bypass(0) & i0_rs1_nonblock_load_bypass_en_d).asBool -> io.lsu_nonblock_load_data,
+    (!i0_rs1bypass(1) & !i0_rs1bypass(0) & i0_rs1_nonblock_load_bypass_en_d).asBool -> io.dctl_busbuff.lsu_nonblock_load_data,
   ))
   io.decode_exu.dec_i0_rs2_bypass_data_d := Mux1H(Seq(
     i0_rs2bypass(1).asBool -> io.lsu_result_m,
     i0_rs2bypass(0).asBool -> i0_result_r,
-    (!i0_rs2bypass(1) & !i0_rs2bypass(0) & i0_rs2_nonblock_load_bypass_en_d).asBool -> io.lsu_nonblock_load_data,
+    (!i0_rs2bypass(1) & !i0_rs2bypass(0) & i0_rs2_nonblock_load_bypass_en_d).asBool -> io.dctl_busbuff.lsu_nonblock_load_data,
   ))
   io.dec_lsu_valid_raw_d := ((io.dec_ib0_valid_d & (i0_dp_raw.load | i0_dp_raw.store) & !io.dma_dccm_stall_any & !i0_block_raw_d) | io.decode_exu.dec_extint_stall)
   io.dec_lsu_offset_d := Mux1H(Seq(

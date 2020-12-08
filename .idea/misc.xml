@@ -59,6 +59,31 @@
                     <option name="replacementList" value="$random" />
                     <option name="source" value="el2_pic_ctrl.v" />
                   </Body>
+                  <Body>
+                    <option name="offset" value="477" />
+                    <option name="replacementList" value="$random" />
+                    <option name="source" value="top.v" />
+                  </Body>
+                  <Body>
+                    <option name="offset" value="67095" />
+                    <option name="replacementList" value="$random" />
+                    <option name="source" value="el2_dec_gpr_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="offset" value="17145" />
+                    <option name="replacementList" value="$random" />
+                    <option name="source" value="el2_exu_alu_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="offset" value="10031" />
+                    <option name="replacementList" value="$random" />
+                    <option name="source" value="el2_lsu.v" />
+                  </Body>
+                  <Body>
+                    <option name="offset" value="411371" />
+                    <option name="replacementList" value="$random" />
+                    <option name="source" value="el2_ifu_mem_ctl.v" />
+                  </Body>
                 </list>
               </option>
               <option name="dependencies">
@@ -68,6 +93,11 @@
                   <option value="el2_dec_tlu_ctl.v" />
                   <option value="axi4_to_ahb.v" />
                   <option value="el2_pic_ctrl.v" />
+                  <option value="top.v" />
+                  <option value="el2_dec_gpr_ctl.v" />
+                  <option value="el2_exu_alu_ctl.v" />
+                  <option value="el2_lsu.v" />
+                  <option value="el2_ifu_mem_ctl.v" />
                 </set>
               </option>
             </Define>
@@ -557,6 +587,246 @@
                     </option>
                     <option name="offset" value="158992" />
                     <option name="source" value="el2_pic_ctrl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_GARBAGE_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="278" />
+                    <option name="source" value="top.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_INVALID_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="335" />
+                    <option name="source" value="top.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_REG_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="386" />
+                    <option name="source" value="top.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_MEM_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="437" />
+                    <option name="source" value="top.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_GARBAGE_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="66896" />
+                    <option name="source" value="el2_dec_gpr_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_INVALID_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="66953" />
+                    <option name="source" value="el2_dec_gpr_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_REG_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="67004" />
+                    <option name="source" value="el2_dec_gpr_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_MEM_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="67055" />
+                    <option name="source" value="el2_dec_gpr_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_GARBAGE_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="16946" />
+                    <option name="source" value="el2_exu_alu_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_INVALID_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="17003" />
+                    <option name="source" value="el2_exu_alu_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_REG_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="17054" />
+                    <option name="source" value="el2_exu_alu_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_MEM_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="17105" />
+                    <option name="source" value="el2_exu_alu_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_GARBAGE_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="9832" />
+                    <option name="source" value="el2_lsu.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_INVALID_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="9889" />
+                    <option name="source" value="el2_lsu.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_REG_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="9940" />
+                    <option name="source" value="el2_lsu.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_MEM_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="9991" />
+                    <option name="source" value="el2_lsu.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_GARBAGE_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="411172" />
+                    <option name="source" value="el2_ifu_mem_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_INVALID_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="411229" />
+                    <option name="source" value="el2_ifu_mem_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_REG_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="411280" />
+                    <option name="source" value="el2_ifu_mem_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_MEM_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="411331" />
+                    <option name="source" value="el2_ifu_mem_ctl.v" />
                   </Body>
                 </list>
               </option>

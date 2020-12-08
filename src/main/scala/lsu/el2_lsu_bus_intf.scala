@@ -9,9 +9,10 @@ import ifu._
 class  el2_lsu_bus_intf extends Module with RequireAsyncReset with el2_lib {
   val io = IO (new Bundle {
     val scan_mode   = Input(Bool())
-    val dec_tlu_external_ldfwd_disable     = Input(Bool())  // disable load to load forwarding for externals
-    val dec_tlu_wb_coalescing_disable      = Input(Bool())  // disable write buffer coalescing
-    val dec_tlu_sideeffect_posted_disable  = Input(Bool())  // disable the posted sideeffect load store to the bus
+    val tlu_busbuff = new tlu_busbuff
+  //  val dec_tlu_external_ldfwd_disable     = Input(Bool())  // disable load to load forwarding for externals
+  //  val dec_tlu_wb_coalescing_disable      = Input(Bool())  // disable write buffer coalescing
+  //  val dec_tlu_sideeffect_posted_disable  = Input(Bool())  // disable the posted sideeffect load store to the bus
     val lsu_c1_m_clk        = Input(Clock())
     val lsu_c1_r_clk        = Input(Clock())
     val lsu_c2_r_clk        = Input(Clock())
@@ -21,7 +22,7 @@ class  el2_lsu_bus_intf extends Module with RequireAsyncReset with el2_lib {
     val lsu_free_c2_clk     = Input(Clock())
     val free_clk            = Input(Clock())
     val lsu_busm_clk        = Input(Clock())
-    val axi                 = new axi_channels()
+    val axi                 = new axi_channels(LSU_BUS_TAG)
     val dec_lsu_valid_raw_d = Input(Bool())
     val lsu_busreq_m        = Input(Bool())
 
@@ -51,23 +52,23 @@ class  el2_lsu_bus_intf extends Module with RequireAsyncReset with el2_lib {
     val lsu_bus_idle_any              = Output(Bool())
     val bus_read_data_m               = Output(UInt(32.W))
 
-    val lsu_imprecise_error_load_any  = Output(Bool())
-    val lsu_imprecise_error_store_any = Output(Bool())
-    val lsu_imprecise_error_addr_any  = Output(UInt(32.W))
+//    val lsu_imprecise_error_load_any  = Output(Bool())
+ //   val lsu_imprecise_error_store_any = Output(Bool())
+ //   val lsu_imprecise_error_addr_any  = Output(UInt(32.W))
+ val dctl_busbuff = new dctl_busbuff
+ //   val lsu_nonblock_load_valid_m     = Output(Bool())
+  //  val lsu_nonblock_load_tag_m       = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
+  //  val lsu_nonblock_load_inv_r       = Output(Bool())
+  //  val lsu_nonblock_load_inv_tag_r   = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
+  //  val lsu_nonblock_load_data_valid  = Output(Bool())
+ //   val lsu_nonblock_load_data_error  = Output(Bool())
+ //   val lsu_nonblock_load_data_tag    = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
+ //   val lsu_nonblock_load_data        = Output(UInt(32.W))
 
-    val lsu_nonblock_load_valid_m     = Output(Bool())
-    val lsu_nonblock_load_tag_m       = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
-    val lsu_nonblock_load_inv_r       = Output(Bool())
-    val lsu_nonblock_load_inv_tag_r   = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
-    val lsu_nonblock_load_data_valid  = Output(Bool())
-    val lsu_nonblock_load_data_error  = Output(Bool())
-    val lsu_nonblock_load_data_tag    = Output(UInt(LSU_NUM_NBLOAD_WIDTH.W))
-    val lsu_nonblock_load_data        = Output(UInt(32.W))
-
-    val lsu_pmu_bus_trxn              = Output(Bool())
-    val lsu_pmu_bus_misaligned        = Output(Bool())
-    val lsu_pmu_bus_error             = Output(Bool())
-    val lsu_pmu_bus_busy              = Output(Bool())
+   // val lsu_pmu_bus_trxn              = Output(Bool())
+   // val lsu_pmu_bus_misaligned        = Output(Bool())
+   // val lsu_pmu_bus_error             = Output(Bool())
+   // val lsu_pmu_bus_busy              = Output(Bool())
 
     val lsu_bus_clk_en      = Input(Bool())
   })
@@ -120,10 +121,18 @@ class  el2_lsu_bus_intf extends Module with RequireAsyncReset with el2_lib {
   val bus_buffer              = Module(new el2_lsu_bus_buffer)
 
   bus_buffer.io.scan_mode   := io.scan_mode
+  io.tlu_busbuff <> bus_buffer.io.tlu_busbuff
 
-  bus_buffer.io.dec_tlu_external_ldfwd_disable    := io.dec_tlu_external_ldfwd_disable
-  bus_buffer.io.dec_tlu_wb_coalescing_disable     := io.dec_tlu_wb_coalescing_disable
-  bus_buffer.io.dec_tlu_sideeffect_posted_disable := io.dec_tlu_sideeffect_posted_disable
+//  bus_buffer.io.dec_tlu_external_ldfwd_disable    := io.dec_tlu_external_ldfwd_disable
+//  bus_buffer.io.dec_tlu_wb_coalescing_disable     := io.dec_tlu_wb_coalescing_disable
+//  bus_buffer.io.dec_tlu_sideeffect_posted_disable := io.dec_tlu_sideeffect_posted_disable
+//  io.lsu_imprecise_error_load_any    := bus_buffer.io.lsu_imprecise_error_load_any
+//  io.lsu_imprecise_error_store_any   := bus_buffer.io.lsu_imprecise_error_store_any
+//  io.lsu_imprecise_error_addr_any    := bus_buffer.io.lsu_imprecise_error_addr_any
+//  io.lsu_pmu_bus_trxn                := bus_buffer.io.lsu_pmu_bus_trxn
+//  io.lsu_pmu_bus_misaligned          := bus_buffer.io.lsu_pmu_bus_misaligned
+//  io.lsu_pmu_bus_error               := bus_buffer.io.lsu_pmu_bus_error
+//  io.lsu_pmu_bus_busy                := bus_buffer.io.lsu_pmu_bus_busy
   bus_buffer.io.dec_tlu_force_halt                := io.dec_tlu_force_halt
   bus_buffer.io.lsu_c2_r_clk                      := io.lsu_c2_r_clk
   bus_buffer.io.lsu_bus_ibuf_c1_clk               := io.lsu_bus_ibuf_c1_clk
@@ -148,7 +157,7 @@ class  el2_lsu_bus_intf extends Module with RequireAsyncReset with el2_lib {
   bus_buffer.io.flush_m_up                        := io.flush_m_up
   bus_buffer.io.flush_r                           := io.flush_r
   bus_buffer.io.lsu_commit_r                      := io.lsu_commit_r
-  bus_buffer.io.lsu_axi                            <> io.axi
+  bus_buffer.io.lsu_axi                   <> io.axi
   bus_buffer.io.lsu_bus_clk_en                    := io.lsu_bus_clk_en
 
   io.lsu_busreq_r                    := bus_buffer.io.lsu_busreq_r
@@ -160,21 +169,22 @@ class  el2_lsu_bus_intf extends Module with RequireAsyncReset with el2_lib {
   ld_byte_hit_buf_hi                 := bus_buffer.io.ld_byte_hit_buf_hi
   ld_fwddata_buf_lo                  := bus_buffer.io.ld_fwddata_buf_lo
   ld_fwddata_buf_hi                  := bus_buffer.io.ld_fwddata_buf_hi
-  io.lsu_imprecise_error_load_any    := bus_buffer.io.lsu_imprecise_error_load_any
-  io.lsu_imprecise_error_store_any   := bus_buffer.io.lsu_imprecise_error_store_any
-  io.lsu_imprecise_error_addr_any    := bus_buffer.io.lsu_imprecise_error_addr_any
-  io.lsu_nonblock_load_valid_m       := bus_buffer.io.lsu_nonblock_load_valid_m
-  io.lsu_nonblock_load_tag_m         := bus_buffer.io.lsu_nonblock_load_tag_m
-  io.lsu_nonblock_load_inv_r         := bus_buffer.io.lsu_nonblock_load_inv_r
-  io.lsu_nonblock_load_inv_tag_r     := bus_buffer.io.lsu_nonblock_load_inv_tag_r
-  io.lsu_nonblock_load_data_valid    := bus_buffer.io.lsu_nonblock_load_data_valid
-  io.lsu_nonblock_load_data_error    := bus_buffer.io.lsu_nonblock_load_data_error
-  io.lsu_nonblock_load_data_tag      := bus_buffer.io.lsu_nonblock_load_data_tag
-  io.lsu_nonblock_load_data          := bus_buffer.io.lsu_nonblock_load_data
-  io.lsu_pmu_bus_trxn                := bus_buffer.io.lsu_pmu_bus_trxn
-  io.lsu_pmu_bus_misaligned          := bus_buffer.io.lsu_pmu_bus_misaligned
-  io.lsu_pmu_bus_error               := bus_buffer.io.lsu_pmu_bus_error
-  io.lsu_pmu_bus_busy                := bus_buffer.io.lsu_pmu_bus_busy
+  io.dctl_busbuff <> bus_buffer.io.dctl_busbuff
+//  io.lsu_imprecise_error_load_any    := bus_buffer.io.lsu_imprecise_error_load_any
+//  io.lsu_imprecise_error_store_any   := bus_buffer.io.lsu_imprecise_error_store_any
+//  io.lsu_imprecise_error_addr_any    := bus_buffer.io.lsu_imprecise_error_addr_any
+//  io.lsu_nonblock_load_valid_m       := bus_buffer.io.lsu_nonblock_load_valid_m
+//  io.lsu_nonblock_load_tag_m         := bus_buffer.io.lsu_nonblock_load_tag_m
+//  io.lsu_nonblock_load_inv_r         := bus_buffer.io.lsu_nonblock_load_inv_r
+//  io.lsu_nonblock_load_inv_tag_r     := bus_buffer.io.lsu_nonblock_load_inv_tag_r
+//  io.lsu_nonblock_load_data_valid    := bus_buffer.io.lsu_nonblock_load_data_valid
+//  io.lsu_nonblock_load_data_error    := bus_buffer.io.lsu_nonblock_load_data_error
+//  io.lsu_nonblock_load_data_tag      := bus_buffer.io.lsu_nonblock_load_data_tag
+//  io.lsu_nonblock_load_data          := bus_buffer.io.lsu_nonblock_load_data
+//  io.lsu_pmu_bus_trxn                := bus_buffer.io.lsu_pmu_bus_trxn
+//  io.lsu_pmu_bus_misaligned          := bus_buffer.io.lsu_pmu_bus_misaligned
+//  io.lsu_pmu_bus_error               := bus_buffer.io.lsu_pmu_bus_error
+//  io.lsu_pmu_bus_busy                := bus_buffer.io.lsu_pmu_bus_busy
 
   bus_buffer.io.no_word_merge_r                   := no_word_merge_r
   bus_buffer.io.no_dword_merge_r                  := no_dword_merge_r

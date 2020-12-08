@@ -27,8 +27,9 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
     val ifu_bp_btb_target_f = Input(UInt(31.W))
     val ic_dma_active = Input(Bool())
     val ic_write_stall = Input(Bool())
-    val dma_iccm_stall_any = Input(Bool())
+//    val dma_iccm_stall_any = Input(Bool())
     val dec_ifc = new dec_ifc()
+    val dma_ifc = new dma_ifc
     val ifc_fetch_addr_f = Output(UInt(31.W))
     val ifc_fetch_addr_bf = Output(UInt(31.W))
 
@@ -67,7 +68,7 @@ class el2_ifu_ifc_ctl extends Module with el2_lib with RequireAsyncReset {
   val idle_E :: fetch_E :: stall_E :: wfm_E :: Nil = Enum(4)
 
   val dma_stall = io.ic_dma_active | dma_iccm_stall_any_f
-  dma_iccm_stall_any_f := withClock(io.free_clk) {RegNext(io.dma_iccm_stall_any, init=0.U)}
+  dma_iccm_stall_any_f := withClock(io.free_clk) {RegNext(io.dma_ifc.dma_iccm_stall_any, init=0.U)}
 
   miss_a := withClock(io.free_clk) {RegNext(miss_f, init=0.U)}
 

@@ -7,15 +7,15 @@ import include._
 
 import scala.math.pow
 
-class axi_channels extends Bundle with el2_lib{
-  val aw = Decoupled(new write_addr())
+class axi_channels(val BUS_TAG :Int=3) extends Bundle with el2_lib{
+  val aw = Decoupled(new write_addr(BUS_TAG))
   val w = Decoupled(new write_data())
-  val b = Flipped(Decoupled(new write_resp()))
-  val ar = Decoupled(new read_addr())
-  val r = Flipped(Decoupled(new read_data()))
+  val b = Flipped(Decoupled(new write_resp(BUS_TAG)))
+  val ar = Decoupled(new read_addr(BUS_TAG))
+  val r = Flipped(Decoupled(new read_data(BUS_TAG)))
 }
-class read_addr extends Bundle with el2_lib { // read_address
-  val id = UInt(LSU_BUS_TAG.W)
+class read_addr(val TAG : Int=3) extends Bundle with el2_lib { // read_address
+  val id = UInt(TAG.W)
   val addr = UInt(32.W)
   val region = UInt(4.W)
   val len = UInt(8.W)
@@ -26,14 +26,14 @@ class read_addr extends Bundle with el2_lib { // read_address
   val prot = UInt(3.W)
   val qos = UInt(4.W)
 }
-class read_data extends Bundle with el2_lib {   // read_data
-  val id = UInt(LSU_BUS_TAG.W)
+class read_data(val TAG : Int=3) extends Bundle with el2_lib {   // read_data
+  val id = UInt(TAG.W)
   val data = UInt(64.W)
   val resp = UInt(2.W)
   val last = Bool()
 }
-class write_addr extends Bundle with el2_lib { // write_address
-  val id = UInt(LSU_BUS_TAG.W)
+class write_addr(val TAG : Int=3) extends Bundle with el2_lib { // write_address
+  val id = UInt(TAG.W)
   val addr = UInt(32.W)
   val region = UInt(4.W)
   val len = UInt(8.W)
@@ -49,9 +49,9 @@ class write_data extends Bundle with el2_lib{ // write_data
   val strb = UInt(8.W)
   val last = Bool()
 }
-class write_resp extends Bundle with el2_lib{ // write_response
+class write_resp(val TAG : Int=3) extends Bundle with el2_lib{ // write_response
   val resp = UInt(2.W)
-  val id = UInt(LSU_BUS_TAG.W)
+  val id = UInt(TAG.W)
 }
 @chiselName
 class dec_mem_ctrl extends Bundle with el2_lib{
@@ -87,14 +87,9 @@ class mem_ctl_bundle extends Bundle with el2_lib{
   val ifc_dma_access_ok = Input(Bool())
   val ifu_bp_hit_taken_f = Input(Bool())
   val ifu_bp_inst_mask_f = Input(Bool())
-  val ifu_axi = new axi_channels()
+  val ifu_axi = new axi_channels(IFU_BUS_TAG)
   val ifu_bus_clk_en = Input(Bool())
-  val dma_iccm_req = Input(Bool())
-  val dma_mem_addr = Input(UInt(32.W))
-  val dma_mem_sz = Input(UInt(3.W))
-  val dma_mem_write = Input(Bool())
-  val dma_mem_wdata = Input(UInt(64.W))
-  val dma_mem_tag = Input(UInt(3.W))
+  val dma_mem_ctl = new dma_mem_ctl
   val ic_rd_data = Input(UInt(64.W))
   val ic_debug_rd_data = Input(UInt(71.W))
   val ictag_debug_rd_data = Input(UInt(26.W))
@@ -652,16 +647,16 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   ifc_dma_access_ok_d := io.ifc_dma_access_ok &  !iccm_correct_ecc & !io.iccm_dma_sb_error
   val ifc_dma_access_q_ok  = io.ifc_dma_access_ok &  !iccm_correct_ecc & ifc_dma_access_ok_prev &  (perr_state===err_idle_C)  & !io.iccm_dma_sb_error
   io.iccm_ready := ifc_dma_access_q_ok
-  dma_iccm_req_f := withClock(io.free_clk){RegNext(io.dma_iccm_req, false.B)}
-  io.iccm_wren := (ifc_dma_access_q_ok & io.dma_iccm_req &  io.dma_mem_write) | iccm_correct_ecc
-  io.iccm_rden := (ifc_dma_access_q_ok & io.dma_iccm_req & !io.dma_mem_write) | (io.ifc_iccm_access_bf & io.ifc_fetch_req_bf)
-  val iccm_dma_rden = ifc_dma_access_q_ok & io.dma_iccm_req & !io.dma_mem_write
-  io.iccm_wr_size := Fill(3, io.dma_iccm_req) & io.dma_mem_sz
+  dma_iccm_req_f := withClock(io.free_clk){RegNext(io.dma_mem_ctl.dma_iccm_req, false.B)}
+  io.iccm_wren := (ifc_dma_access_q_ok & io.dma_mem_ctl.dma_iccm_req &  io.dma_mem_ctl.dma_mem_write) | iccm_correct_ecc
+  io.iccm_rden := (ifc_dma_access_q_ok & io.dma_mem_ctl.dma_iccm_req & !io.dma_mem_ctl.dma_mem_write) | (io.ifc_iccm_access_bf & io.ifc_fetch_req_bf)
+  val iccm_dma_rden = ifc_dma_access_q_ok & io.dma_mem_ctl.dma_iccm_req & !io.dma_mem_ctl.dma_mem_write
+  io.iccm_wr_size := Fill(3, io.dma_mem_ctl.dma_iccm_req) & io.dma_mem_ctl.dma_mem_sz
 
-  val dma_mem_ecc = Cat(rvecc_encode(io.dma_mem_wdata(63,32)), rvecc_encode(io.dma_mem_wdata(31,0)))
+  val dma_mem_ecc = Cat(rvecc_encode(io.dma_mem_ctl.dma_mem_wdata(63,32)), rvecc_encode(io.dma_mem_ctl.dma_mem_wdata(31,0)))
   val iccm_ecc_corr_data_ff = WireInit(UInt(39.W), 0.U)
-  io.iccm_wr_data := Mux(iccm_correct_ecc & !(ifc_dma_access_q_ok & io.dma_iccm_req), Fill(2,iccm_ecc_corr_data_ff),
-    Cat(dma_mem_ecc(13,7),io.dma_mem_wdata(63,32), dma_mem_ecc(6,0), io.dma_mem_wdata(31,0)))
+  io.iccm_wr_data := Mux(iccm_correct_ecc & !(ifc_dma_access_q_ok & io.dma_mem_ctl.dma_iccm_req), Fill(2,iccm_ecc_corr_data_ff),
+    Cat(dma_mem_ecc(13,7),io.dma_mem_ctl.dma_mem_wdata(63,32), dma_mem_ecc(6,0), io.dma_mem_ctl.dma_mem_wdata(31,0)))
   val iccm_corrected_data = Wire(Vec(2, UInt(32.W)))
   iccm_corrected_data(0) := 0.U
   iccm_corrected_data(1) := 0.U
@@ -669,12 +664,12 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val iccm_dma_rdata_1_muxed = Mux(dma_mem_addr_ff(0).asBool, iccm_corrected_data(0), iccm_corrected_data(1))
   val iccm_double_ecc_error = WireInit(UInt(2.W), 0.U)
   val iccm_dma_ecc_error_in = iccm_double_ecc_error.orR
-  val iccm_dma_rdata_in = Mux(iccm_dma_ecc_error_in, Fill(2, io.dma_mem_addr), Cat(iccm_dma_rdata_1_muxed, iccm_corrected_data(0)))
-  val dma_mem_tag_ff = withClock(io.free_clk){RegNext(io.dma_mem_tag, 0.U)}
+  val iccm_dma_rdata_in = Mux(iccm_dma_ecc_error_in, Fill(2, io.dma_mem_ctl.dma_mem_addr), Cat(iccm_dma_rdata_1_muxed, iccm_corrected_data(0)))
+  val dma_mem_tag_ff = withClock(io.free_clk){RegNext(io.dma_mem_ctl.dma_mem_tag, 0.U)}
   val iccm_dma_rtag_temp = if(ICCM_ENABLE) withClock(io.free_clk){RegNext(dma_mem_tag_ff, 0.U)} else 0.U
   io.iccm_dma_rtag := iccm_dma_rtag_temp
 
-  dma_mem_addr_ff := withClock(io.free_clk) {RegNext(io.dma_mem_addr(3,2), 0.U)}
+  dma_mem_addr_ff := withClock(io.free_clk) {RegNext(io.dma_mem_ctl.dma_mem_addr(3,2), 0.U)}
   val iccm_dma_rvalid_in = withClock(io.free_clk) {RegNext(iccm_dma_rden, false.B)}
   val iccm_dma_rvalid_temp = if(ICCM_ENABLE) withClock(io.free_clk){RegNext(iccm_dma_rvalid_in, false.B)} else 0.U
   io.iccm_dma_rvalid := iccm_dma_rvalid_temp
@@ -683,8 +678,8 @@ class el2_ifu_mem_ctl extends Module with el2_lib with RequireAsyncReset {
   val iccm_dma_rdata_temp = if(ICCM_ENABLE) withClock(io.free_clk){RegNext(iccm_dma_rdata_in, 0.U)} else 0.U
   io.iccm_dma_rdata := iccm_dma_rdata_temp
   val iccm_ecc_corr_index_ff = WireInit(UInt((ICCM_BITS-2).W), 0.U)
-  io.iccm_rw_addr := Mux(ifc_dma_access_q_ok & io.dma_iccm_req  & !iccm_correct_ecc, io.dma_mem_addr(ICCM_BITS-1,1),
-    Mux(!(ifc_dma_access_q_ok & io.dma_iccm_req) & iccm_correct_ecc, Cat(iccm_ecc_corr_index_ff, 0.U), io.ifc_fetch_addr_bf(ICCM_BITS-2,0)))
+  io.iccm_rw_addr := Mux(ifc_dma_access_q_ok & io.dma_mem_ctl.dma_iccm_req  & !iccm_correct_ecc, io.dma_mem_ctl.dma_mem_addr(ICCM_BITS-1,1),
+    Mux(!(ifc_dma_access_q_ok & io.dma_mem_ctl.dma_iccm_req) & iccm_correct_ecc, Cat(iccm_ecc_corr_index_ff, 0.U), io.ifc_fetch_addr_bf(ICCM_BITS-2,0)))
   val ic_fetch_val_int_f = Cat(0.U(2.W), io.ic_fetch_val_f)
   val ic_fetch_val_shift_right = ic_fetch_val_int_f << ifu_fetch_addr_int_f(0)
   val iccm_rdmux_data = io.iccm_rd_data_ecc

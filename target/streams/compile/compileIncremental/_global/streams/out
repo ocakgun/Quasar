@@ -1,4 +1,4 @@
-[0m[[0m[31merror[0m] [0m[0m## Exception when compiling 20 sources to /home/abdulhameed.akram/Documents/SweRV-Chislified/target/scala-2.12/classes[0m
+[0m[[0m[31merror[0m] [0m[0m## Exception when compiling 44 sources to /home/abdulhameed.akram/Documents/SweRV-Chislified/target/scala-2.12/classes[0m
 [0m[[0m[31merror[0m] [0m[0mjava.nio.file.AccessDeniedException: /home/abdulhameedakram/.cache/coursier/v1/https/repo1.maven.org/maven2/edu/berkeley/cs/chisel3-core_2.12/3.3.1/chisel3-core_2.12-3.3.1.jar[0m
 [0m[[0m[31merror[0m] [0m[0mjava.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:90)[0m
 [0m[[0m[31merror[0m] [0m[0mjava.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)[0m

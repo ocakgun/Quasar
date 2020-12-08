@@ -7,11 +7,12 @@ import lsu._
 import lib._
 import include._
 import dbg._
+import el2_mem.mem_lsu
 class el2_swerv_bundle extends Bundle with  el2_lib{
-  val lsu_axi = new axi_channels()
-  val ifu_axi = new axi_channels()
-  val sb_axi  = new axi_channels()
-  val dma_axi = Flipped(new axi_channels()     )
+  val lsu_axi = new axi_channels(LSU_BUS_TAG)
+  val ifu_axi = new axi_channels(IFU_BUS_TAG)
+  val sb_axi  = new axi_channels(SB_BUS_TAG)
+  val dma_axi = Flipped(new axi_channels(DMA_BUS_TAG)     )
   val dbg_rst_l = Input(AsyncReset())
   val rst_vec = Input(UInt(31.W))
   val nmi_int = Input(Bool())
@@ -44,17 +45,18 @@ class el2_swerv_bundle extends Bundle with  el2_lib{
   val dec_tlu_perfcnt1 = Output(Bool())
   val dec_tlu_perfcnt2 = Output(Bool())
   val dec_tlu_perfcnt3 = Output(Bool())
-  val dccm_wren = Output(Bool())
-  val dccm_rden = Output(Bool())
-  val dccm_wr_addr_lo = Output(UInt(DCCM_BITS.W))
-  val dccm_wr_addr_hi = Output(UInt(DCCM_BITS.W))
-  val dccm_rd_addr_lo = Output(UInt(DCCM_BITS.W))
-  val dccm_rd_addr_hi = Output(UInt(DCCM_BITS.W))
-
-  val dccm_wr_data_lo = Output(UInt(DCCM_FDATA_WIDTH.W))
-  val dccm_wr_data_hi = Output(UInt(DCCM_FDATA_WIDTH.W))
-  val dccm_rd_data_lo = Input(UInt(DCCM_FDATA_WIDTH.W))
-  val dccm_rd_data_hi = Input(UInt(DCCM_FDATA_WIDTH.W))
+  val swerv_mem = Flipped(new mem_lsu)
+//  val dccm_wren = Output(Bool())
+//  val dccm_rden = Output(Bool())
+//  val dccm_wr_addr_lo = Output(UInt(DCCM_BITS.W))
+//  val dccm_wr_addr_hi = Output(UInt(DCCM_BITS.W))
+//  val dccm_rd_addr_lo = Output(UInt(DCCM_BITS.W))
+//  val dccm_rd_addr_hi = Output(UInt(DCCM_BITS.W))
+//
+//  val dccm_wr_data_lo = Output(UInt(DCCM_FDATA_WIDTH.W))
+//  val dccm_wr_data_hi = Output(UInt(DCCM_FDATA_WIDTH.W))
+//  val dccm_rd_data_lo = Input(UInt(DCCM_FDATA_WIDTH.W))
+//  val dccm_rd_data_hi = Input(UInt(DCCM_FDATA_WIDTH.W))
 
   val iccm_rw_addr = Output(UInt((ICCM_BITS-1).W))
   val iccm_wren = Output(Bool())
@@ -371,13 +373,14 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   ifu.io.ifu.r.bits.data := Mux(BUILD_AHB_LITE.B, 0.U, io.ifu_axi.r.bits.data)
   ifu.io.ifu.r.bits.resp := Mux(BUILD_AHB_LITE.B, 0.U, io.ifu_axi.r.bits.resp)
   ifu.io.ifu_bus_clk_en := io.ifu_bus_clk_en
-  ifu.io.dma_iccm_req := dma_ctrl.io.dma_iccm_req
-  ifu.io.dma_mem_addr := dma_ctrl.io.dma_mem_addr
-  ifu.io.dma_mem_sz := dma_ctrl.io.dma_mem_sz
-  ifu.io.dma_mem_write := dma_ctrl.io.dma_mem_write
-  ifu.io.dma_mem_wdata := dma_ctrl.io.dma_mem_wdata
-  ifu.io.dma_mem_tag := dma_ctrl.io.dma_mem_tag
-  ifu.io.dma_iccm_stall_any := dma_ctrl.io.dma_iccm_stall_any
+  ifu.io.ifu_dma <> dma_ctrl.io.ifu_dma
+//  ifu.io.dma_iccm_req := dma_ctrl.io.dma_iccm_req
+//  ifu.io.dma_mem_addr := dma_ctrl.io.lsu_dma.dma_dccm_ctl.dma_mem_addr
+//  ifu.io.dma_mem_sz := dma_ctrl.io.lsu_dma.dma_lsc_ctl.dma_mem_sz
+//  ifu.io.dma_mem_write := dma_ctrl.io.lsu_dma.dma_lsc_ctl.dma_mem_write
+//  ifu.io.dma_mem_wdata := dma_ctrl.io.lsu_dma.dma_dccm_ctl.dma_mem_wdata
+//  ifu.io.dma_mem_tag := dma_ctrl.io.lsu_dma.dma_mem_tag
+//  ifu.io.dma_iccm_stall_any := dma_ctrl.io.dma_iccm_stall_any
   ifu.io.ic_rd_data := io.ic_rd_data
   ifu.io.ic_debug_rd_data := io.ic_debug_rd_data
   ifu.io.ictag_debug_rd_data := io.ictag_debug_rd_data
@@ -415,21 +418,23 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
 //  dec.io.exu_pmu_i0_br_misp := exu.io.exu_pmu_i0_br_misp
 //  dec.io.exu_pmu_i0_br_ataken := exu.io.exu_pmu_i0_br_ataken
 //  dec.io.exu_pmu_i0_pc4 := exu.io.exu_pmu_i0_pc4
-  dec.io.lsu_nonblock_load_valid_m := lsu.io.lsu_nonblock_load_valid_m
-  dec.io.lsu_nonblock_load_tag_m := lsu.io.lsu_nonblock_load_tag_m
-  dec.io.lsu_nonblock_load_inv_r := lsu.io.lsu_nonblock_load_inv_r
-  dec.io.lsu_nonblock_load_inv_tag_r := lsu.io.lsu_nonblock_load_inv_tag_r
-  dec.io.lsu_nonblock_load_data_valid := lsu.io.lsu_nonblock_load_data_valid
-  dec.io.lsu_nonblock_load_data_error := lsu.io.lsu_nonblock_load_data_error
-  dec.io.lsu_nonblock_load_data_tag := lsu.io.lsu_nonblock_load_data_tag
-  dec.io.lsu_nonblock_load_data := lsu.io.lsu_nonblock_load_data
-  dec.io.lsu_pmu_bus_trxn := lsu.io.lsu_pmu_bus_trxn
-  dec.io.lsu_pmu_bus_misaligned := lsu.io.lsu_pmu_bus_misaligned
-  dec.io.lsu_pmu_bus_error := lsu.io.lsu_pmu_bus_error
-  dec.io.lsu_pmu_bus_busy := lsu.io.lsu_pmu_bus_busy
+  dec.io.lsu_dec <> lsu.io.lsu_dec
+  dec.io.lsu_tlu <> lsu.io.lsu_tlu
+//  dec.io.lsu_nonblock_load_valid_m := lsu.io.lsu_nonblock_load_valid_m
+//  dec.io.lsu_nonblock_load_tag_m := lsu.io.lsu_nonblock_load_tag_m
+//  dec.io.lsu_nonblock_load_inv_r := lsu.io.lsu_nonblock_load_inv_r
+//  dec.io.lsu_nonblock_load_inv_tag_r := lsu.io.lsu_nonblock_load_inv_tag_r
+//  dec.io.lsu_nonblock_load_data_valid := lsu.io.lsu_nonblock_load_data_valid
+//  dec.io.lsu_nonblock_load_data_error := lsu.io.lsu_nonblock_load_data_error
+//  dec.io.lsu_nonblock_load_data_tag := lsu.io.lsu_nonblock_load_data_tag
+//  dec.io.lsu_nonblock_load_data := lsu.io.lsu_nonblock_load_data
+//  dec.io.lsu_pmu_bus_trxn := lsu.io.lsu_pmu_bus_trxn
+//  dec.io.lsu_pmu_bus_misaligned := lsu.io.lsu_pmu_bus_misaligned
+//  dec.io.lsu_pmu_bus_error := lsu.io.lsu_pmu_bus_error
+//  dec.io.lsu_pmu_bus_busy := lsu.io.lsu_pmu_bus_busy
   dec.io.lsu_pmu_misaligned_m := lsu.io.lsu_pmu_misaligned_m
-  dec.io.lsu_pmu_load_external_m := lsu.io.lsu_pmu_load_external_m
-  dec.io.lsu_pmu_store_external_m := lsu.io.lsu_pmu_store_external_m
+//  dec.io.lsu_pmu_load_external_m := lsu.io.lsu_pmu_load_external_m
+//  dec.io.lsu_pmu_store_external_m := lsu.io.lsu_pmu_store_external_m
   dec.io.dma_pmu_dccm_read := dma_ctrl.io.dma_pmu_dccm_read
   dec.io.dma_pmu_dccm_write := dma_ctrl.io.dma_pmu_dccm_write
   dec.io.dma_pmu_any_read := dma_ctrl.io.dma_pmu_any_read
@@ -446,11 +451,12 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
 //  dec.io.ifu_ic_error_start := ifu.io.ifu_ic_error_start
 //  dec.io.ifu_iccm_rd_ecc_single_err := ifu.io.ifu_iccm_rd_ecc_single_err
   dec.io.lsu_trigger_match_m := lsu.io.lsu_trigger_match_m
-  dec.io.dbg_cmd_valid := dbg.io.dbg_cmd_valid
-  dec.io.dbg_cmd_write := dbg.io.dbg_cmd_write
-  dec.io.dbg_cmd_type := dbg.io.dbg_cmd_type
-  dec.io.dbg_cmd_addr := dbg.io.dbg_cmd_addr
-  dec.io.dbg_cmd_wrdata := dbg.io.dbg_cmd_wrdata
+  dec.io.dec_dbg <> dbg.io.dbg_dec
+//  dec.io.dbg_cmd_valid := dbg.io.dbg_cmd_valid
+//  dec.io.dbg_cmd_write := dbg.io.dbg_cmd_write
+//  dec.io.dbg_cmd_type := dbg.io.dbg_cmd_type
+//  dec.io.dbg_cmd_addr := dbg.io.dbg_cmd_addr
+//  dec.io.dbg_cmd_wrdata := dbg.io.dbg_cmd_wrdata
 //  dec.io.ifu_i0_icaf := ifu.io.ifu_i0_icaf
 //  dec.io.ifu_i0_icaf_type := ifu.io.ifu_i0_icaf_type
 //  dec.io.ifu_i0_icaf_f1 := ifu.io.ifu_i0_icaf_f1
@@ -462,9 +468,9 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
 //  dec.io.ifu_i0_bp_btag := ifu.io.ifu_i0_bp_btag
   dec.io.lsu_error_pkt_r <> lsu.io.lsu_error_pkt_r
   dec.io.lsu_single_ecc_error_incr := lsu.io.lsu_single_ecc_error_incr
-  dec.io.lsu_imprecise_error_load_any := lsu.io.lsu_imprecise_error_load_any
-  dec.io.lsu_imprecise_error_store_any := lsu.io.lsu_imprecise_error_store_any
-  dec.io.lsu_imprecise_error_addr_any := lsu.io.lsu_imprecise_error_addr_any
+//  dec.io.lsu_imprecise_error_load_any := lsu.io.lsu_imprecise_error_load_any
+//  dec.io.lsu_imprecise_error_store_any := lsu.io.lsu_imprecise_error_store_any
+//  dec.io.lsu_imprecise_error_addr_any := lsu.io.lsu_imprecise_error_addr_any
   dec.io.exu_div_result := exu.io.exu_div_result
   dec.io.exu_div_wren := exu.io.exu_div_wren
 //  dec.io.exu_csr_rs1_x := exu.io.exu_csr_rs1_x
@@ -473,7 +479,7 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   dec.io.lsu_load_stall_any := lsu.io.lsu_load_stall_any
   dec.io.lsu_store_stall_any := lsu.io.lsu_store_stall_any
   dec.io.dma_dccm_stall_any := dma_ctrl.io.dma_dccm_stall_any
-  dec.io.dma_iccm_stall_any := dma_ctrl.io.dma_iccm_stall_any
+  dec.io.dma_iccm_stall_any := dma_ctrl.io.ifu_dma.dma_ifc.dma_iccm_stall_any
   dec.io.iccm_dma_sb_error := ifu.io.iccm_dma_sb_error
   dec.io.exu_flush_final := exu.io.exu_flush_final
 //  dec.io.exu_npc_r := exu.io.exu_npc_r
@@ -510,7 +516,7 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   exu.io.scan_mode := io.scan_mode
 //  exu.io.dec_data_en := dec.io.dec_data_en
 //  exu.io.dec_ctl_en := dec.io.dec_ctl_en
-  exu.io.dbg_cmd_wrdata := dbg.io.dbg_cmd_wrdata
+  exu.io.dbg_cmd_wrdata := dbg.io.dbg_dec.dbg_dctl.dbg_cmd_wrdata
 //  exu.io.i0_ap := dec.io.i0_ap
 //  exu.io.dec_debug_wdata_rs1_d := dec.io.dec_debug_wdata_rs1_d
 //  exu.io.dec_i0_predict_p_d <> dec.io.dec_i0_predict_p_d
@@ -547,19 +553,20 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   lsu.io.dec_tlu_flush_lower_r := dec.io.dec_exu.tlu_exu.dec_tlu_flush_lower_r
   lsu.io.dec_tlu_i0_kill_writeb_r := dec.io.dec_tlu_i0_kill_writeb_r
   lsu.io.dec_tlu_force_halt := dec.io.ifu_dec.dec_mem_ctrl.dec_tlu_force_halt
-  lsu.io.dec_tlu_external_ldfwd_disable := dec.io.dec_tlu_external_ldfwd_disable
-  lsu.io.dec_tlu_wb_coalescing_disable := dec.io.dec_tlu_wb_coalescing_disable
-  lsu.io.dec_tlu_sideeffect_posted_disable := dec.io.dec_tlu_sideeffect_posted_disable
+//  lsu.io.dec_tlu_external_ldfwd_disable := dec.io.dec_tlu_external_ldfwd_disable
+//  lsu.io.dec_tlu_wb_coalescing_disable := dec.io.dec_tlu_wb_coalescing_disable
+//  lsu.io.dec_tlu_sideeffect_posted_disable := dec.io.dec_tlu_sideeffect_posted_disable
   lsu.io.dec_tlu_core_ecc_disable := dec.io.ifu_dec.dec_mem_ctrl.dec_tlu_core_ecc_disable
-  lsu.io.exu_lsu_rs1_d := exu.io.exu_lsu_rs1_d
-  lsu.io.exu_lsu_rs2_d := exu.io.exu_lsu_rs2_d
+  lsu.io.lsu_exu <> exu.io.lsu_exu
+//  lsu.io.exu_lsu_rs1_d := exu.io.exu_lsu_rs1_d
+//  lsu.io.exu_lsu_rs2_d := exu.io.exu_lsu_rs2_d
   lsu.io.dec_lsu_offset_d := dec.io.dec_lsu_offset_d
   lsu.io.lsu_p <> dec.io.lsu_p
   lsu.io.dec_lsu_valid_raw_d := dec.io.dec_lsu_valid_raw_d
   lsu.io.dec_tlu_mrac_ff := dec.io.ifu_dec.dec_ifc.dec_tlu_mrac_ff
   lsu.io.trigger_pkt_any <> dec.io.trigger_pkt_any
-  lsu.io.dccm_rd_data_lo := io.dccm_rd_data_lo
-  lsu.io.dccm_rd_data_hi := io.dccm_rd_data_hi
+//  lsu.io.dccm_rd_data_lo := io.dccm_rd_data_lo
+//  lsu.io.dccm_rd_data_hi := io.dccm_rd_data_hi
   lsu.io.axi.aw.ready := Mux(BUILD_AHB_LITE.B, 0.U, io.lsu_axi.aw.ready)
   lsu.io.axi.w.ready :=  Mux(BUILD_AHB_LITE.B, 0.U, io.lsu_axi.w.ready)
   lsu.io.axi.b.valid :=  Mux(BUILD_AHB_LITE.B, 0.U, io.lsu_axi.b.valid)
@@ -572,12 +579,13 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   lsu.io.axi.r.bits.resp :=  Mux(BUILD_AHB_LITE.B, 0.U, io.lsu_axi.r.bits.resp)
   lsu.io.axi.r.bits.last :=  Mux(BUILD_AHB_LITE.B, 0.U, io.lsu_axi.r.bits.last)
   lsu.io.lsu_bus_clk_en := io.lsu_bus_clk_en
-  lsu.io.dma_dccm_req := dma_ctrl.io.dma_dccm_req
-  lsu.io.dma_mem_tag := dma_ctrl.io.dma_mem_tag
-  lsu.io.dma_mem_addr := dma_ctrl.io.dma_mem_addr
-  lsu.io.dma_mem_sz := dma_ctrl.io.dma_mem_sz
-  lsu.io.dma_mem_write := dma_ctrl.io.dma_mem_write
-  lsu.io.dma_mem_wdata := dma_ctrl.io.dma_mem_wdata
+  lsu.io.lsu_dma <> dma_ctrl.io.lsu_dma
+//  lsu.io.dma_dccm_req := dma_ctrl.io.dma_dccm_req
+//  lsu.io.dma_mem_tag := dma_ctrl.io.dma_mem_tag
+//  lsu.io.dma_mem_addr := dma_ctrl.io.dma_mem_addr
+//  lsu.io.dma_mem_sz := dma_ctrl.io.dma_mem_sz
+//  lsu.io.dma_mem_write := dma_ctrl.io.dma_mem_write
+//  lsu.io.dma_mem_wdata := dma_ctrl.io.dma_mem_wdata
   lsu.io.scan_mode := io.scan_mode
   lsu.io.free_clk := free_clk
 
@@ -586,7 +594,7 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   dbg.io.core_dbg_rddata := Mux(dma_ctrl.io.dma_dbg_cmd_done, dma_ctrl.io.dma_dbg_rddata, dec.io.dec_dbg_rddata)
   dbg.io.core_dbg_cmd_done := dma_ctrl.io.dma_dbg_cmd_done | dec.io.dec_dbg_cmd_done
   dbg.io.core_dbg_cmd_fail := dma_ctrl.io.dma_dbg_cmd_fail | dec.io.dec_dbg_cmd_fail
-  dbg.io.dma_dbg_ready := dma_ctrl.io.dma_dbg_ready
+//  dbg.io.dma_dbg_ready := dma_ctrl.io.dma_dbg_ready
   dbg.io.dec_tlu_debug_mode := dec.io.dec_tlu_debug_mode
   dbg.io.dec_tlu_dbg_halted := dec.io.dec_tlu_dbg_halted
   dbg.io.dec_tlu_mpc_halted_only := dec.io.dec_tlu_mpc_halted_only
@@ -616,21 +624,23 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   dma_ctrl.io.dma_bus_clk_en := io.dma_bus_clk_en
   dma_ctrl.io.clk_override := dec.io.dec_tlu_misc_clk_override
   dma_ctrl.io.scan_mode := io.scan_mode
-  dma_ctrl.io.dbg_cmd_addr := dbg.io.dbg_cmd_addr
-  dma_ctrl.io.dbg_cmd_wrdata := dbg.io.dbg_cmd_wrdata
-  dma_ctrl.io.dbg_cmd_valid := dbg.io.dbg_cmd_valid
-  dma_ctrl.io.dbg_cmd_write := dbg.io.dbg_cmd_write
-  dma_ctrl.io.dbg_cmd_type := dbg.io.dbg_cmd_type
+  dma_ctrl.io.dbg_dma <> dbg.io.dbg_dma
+  dma_ctrl.io.dbg_dma_io <> dbg.io.dbg_dma_io
+//  dma_ctrl.io.dbg_cmd_addr := dbg.io.dbg_cmd_addr
+//  dma_ctrl.io.dbg_cmd_wrdata := dbg.io.dbg_cmd_wrdata
+//  dma_ctrl.io.dbg_cmd_valid := dbg.io.dbg_cmd_valid
+//  dma_ctrl.io.dbg_cmd_write := dbg.io.dbg_cmd_write
+//  dma_ctrl.io.dbg_cmd_type := dbg.io.dbg_cmd_type
   dma_ctrl.io.dbg_cmd_size := dbg.io.dbg_cmd_size
-  dma_ctrl.io.dbg_dma_bubble := dbg.io.dbg_dma_bubble
-  dma_ctrl.io.dccm_dma_rvalid := lsu.io.dccm_dma_rvalid
-  dma_ctrl.io.dccm_dma_ecc_error := lsu.io.dccm_dma_ecc_error
-  dma_ctrl.io.dccm_dma_rtag := lsu.io.dccm_dma_rtag
-  dma_ctrl.io.dccm_dma_rdata := lsu.io.dccm_dma_rdata
+//  dma_ctrl.io.dbg_dma_bubble := dbg.io.dbg_dma_bubble
+//  dma_ctrl.io.dccm_dma_rvalid := lsu.io.dccm_dma_rvalid
+//  dma_ctrl.io.dccm_dma_ecc_error := lsu.io.dccm_dma_ecc_error
+//  dma_ctrl.io.dccm_dma_rtag := lsu.io.dccm_dma_rtag
+//  dma_ctrl.io.dccm_dma_rdata := lsu.io.dccm_dma_rdata
   dma_ctrl.io.iccm_dma_rvalid := ifu.io.iccm_dma_rvalid
   dma_ctrl.io.iccm_dma_rtag := ifu.io.iccm_dma_rtag
   dma_ctrl.io.iccm_dma_rdata := ifu.io.iccm_dma_rdata
-  dma_ctrl.io.dccm_ready := lsu.io.dccm_ready
+//  dma_ctrl.io.dccm_ready := lsu.io.dccm_ready
   dma_ctrl.io.iccm_ready := ifu.io.iccm_ready
   dma_ctrl.io.dec_tlu_dma_qos_prty := dec.io.dec_tlu_dma_qos_prty
 //  dma_ctrl.io.dma_axi_awvalid := io.dma_axi_awvalid
@@ -656,15 +666,16 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   pic_ctrl_inst.io.active_clk := active_clk
   pic_ctrl_inst.io.clk_override := dec.io.dec_tlu_pic_clk_override
   pic_ctrl_inst.io.extintsrc_req := io.extintsrc_req
-  pic_ctrl_inst.io.picm_rdaddr := lsu.io.picm_rdaddr
-  pic_ctrl_inst.io.picm_wraddr := lsu.io.picm_wraddr
-  pic_ctrl_inst.io.picm_wr_data := lsu.io.picm_wr_data
-  pic_ctrl_inst.io.picm_wren := lsu.io.picm_wren
-  pic_ctrl_inst.io.picm_rden := lsu.io.picm_rden
-  pic_ctrl_inst.io.picm_mken := lsu.io.picm_mken
+  pic_ctrl_inst.io.lsu_pic <> lsu.io.lsu_pic
+//  pic_ctrl_inst.io.picm_rdaddr := lsu.io.picm_rdaddr
+//  pic_ctrl_inst.io.picm_wraddr := lsu.io.picm_wraddr
+//  pic_ctrl_inst.io.picm_wr_data := lsu.io.picm_wr_data
+//  pic_ctrl_inst.io.picm_wren := lsu.io.picm_wren
+//  pic_ctrl_inst.io.picm_rden := lsu.io.picm_rden
+//  pic_ctrl_inst.io.picm_mken := lsu.io.picm_mken
   pic_ctrl_inst.io.meicurpl := dec.io.dec_tlu_meicurpl
   pic_ctrl_inst.io.meipt := dec.io.dec_tlu_meipt
-  lsu.io.picm_rd_data := pic_ctrl_inst.io.picm_rd_data
+//  lsu.io.picm_rd_data := pic_ctrl_inst.io.picm_rd_data
 
 
 
@@ -695,14 +706,15 @@ class el2_swerv extends Module with RequireAsyncReset with el2_lib {
   io.dec_tlu_perfcnt2 := dec.io.dec_tlu_perfcnt2
   io.dec_tlu_perfcnt3 := dec.io.dec_tlu_perfcnt3
   // LSU Outputs
-  io.dccm_wren := lsu.io.dccm_wren
-  io.dccm_rden := lsu.io.dccm_rden
-  io.dccm_wr_addr_lo := lsu.io.dccm_wr_addr_lo
-  io.dccm_wr_addr_hi := lsu.io.dccm_wr_addr_hi
-  io.dccm_rd_addr_lo := lsu.io.dccm_rd_addr_lo
-  io.dccm_rd_addr_hi := lsu.io.dccm_rd_addr_hi
-  io.dccm_wr_data_lo := lsu.io.dccm_wr_data_lo
-  io.dccm_wr_data_hi := lsu.io.dccm_wr_data_hi
+  io.swerv_mem <> lsu.io.dccm
+//  io.dccm_wren := lsu.io.dccm_wren
+//  io.dccm_rden := lsu.io.dccm_rden
+//  io.dccm_wr_addr_lo := lsu.io.dccm_wr_addr_lo
+//  io.dccm_wr_addr_hi := lsu.io.dccm_wr_addr_hi
+//  io.dccm_rd_addr_lo := lsu.io.dccm_rd_addr_lo
+//  io.dccm_rd_addr_hi := lsu.io.dccm_rd_addr_hi
+//  io.dccm_wr_data_lo := lsu.io.dccm_wr_data_lo
+//  io.dccm_wr_data_hi := lsu.io.dccm_wr_data_hi
   // IFU Outputs
   io.iccm_rw_addr := ifu.io.iccm_rw_addr
   io.iccm_wren := ifu.io.iccm_wren

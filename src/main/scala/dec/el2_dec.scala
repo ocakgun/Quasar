@@ -3,8 +3,25 @@ import chisel3._
 import chisel3.util._
 import exu._
 import ifu._
+import lsu._
 import include._
 import lib._
+
+class dec_dbg extends Bundle{
+  val dbg_ib = new dbg_ib
+  val dbg_dctl = new dbg_dctl
+
+}
+class dbg_ib extends Bundle{
+  val dbg_cmd_valid           = Input(Bool())    // debugger abstract command valid
+  val dbg_cmd_write           = Input(Bool())    // command is a write
+  val dbg_cmd_type            = Input(UInt(2.W))    //  command type
+  val dbg_cmd_addr            = Input(UInt(32.W))    // command address
+}
+
+class dbg_dctl extends Bundle{
+  val dbg_cmd_wrdata          = Input(UInt(2.W))    // command write data, for fence/fence_i
+}
 //class aln_ib extends Bundle with el2_lib{
 //  val ifu_i0_icaf             = Output(Bool())
 //  val ifu_i0_icaf_type        = Output(UInt(2.W))
@@ -110,22 +127,22 @@ class el2_dec_IO extends Bundle with el2_lib {
 //  val exu_pmu_i0_pc4        = Input(Bool())   // slot 0 4 byte branch
 
 
-  val lsu_nonblock_load_valid_m     =   Input(Bool())                         // valid nonblock load at m
-  val lsu_nonblock_load_tag_m       =   Input(UInt(LSU_NUM_NBLOAD_WIDTH.W)) // -> corresponding tag
-  val lsu_nonblock_load_inv_r       =   Input(Bool())                         // invalidate request for nonblock load r
-  val lsu_nonblock_load_inv_tag_r   =   Input(UInt(LSU_NUM_NBLOAD_WIDTH.W)) // -> corresponding tag
-  val lsu_nonblock_load_data_valid  =   Input(Bool())                         // valid nonblock load data back
-  val lsu_nonblock_load_data_error  =   Input(Bool())                         // nonblock load bus error
-  val lsu_nonblock_load_data_tag    =   Input(UInt(LSU_NUM_NBLOAD_WIDTH.W)) // -> corresponding tag
-  val lsu_nonblock_load_data        =   Input(UInt(32.W))                     // nonblock load data
+//  val lsu_nonblock_load_valid_m     =   Input(Bool())                         // valid nonblock load at m
+//  val lsu_nonblock_load_tag_m       =   Input(UInt(LSU_NUM_NBLOAD_WIDTH.W)) // -> corresponding tag
+//  val lsu_nonblock_load_inv_r       =   Input(Bool())                         // invalidate request for nonblock load r
+//  val lsu_nonblock_load_inv_tag_r   =   Input(UInt(LSU_NUM_NBLOAD_WIDTH.W)) // -> corresponding tag
+//  val lsu_nonblock_load_data_valid  =   Input(Bool())                         // valid nonblock load data back
+//  val lsu_nonblock_load_data_error  =   Input(Bool())                         // nonblock load bus error
+//  val lsu_nonblock_load_data_tag    =   Input(UInt(LSU_NUM_NBLOAD_WIDTH.W)) // -> corresponding tag
+//  val lsu_nonblock_load_data        =   Input(UInt(32.W))                     // nonblock load data
 
-  val lsu_pmu_bus_trxn              =  Input(Bool())      // D side bus transaction
-  val lsu_pmu_bus_misaligned        =  Input(Bool())      // D side bus misaligned
-  val lsu_pmu_bus_error             =  Input(Bool())      // D side bus error
-  val lsu_pmu_bus_busy              =  Input(Bool())      // D side bus busy
+//  val lsu_pmu_bus_trxn              =  Input(Bool())      // D side bus transaction
+//  val lsu_pmu_bus_misaligned        =  Input(Bool())      // D side bus misaligned
+//  val lsu_pmu_bus_error             =  Input(Bool())      // D side bus error
+//  val lsu_pmu_bus_busy              =  Input(Bool())      // D side bus busy
   val lsu_pmu_misaligned_m          =  Input(Bool())      // D side load or store misaligned
-  val lsu_pmu_load_external_m       =  Input(Bool())      // D side bus load
-  val lsu_pmu_store_external_m      =  Input(Bool())      // D side bus store
+//  val lsu_pmu_load_external_m       =  Input(Bool())      // D side bus load
+//  val lsu_pmu_store_external_m      =  Input(Bool())      // D side bus store
   val dma_pmu_dccm_read             =  Input(Bool())      // DMA DCCM read
   val dma_pmu_dccm_write            =  Input(Bool())      // DMA DCCM write
   val dma_pmu_any_read              =  Input(Bool())      // DMA read
@@ -146,11 +163,7 @@ class el2_dec_IO extends Bundle with el2_lib {
 //  val ifu_iccm_rd_ecc_single_err    =  Input(Bool())     // ICCM single bit error
 
   val lsu_trigger_match_m     = Input(UInt(4.W))
-  val dbg_cmd_valid           = Input(Bool())    // debugger abstract command valid
-  val dbg_cmd_write           = Input(Bool())    // command is a write
-  val dbg_cmd_type            = Input(UInt(2.W))    //  command type
-  val dbg_cmd_addr            = Input(UInt(32.W))    // command address
-  val dbg_cmd_wrdata          = Input(UInt(2.W))    // command write data, for fence/fence_i
+
 
 
 //  val ifu_i0_icaf             = Input(Bool())         // icache access fault
@@ -169,9 +182,9 @@ class el2_dec_IO extends Bundle with el2_lib {
   val lsu_error_pkt_r               = Flipped(Valid(new el2_lsu_error_pkt_t)) // LSU exception/error packet
   val lsu_single_ecc_error_incr     = Input(Bool())// LSU inc SB error counter
 
-  val lsu_imprecise_error_load_any  = Input(Bool())  // LSU imprecise load bus error
-  val lsu_imprecise_error_store_any = Input(Bool())  // LSU imprecise store bus error
-  val lsu_imprecise_error_addr_any  = Input(UInt(32.W))                // LSU imprecise bus error address
+//  val lsu_imprecise_error_load_any  = Input(Bool())  // LSU imprecise load bus error
+//  val lsu_imprecise_error_store_any = Input(Bool())  // LSU imprecise store bus error
+//  val lsu_imprecise_error_addr_any  = Input(UInt(32.W))                // LSU imprecise bus error address
 
   val exu_div_result                = Input(UInt(32.W))    // final div result
   val exu_div_wren                  = Input(UInt(1.W))    // Divide write enable to GPR
@@ -312,11 +325,11 @@ class el2_dec_IO extends Bundle with el2_lib {
   val rv_trace_pkt     = Output(new el2_trace_pkt_t)        // trace packet
 
   // feature disable from mfdc
-  val dec_tlu_external_ldfwd_disable     = Output(Bool())       // disable external load forwarding
-  val dec_tlu_sideeffect_posted_disable  = Output(Bool())       // disable posted stores to side-effect address
+//  val dec_tlu_external_ldfwd_disable     = Output(Bool())       // disable external load forwarding
+//  val dec_tlu_sideeffect_posted_disable  = Output(Bool())       // disable posted stores to side-effect address
 //  val dec_tlu_core_ecc_disable           = Output(Bool())       // disable core ECC
 //  val dec_tlu_bpred_disable              = Output(Bool())       // disable branch prediction
-  val dec_tlu_wb_coalescing_disable      = Output(Bool())       // disable writebuffer coalescing
+//  val dec_tlu_wb_coalescing_disable      = Output(Bool())       // disable writebuffer coalescing
   val dec_tlu_dma_qos_prty               = Output(UInt(3.W))       // DMA QoS priority coming from MFDC [18:16]
 
   // clock gating overrides from mcgc
@@ -332,6 +345,9 @@ class el2_dec_IO extends Bundle with el2_lib {
   val scan_mode                   = Input(Bool())
   val ifu_dec = Flipped(new ifu_dec)
   val dec_exu = Flipped(new dec_exu)
+  val lsu_dec = Flipped (new lsu_dec)
+  val lsu_tlu = Flipped (new lsu_tlu)
+  val dec_dbg = new dec_dbg
 }
 
 class el2_dec extends Module with param with RequireAsyncReset{
@@ -362,10 +378,11 @@ class el2_dec extends Module with param with RequireAsyncReset{
   //inputs
   instbuff.io.ifu_ib <> io.ifu_dec.dec_aln.aln_ib
   instbuff.io.ib_exu <> io.dec_exu.ib_exu
-  instbuff.io.dbg_cmd_valid		    := io.dbg_cmd_valid
-  instbuff.io.dbg_cmd_write		    := io.dbg_cmd_write
-  instbuff.io.dbg_cmd_type		    :=  io.dbg_cmd_type
-  instbuff.io.dbg_cmd_addr		    := io.dbg_cmd_addr
+  instbuff.io.dbg_ib <> io.dec_dbg.dbg_ib
+//  instbuff.io.dbg_cmd_valid		    := io.dbg_cmd_valid
+//  instbuff.io.dbg_cmd_write		    := io.dbg_cmd_write
+//  instbuff.io.dbg_cmd_type		    :=  io.dbg_cmd_type
+//  instbuff.io.dbg_cmd_addr		    := io.dbg_cmd_addr
 //  instbuff.io.ifu_ib.i0_brp				       := io.ifu_dec.ifu_ib.i0_brp
 //  instbuff.io.ifu_ib.ifu_i0_bp_index     := io.ifu_dec.ifu_ib.ifu_i0_bp_index
 //  instbuff.io.ifu_ib.ifu_i0_bp_fghr      := io.ifu_dec.ifu_ib.ifu_i0_bp_fghr
@@ -402,14 +419,15 @@ class el2_dec extends Module with param with RequireAsyncReset{
   decode.io.dec_tlu_flush_extint               :=  tlu.io.dec_tlu_flush_extint
   decode.io.dec_tlu_force_halt                 :=  tlu.io.tlu_mem.dec_tlu_force_halt
 //  decode.io.ifu_decode.ifu_i0_cinst                       :=  io.ifu_dec.ifu_decode.ifu_i0_cinst
-  decode.io.lsu_nonblock_load_valid_m          :=  io.lsu_nonblock_load_valid_m
-  decode.io.lsu_nonblock_load_tag_m            :=  io.lsu_nonblock_load_tag_m
-  decode.io.lsu_nonblock_load_inv_r            :=  io.lsu_nonblock_load_inv_r
-  decode.io.lsu_nonblock_load_inv_tag_r        :=  io.lsu_nonblock_load_inv_tag_r
-  decode.io.lsu_nonblock_load_data_valid       :=  io.lsu_nonblock_load_data_valid
-  decode.io.lsu_nonblock_load_data_error       :=  io.lsu_nonblock_load_data_error
-  decode.io.lsu_nonblock_load_data_tag         :=  io.lsu_nonblock_load_data_tag
-  decode.io.lsu_nonblock_load_data             :=  io.lsu_nonblock_load_data
+  decode.io.dctl_busbuff <> io.lsu_dec.dctl_busbuff
+//  decode.io.lsu_nonblock_load_valid_m          :=  io.lsu_nonblock_load_valid_m
+//  decode.io.lsu_nonblock_load_tag_m            :=  io.lsu_nonblock_load_tag_m
+//  decode.io.lsu_nonblock_load_inv_r            :=  io.lsu_nonblock_load_inv_r
+//  decode.io.lsu_nonblock_load_inv_tag_r        :=  io.lsu_nonblock_load_inv_tag_r
+//  decode.io.lsu_nonblock_load_data_valid       :=  io.lsu_nonblock_load_data_valid
+//  decode.io.lsu_nonblock_load_data_error       :=  io.lsu_nonblock_load_data_error
+//  decode.io.lsu_nonblock_load_data_tag         :=  io.lsu_nonblock_load_data_tag
+//  decode.io.lsu_nonblock_load_data             :=  io.lsu_nonblock_load_data
   decode.io.dec_i0_trigger_match_d             :=  dec_i0_trigger_match_d
   decode.io.dec_tlu_wr_pause_r                 :=  tlu.io.dec_tlu_wr_pause_r
   decode.io.dec_tlu_pipelining_disable         :=  tlu.io.dec_tlu_pipelining_disable
@@ -418,7 +436,8 @@ class el2_dec extends Module with param with RequireAsyncReset{
   decode.io.dec_tlu_debug_stall                :=  tlu.io.dec_tlu_debug_stall
   decode.io.dec_tlu_flush_leak_one_r           :=  tlu.io.tlu_bp.dec_tlu_flush_leak_one_wb
   decode.io.dec_debug_fence_d                  :=  instbuff.io.dec_debug_fence_d
-  decode.io.dbg_cmd_wrdata                     :=  io.dbg_cmd_wrdata
+//  decode.io.dbg_cmd_wrdata                     :=  io.dbg_cmd_wrdata
+  decode.io.dbg_dctl <> io.dec_dbg.dbg_dctl
   decode.io.dec_i0_icaf_d                      :=  instbuff.io.dec_i0_icaf_d
   decode.io.dec_i0_icaf_f1_d                   :=  instbuff.io.dec_i0_icaf_f1_d
   decode.io.dec_i0_icaf_type_d                 :=  instbuff.io.dec_i0_icaf_type_d
@@ -504,7 +523,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   gpr.io.wd0          := decode.io.dec_i0_wdata_r
   gpr.io.wen1         := decode.io.dec_nonblock_load_wen
   gpr.io.waddr1       := decode.io.dec_nonblock_load_waddr
-  gpr.io.wd1          := io.lsu_nonblock_load_data
+  gpr.io.wd1          := io.lsu_dec.dctl_busbuff.lsu_nonblock_load_data
   gpr.io.wen2         := io.exu_div_wren
   gpr.io.waddr2       := decode.io.div_waddr_wb
   gpr.io.wd2          := io.exu_div_result
@@ -522,7 +541,7 @@ class el2_dec extends Module with param with RequireAsyncReset{
   //inputs
   tlu.io.tlu_mem <> io.ifu_dec.dec_mem_ctrl
   tlu.io.tlu_ifc <> io.ifu_dec.dec_ifc
-  tlu.io.tlu_bp <> io.ifu_dec.dec_bp
+  tlu.io.tlu_bp  <> io.ifu_dec.dec_bp
   tlu.io.tlu_exu <> io.dec_exu.tlu_exu
   //tlu.io.clk                                :=  io.clk
   tlu.io.active_clk                         :=  io.active_clk
@@ -552,12 +571,14 @@ class el2_dec extends Module with param with RequireAsyncReset{
 //  tlu.io.exu_pmu_i0_br_misp                 :=  io.exu_pmu_i0_br_misp
 //  tlu.io.exu_pmu_i0_br_ataken               :=  io.exu_pmu_i0_br_ataken
 //  tlu.io.exu_pmu_i0_pc4                     :=  io.exu_pmu_i0_pc4
-  tlu.io.lsu_pmu_bus_trxn                   :=  io.lsu_pmu_bus_trxn
-  tlu.io.lsu_pmu_bus_misaligned             :=  io.lsu_pmu_bus_misaligned
-  tlu.io.lsu_pmu_bus_error                  :=  io.lsu_pmu_bus_error
-  tlu.io.lsu_pmu_bus_busy                   :=  io.lsu_pmu_bus_busy
-  tlu.io.lsu_pmu_load_external_m            :=  io.lsu_pmu_load_external_m
-  tlu.io.lsu_pmu_store_external_m           :=  io.lsu_pmu_store_external_m
+  io.lsu_dec.tlu_busbuff <> tlu.io.tlu_busbuff
+  io.lsu_tlu <> tlu.io.lsu_tlu
+//  tlu.io.lsu_pmu_bus_trxn                   :=  io.lsu_pmu_bus_trxn
+//  tlu.io.lsu_pmu_bus_misaligned             :=  io.lsu_pmu_bus_misaligned
+//  tlu.io.lsu_pmu_bus_error                  :=  io.lsu_pmu_bus_error
+//  tlu.io.lsu_pmu_bus_busy                   :=  io.lsu_pmu_bus_busy
+//  tlu.io.lsu_pmu_load_external_m            :=  io.lsu_pmu_load_external_m
+//  tlu.io.lsu_pmu_store_external_m           :=  io.lsu_pmu_store_external_m
   tlu.io.dma_pmu_dccm_read                  :=  io.dma_pmu_dccm_read
   tlu.io.dma_pmu_dccm_write                 :=  io.dma_pmu_dccm_write
   tlu.io.dma_pmu_any_read                   :=  io.dma_pmu_any_read
@@ -568,9 +589,9 @@ class el2_dec extends Module with param with RequireAsyncReset{
   tlu.io.lsu_error_pkt_r                    :=  io.lsu_error_pkt_r
   tlu.io.lsu_single_ecc_error_incr          :=  io.lsu_single_ecc_error_incr
   tlu.io.dec_pause_state                    :=  decode.io.dec_pause_state
-  tlu.io.lsu_imprecise_error_store_any      :=  io.lsu_imprecise_error_store_any
-  tlu.io.lsu_imprecise_error_load_any       :=  io.lsu_imprecise_error_load_any
-  tlu.io.lsu_imprecise_error_addr_any       :=  io.lsu_imprecise_error_addr_any
+//  tlu.io.lsu_imprecise_error_store_any      :=  io.lsu_imprecise_error_store_any
+//  tlu.io.lsu_imprecise_error_load_any       :=  io.lsu_imprecise_error_load_any
+//  tlu.io.lsu_imprecise_error_addr_any       :=  io.lsu_imprecise_error_addr_any
   tlu.io.dec_csr_wen_unq_d                  :=  decode.io.dec_csr_wen_unq_d
   tlu.io.dec_csr_any_unq_d                  :=  decode.io.dec_csr_any_unq_d
   tlu.io.dec_csr_rdaddr_d                   :=  decode.io.dec_csr_rdaddr_d
@@ -653,11 +674,11 @@ class el2_dec extends Module with param with RequireAsyncReset{
   dec_tlu_int_valid_wb1        := tlu.io.dec_tlu_int_valid_wb1
   dec_tlu_exc_cause_wb1        := tlu.io.dec_tlu_exc_cause_wb1
   dec_tlu_mtval_wb1            := tlu.io.dec_tlu_mtval_wb1
-  io.dec_tlu_external_ldfwd_disable       := tlu.io.dec_tlu_external_ldfwd_disable
-  io.dec_tlu_sideeffect_posted_disable    := tlu.io.dec_tlu_sideeffect_posted_disable
+//  io.dec_tlu_external_ldfwd_disable       := tlu.io.dec_tlu_external_ldfwd_disable
+//  io.dec_tlu_sideeffect_posted_disable    := tlu.io.dec_tlu_sideeffect_posted_disable
 //  io.ifu_dec.tlu_mem.dec_tlu_core_ecc_disable             := tlu.io.tlu_mem.dec_tlu_core_ecc_disable
 //  io.ifu_dec.tlu_bp.dec_tlu_bpred_disable                := tlu.io.tlu_bp.dec_tlu_bpred_disable
-  io.dec_tlu_wb_coalescing_disable        := tlu.io.dec_tlu_wb_coalescing_disable
+//  io.dec_tlu_wb_coalescing_disable        := tlu.io.dec_tlu_wb_coalescing_disable
   io.dec_tlu_dma_qos_prty         := tlu.io.dec_tlu_dma_qos_prty
   io.dec_tlu_misc_clk_override    := tlu.io.dec_tlu_misc_clk_override
   io.dec_tlu_ifu_clk_override      := tlu.io.dec_tlu_ifu_clk_override
