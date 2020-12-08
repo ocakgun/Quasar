@@ -55,7 +55,7 @@ class axi4_to_ahb_IO extends Bundle with Config {
   val ahb_hwdata = Output(UInt(64.W)) // [63:0]  // ahb bus write data
 }
 
-class axi4_to_ahb extends Module with el2_lib with RequireAsyncReset with Config {
+class axi4_to_ahb extends Module with lib with RequireAsyncReset with Config {
   val io = IO(new axi4_to_ahb_IO)
   val idle :: cmd_rd :: cmd_wr :: data_rd :: data_wr :: done :: stream_rd :: stream_err_rd :: nil = Enum(8)
   val state = RegInit(idle) // typedef enum
