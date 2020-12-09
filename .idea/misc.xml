@@ -84,6 +84,11 @@
                     <option name="replacementList" value="$random" />
                     <option name="source" value="el2_ifu_mem_ctl.v" />
                   </Body>
+                  <Body>
+                    <option name="offset" value="149445" />
+                    <option name="replacementList" value="$random" />
+                    <option name="source" value="dec.v" />
+                  </Body>
                 </list>
               </option>
               <option name="dependencies">
@@ -98,6 +103,7 @@
                   <option value="el2_exu_alu_ctl.v" />
                   <option value="el2_lsu.v" />
                   <option value="el2_ifu_mem_ctl.v" />
+                  <option value="dec.v" />
                 </set>
               </option>
             </Define>
@@ -827,6 +833,54 @@
                     </option>
                     <option name="offset" value="411331" />
                     <option name="source" value="el2_ifu_mem_ctl.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_GARBAGE_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="149246" />
+                    <option name="source" value="dec.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_INVALID_ASSIGN" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="149303" />
+                    <option name="source" value="dec.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_REG_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="149354" />
+                    <option name="source" value="dec.v" />
+                  </Body>
+                  <Body>
+                    <option name="inclusionDependencies">
+                      <list>
+                        <InclusionDependency>
+                          <option name="name" value="RANDOMIZE_MEM_INIT" />
+                          <option name="rule" value="DEFINED" />
+                        </InclusionDependency>
+                      </list>
+                    </option>
+                    <option name="offset" value="149405" />
+                    <option name="source" value="dec.v" />
                   </Body>
                 </list>
               </option>
