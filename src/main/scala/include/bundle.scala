@@ -34,7 +34,7 @@ class tlu_dma extends Bundle{
 
 class dec_bp extends Bundle{
   val dec_tlu_br0_r_pkt = Flipped(Valid(new br_tlu_pkt_t))
-  val dec_tlu_flush_lower_wb = Input(Bool())
+//  val dec_tlu_flush_lower_wb = Input(Bool())
   val dec_tlu_flush_leak_one_wb = Input(Bool())
   val dec_tlu_bpred_disable = Input(Bool())
 }
@@ -92,7 +92,7 @@ class write_resp(val TAG : Int=3) extends Bundle with lib{ // write_response
 }
 
 class dec_mem_ctrl extends Bundle with lib{
-  val dec_tlu_flush_lower_wb = Input(Bool())
+//  val dec_tlu_flush_lower_wb = Input(Bool())
   val dec_tlu_flush_err_wb = Input(Bool())
   val dec_tlu_i0_commit_cmt = Input(Bool())
   val dec_tlu_force_halt = Input(Bool())

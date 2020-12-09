@@ -141,6 +141,7 @@ class dec_tlu_ctl_IO extends Bundle with lib {
 	val  dec_tlu_pic_clk_override   = Output(UInt(1.W)) // override PIC clock domain gating
 	val  dec_tlu_dccm_clk_override  = Output(UInt(1.W)) // override DCCM clock domain gating
 	val  dec_tlu_icm_clk_override   = Output(UInt(1.W)) // override ICCM clock domain gating
+	val dec_tlu_flush_lower_wb = Output(Bool())
 	val ifu_pmu_instr_aligned = Input(UInt(1.W))
 	val tlu_bp  = Flipped(new dec_bp)
 	val tlu_ifc = Flipped(new dec_ifc)
@@ -440,7 +441,7 @@ class dec_tlu_ctl extends Module with lib with RequireAsyncReset with CSR_VAL{
 	val dbg_cmd_done_ns = io.dec_tlu_i0_valid_r & io.dec_tlu_dbg_halted
 
    // used to hold off commits after an in-pipe debug mode request (triggers, DCSR)
-	val request_debug_mode_r = (trigger_hit_dmode_r | ebreak_to_debug_mode_r) | (request_debug_mode_r_d1 & ~io.tlu_bp.dec_tlu_flush_lower_wb)
+	val request_debug_mode_r = (trigger_hit_dmode_r | ebreak_to_debug_mode_r) | (request_debug_mode_r_d1 & ~io.dec_tlu_flush_lower_wb)
 
 	val request_debug_mode_done = (request_debug_mode_r_d1 | request_debug_mode_done_f) & ~dbg_tlu_halted_f
 	
@@ -516,7 +517,7 @@ class dec_tlu_ctl extends Module with lib with RequireAsyncReset with CSR_VAL{
 
    val i0trigger_qual_r = Fill(4,i0_trigger_eval_r) & io.dec_tlu_packet_r.i0trigger(3,0) & i0_iside_trigger_has_pri_r & i0_lsu_trigger_has_pri_r & trigger_enabled
    // Qual trigger hits
-   val i0_trigger_r = ~(Fill(4,io.tlu_bp.dec_tlu_flush_lower_wb | io.dec_tlu_dbg_halted)) & i0trigger_qual_r
+   val i0_trigger_r = ~(Fill(4,io.dec_tlu_flush_lower_wb | io.dec_tlu_dbg_halted)) & i0trigger_qual_r
 
    // chaining can mask raw trigger info
    val i0_trigger_chain_masked_r  = Cat(i0_trigger_r(3) & (~mtdata1_t(2)(MTDATA1_CHAIN) | i0_trigger_r(2)), i0_trigger_r(2) & (~mtdata1_t(2)(MTDATA1_CHAIN) | i0_trigger_r(3)), i0_trigger_r(1) & (~mtdata1_t(0)(MTDATA1_CHAIN) | i0_trigger_r(0)), i0_trigger_r(0) & (~mtdata1_t(0)(MTDATA1_CHAIN) | i0_trigger_r(1)))
@@ -605,7 +606,7 @@ class dec_tlu_ctl extends Module with lib with RequireAsyncReset with CSR_VAL{
    mdseac_locked_f					:=withClock(io.free_clk){RegNext(mdseac_locked_ns,0.U)}
    val lsu_single_ecc_error_r_d1	=withClock(io.free_clk){RegNext(lsu_single_ecc_error_r,0.U)}
    val lsu_error_pkt_addr_r		 	=io.lsu_error_pkt_r.bits.addr
-   val lsu_exc_valid_r_raw = io.lsu_error_pkt_r.valid & ~io.tlu_bp.dec_tlu_flush_lower_wb
+   val lsu_exc_valid_r_raw = io.lsu_error_pkt_r.valid & ~io.dec_tlu_flush_lower_wb
    lsu_i0_exc_r_raw :=  io.lsu_error_pkt_r.valid
    val lsu_i0_exc_r = lsu_i0_exc_r_raw & lsu_exc_valid_r_raw & ~i0_trigger_hit_r & ~rfpc_i0_r
    val lsu_exc_valid_r = lsu_i0_exc_r
@@ -797,8 +798,8 @@ class dec_tlu_ctl extends Module with lib with RequireAsyncReset with CSR_VAL{
 
 	val tlu_flush_path_r_d1=withClock(e4e5_int_clk){RegNext(tlu_flush_path_r,0.U)} ///After Combining Code revisit this
 
-   	io.tlu_bp.dec_tlu_flush_lower_wb 	:= tlu_flush_lower_r_d1
-    io.tlu_mem.dec_tlu_flush_lower_wb 	:= io.tlu_bp.dec_tlu_flush_lower_wb
+   	io.dec_tlu_flush_lower_wb 	:= tlu_flush_lower_r_d1
+//    io.tlu_mem.dec_tlu_flush_lower_wb 	:= io.dec_tlu_flush_lower_wb
    	io.tlu_exu.dec_tlu_flush_lower_r 	:= tlu_flush_lower_r
    	io.tlu_exu.dec_tlu_flush_path_r 	:= tlu_flush_path_r ///After Combining Code revisit this
 

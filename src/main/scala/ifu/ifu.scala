@@ -11,6 +11,7 @@ class ifu extends Module with lib with RequireAsyncReset {
   val io = IO(new Bundle{
     val exu_flush_final = Input(Bool())
     val exu_flush_path_final = Input(UInt(31.W))
+    val dec_tlu_flush_lower_wb = Input(UInt(1.W))
     val free_clk = Input(Clock())
     val active_clk = Input(Clock())
     val ifu_dec = new ifu_dec()
@@ -117,12 +118,14 @@ class ifu extends Module with lib with RequireAsyncReset {
   bp_ctl.io.ifc_fetch_req_f := ifc_ctl.io.ifc_fetch_req_f
   bp_ctl.io.dec_bp <> io.ifu_dec.dec_bp
   bp_ctl.io.exu_bp <> io.exu_ifu.exu_bp
+  bp_ctl.io.dec_tlu_flush_lower_wb := io.dec_tlu_flush_lower_wb
   bp_ctl.io.exu_flush_final := io.exu_flush_final
 
   // mem-ctl wiring
   mem_ctl.io.free_clk := io.free_clk
   mem_ctl.io.active_clk := io.active_clk
   mem_ctl.io.exu_flush_final := io.exu_flush_final
+  mem_ctl.io.dec_tlu_flush_lower_wb := io.dec_tlu_flush_lower_wb
   mem_ctl.io.dec_mem_ctrl <> io.ifu_dec.dec_mem_ctrl
   mem_ctl.io.ifc_fetch_addr_bf := ifc_ctl.io.ifc_fetch_addr_bf
   mem_ctl.io.ifc_fetch_uncacheable_bf := ifc_ctl.io.ifc_fetch_uncacheable_bf

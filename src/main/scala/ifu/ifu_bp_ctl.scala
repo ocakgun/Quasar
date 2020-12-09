@@ -28,6 +28,7 @@ class ifu_bp_ctl extends Module with lib with RequireAsyncReset {
     val ifu_bp_valid_f = Output(UInt(2.W))
     val ifu_bp_poffset_f = Output(UInt(12.W))
     val scan_mode = Input(Bool())
+    val dec_tlu_flush_lower_wb            = Input(UInt(1.W))
   })
 
   val TAG_START = 16+BTB_BTAG_SIZE
@@ -119,7 +120,7 @@ class ifu_bp_ctl extends Module with lib with RequireAsyncReset {
   val exu_flush_final_d1 = withClock(io.active_clk) {RegNext(io.exu_flush_final, init = 0.U)}
 
   // If there is a flush from the lower pipe wait until the flush gets deasserted from the (decode) side
-  leak_one_f := (io.dec_bp.dec_tlu_flush_leak_one_wb & io.dec_bp.dec_tlu_flush_lower_wb) | (leak_one_f_d1 & !io.dec_bp.dec_tlu_flush_lower_wb)
+  leak_one_f := (io.dec_bp.dec_tlu_flush_leak_one_wb & io.dec_tlu_flush_lower_wb) | (leak_one_f_d1 & !io.dec_tlu_flush_lower_wb)
 
   // For a tag to match the branch should be valid tag should match and a fetch request should be generated
   // Also there should be no bank conflict or leak-one
