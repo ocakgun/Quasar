@@ -4,7 +4,7 @@ import chisel3.util._
 import chisel3.experimental.chiselName
 
 @chiselName
-class ahb_to_axi4 extends Module with el2_lib with RequireAsyncReset {
+class ahb_to_axi4 extends Module with lib with RequireAsyncReset {
   val TAG = 1
   val io = IO(new Bundle {
     val scan_mode = Input(Bool())
