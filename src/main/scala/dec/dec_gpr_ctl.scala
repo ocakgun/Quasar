@@ -65,3 +65,6 @@ class dec_gpr_ctl extends Module with lib with RequireAsyncReset{
 	io.gpr_exu.gpr_i0_rs2_d:=Mux1H((1 until 32).map(i => (io.raddr1===i.U).asBool -> gpr_out(i)))
 }
 
+object gpr extends App {
+	(new chisel3.stage.ChiselStage).emitVerilog(new dec_gpr_ctl())
+}

@@ -5,54 +5,53 @@ import lib._
 import include._
 import chisel3.experimental.{ChiselEnum, chiselName}
 import chisel3.util.ImplicitConversions.intToUInt
-import ifu._
 
 @chiselName
 class  lsu_bus_buffer extends Module with RequireAsyncReset with lib {
   val io = IO(new Bundle {
-    val scan_mode           = Input(Bool())
-    val tlu_busbuff         = new tlu_busbuff()
-    val dctl_busbuff        = new dctl_busbuff()
-    val dec_tlu_force_halt  = Input(Bool())
-    val lsu_c2_r_clk        = Input(Clock())
+    val scan_mode = Input(Bool())
+    val tlu_busbuff = new tlu_busbuff()
+    val dctl_busbuff = new dctl_busbuff()
+    val dec_tlu_force_halt = Input(Bool())
+    val lsu_c2_r_clk = Input(Clock())
     val lsu_bus_ibuf_c1_clk = Input(Clock())
     val lsu_bus_obuf_c1_clk = Input(Clock())
-    val lsu_bus_buf_c1_clk  = Input(Clock())
-    val lsu_free_c2_clk     = Input(Clock())
-    val lsu_busm_clk        = Input(Clock())
+    val lsu_bus_buf_c1_clk = Input(Clock())
+    val lsu_free_c2_clk = Input(Clock())
+    val lsu_busm_clk = Input(Clock())
     val dec_lsu_valid_raw_d = Input(Bool())
-    val lsu_pkt_m           = Flipped(Valid(new lsu_pkt_t()))
-    val lsu_pkt_r           = Flipped(Valid(new lsu_pkt_t()))
-    val lsu_addr_m          = Input(UInt(32.W))
-    val end_addr_m          = Input(UInt(32.W))
-    val lsu_addr_r          = Input(UInt(32.W))
-    val end_addr_r          = Input(UInt(32.W))
-    val store_data_r        = Input(UInt(32.W))
-    val no_word_merge_r     = Input(Bool())
-    val no_dword_merge_r    = Input(Bool())
-    val lsu_busreq_m        = Input(Bool())
-    val ld_full_hit_m       = Input(Bool())
-    val flush_m_up          = Input(Bool())
-    val flush_r             = Input(Bool())
-    val lsu_commit_r        = Input(Bool())
-    val is_sideeffects_r    = Input(Bool())
-    val ldst_dual_d         = Input(Bool())
-    val ldst_dual_m         = Input(Bool())
-    val ldst_dual_r         = Input(Bool())
-    val ldst_byteen_ext_m   = Input(UInt(8.W))
-    val lsu_axi             = new axi_channels(LSU_BUS_TAG)
-    val lsu_bus_clk_en      = Input(Bool())
-    val lsu_bus_clk_en_q    = Input(Bool())
+    val lsu_pkt_m = Flipped(Valid(new lsu_pkt_t()))
+    val lsu_pkt_r = Flipped(Valid(new lsu_pkt_t()))
+    val lsu_addr_m = Input(UInt(32.W))
+    val end_addr_m = Input(UInt(32.W))
+    val lsu_addr_r = Input(UInt(32.W))
+    val end_addr_r = Input(UInt(32.W))
+    val store_data_r = Input(UInt(32.W))
+    val no_word_merge_r = Input(Bool())
+    val no_dword_merge_r = Input(Bool())
+    val lsu_busreq_m = Input(Bool())
+    val ld_full_hit_m = Input(Bool())
+    val flush_m_up = Input(Bool())
+    val flush_r = Input(Bool())
+    val lsu_commit_r = Input(Bool())
+    val is_sideeffects_r = Input(Bool())
+    val ldst_dual_d = Input(Bool())
+    val ldst_dual_m = Input(Bool())
+    val ldst_dual_r = Input(Bool())
+    val ldst_byteen_ext_m = Input(UInt(8.W))
+    val lsu_axi = new axi_channels(LSU_BUS_TAG)
+    val lsu_bus_clk_en = Input(Bool())
+    val lsu_bus_clk_en_q = Input(Bool())
 
-    val lsu_busreq_r              = Output(Bool())
-    val lsu_bus_buffer_pend_any   = Output(Bool())
-    val lsu_bus_buffer_full_any   = Output(Bool())
-    val lsu_bus_buffer_empty_any  = Output(Bool())
-    val lsu_bus_idle_any          = Output(Bool())
-    val ld_byte_hit_buf_lo        = Output((UInt(4.W)))
-    val ld_byte_hit_buf_hi        = Output((UInt(4.W)))
-    val ld_fwddata_buf_lo         = Output((UInt(32.W)))
-    val ld_fwddata_buf_hi         = Output((UInt(32.W)))
+    val lsu_busreq_r = Output(Bool())
+    val lsu_bus_buffer_pend_any = Output(Bool())
+    val lsu_bus_buffer_full_any = Output(Bool())
+    val lsu_bus_buffer_empty_any = Output(Bool())
+    val lsu_bus_idle_any = Output(Bool())
+    val ld_byte_hit_buf_lo = Output((UInt(4.W)))
+    val ld_byte_hit_buf_hi = Output((UInt(4.W)))
+    val ld_fwddata_buf_lo = Output((UInt(32.W)))
+    val ld_fwddata_buf_hi = Output((UInt(32.W)))
   })
   def indexing(in : UInt, index : UInt) = Mux1H((0 until math.pow(2, index.getWidth).asInstanceOf[Int]).map(i=>(index===i.U)->in(i)))
   def indexing(in : Vec[UInt], index : UInt) = Mux1H((0 until math.pow(2, index.getWidth).asInstanceOf[Int]).map(i=>(index===i.U)->in(i)))
@@ -183,7 +182,6 @@ class  lsu_bus_buffer extends Module with RequireAsyncReset with lib {
     (io.lsu_addr_r(1,0)===1.U)->Cat(0.U(3.W), ldst_byteen_r(3)),
     (io.lsu_addr_r(1,0)===2.U)->Cat(0.U(2.W), ldst_byteen_r(3,2)),
     (io.lsu_addr_r(1,0)===3.U)->Cat(0.U(1.W), ldst_byteen_r(3,1))))
-
   val ldst_byteen_lo_r = Mux1H(Seq((io.lsu_addr_r(1,0)===0.U)->ldst_byteen_r,
     (io.lsu_addr_r(1,0)===1.U)->Cat(ldst_byteen_r(2,0), 0.U),
     (io.lsu_addr_r(1,0)===2.U)->Cat(ldst_byteen_r(1,0), 0.U(2.W)),
@@ -297,6 +295,7 @@ class  lsu_bus_buffer extends Module with RequireAsyncReset with lib {
   val obuf_merge_en = WireInit(Bool(), false.B)
   val obuf_merge_in = obuf_merge_en
   val obuf_tag0_in = Mux(ibuf_buf_byp, WrPtr0_r, CmdPtr0)
+  //val Cmdptr1 = WireInit(UInt(DEPTH_LOG2.W), 0.U)
 
   val obuf_tag1_in = Mux(ibuf_buf_byp, WrPtr1_r, CmdPtr1)
   val obuf_cmd_done = WireInit(Bool(), false.B)
@@ -617,4 +616,3 @@ class  lsu_bus_buffer extends Module with RequireAsyncReset with lib {
   io.lsu_busreq_r := withClock(io.lsu_c2_r_clk){RegNext(io.lsu_busreq_m & !io.flush_r & !io.ld_full_hit_m, false.B)}
   lsu_nonblock_load_valid_r := withClock(io.lsu_c2_r_clk){RegNext(io.dctl_busbuff.lsu_nonblock_load_valid_m, false.B)}
 }
-

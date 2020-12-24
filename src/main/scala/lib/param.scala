@@ -10,6 +10,8 @@ trait param {
   val BHT_SIZE               = 	0x200
   val BTB_ADDR_HI            = 	0x09
   val BTB_ADDR_LO            = 	0x2
+  val BTB_ENABLE             =  0x1
+  val BTB_FULLYA             =  0x0
   val BTB_ARRAY_DEPTH        = 	0x100
   val BTB_BTAG_FOLD          = 	0x0
   val BTB_BTAG_SIZE          = 	0x5
@@ -25,6 +27,14 @@ trait param {
   val BUILD_AXI4             = 	0x1
   val BUILD_AXI_NATIVE       = 	0x1
   val BUS_PRTY_DEFAULT       = 	0x3
+  val BITMANIP_ZBA           = 0x00
+  val BITMANIP_ZBB           = 0x01
+  val BITMANIP_ZBC           = 0x00
+  val BITMANIP_ZBE           = 0x00
+  val BITMANIP_ZBF           = 0x00
+  val BITMANIP_ZBP           = 0x00
+  val BITMANIP_ZBR           = 0x00
+  val BITMANIP_ZBS           = 0x01
   val DATA_ACCESS_ADDR0      = 	0x00000000
   val DATA_ACCESS_ADDR1      = 	0xC0000000
   val DATA_ACCESS_ADDR2      = 	0xA0000000

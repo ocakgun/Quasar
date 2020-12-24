@@ -9,14 +9,14 @@ import include._
 @chiselName
 class ifu extends Module with lib with RequireAsyncReset {
   val io = IO(new Bundle{
-    val exu_flush_final       = Input(Bool())
-    val exu_flush_path_final  = Input(UInt(31.W))
-    val free_clk              = Input(Clock())
-    val active_clk            = Input(Clock())
-    val ifu_dec               = new ifu_dec() // IFU and DEC interconnects
-    val exu_ifu               = new exu_ifu() // IFU and EXU interconnects
-    val iccm                  = new iccm_mem() // ICCM memory signals
-    val ic                    = new ic_mem() // I$ memory signals
+    val exu_flush_final = Input(Bool())
+    val exu_flush_path_final = Input(UInt(31.W))
+    val free_clk = Input(Clock())
+    val active_clk = Input(Clock())
+    val ifu_dec = new ifu_dec() // IFU and DEC interconnects
+    val exu_ifu = new exu_ifu() // IFU and EXU interconnects
+    val iccm = new iccm_mem() // ICCM memory signals
+    val ic = new ic_mem() // I$ memory signals
     val ifu = new axi_channels(IFU_BUS_TAG) // AXI Write Channel
     val ifu_bus_clk_en = Input(Bool())
     val ifu_dma = new ifu_dma() // DMA signals
@@ -117,5 +117,3 @@ class ifu extends Module with lib with RequireAsyncReset {
   io.iccm_ready := mem_ctl.io.iccm_ready
   io.iccm_dma_sb_error := mem_ctl.io.iccm_dma_sb_error
 }
-
-

@@ -10,6 +10,8 @@ class dec_ib_ctl_IO extends Bundle with param{
   val ifu_ib = Flipped(new aln_ib)
   val ib_exu = Flipped(new ib_exu)
   val dbg_ib = new dbg_ib
+  val dec_debug_valid_d     =Output(UInt(1.W))
+  
   val dec_ib0_valid_d       =Output(UInt(1.W))   // ib0 valid
   val dec_i0_icaf_type_d    =Output(UInt(2.W)) // i0 instruction access fault type
   val dec_i0_instr_d        =Output(UInt(32.W)) // i0 inst at decode
@@ -18,15 +20,18 @@ class dec_ib_ctl_IO extends Bundle with param{
   val dec_i0_bp_index       =Output(UInt(((BTB_ADDR_HI-BTB_ADDR_LO)+1).W))   // i0 branch index
   val dec_i0_bp_fghr        =Output(UInt(BHT_GHR_SIZE.W))   // BP FGHR
   val dec_i0_bp_btag        =Output(UInt(BTB_BTAG_SIZE.W))  // BP tag
+  val ifu_i0_fa_index       =Input(UInt(log2Ceil(BTB_SIZE).W))
+  val dec_i0_bp_fa_index    =Output(UInt(log2Ceil(BTB_SIZE).W))
+  
   val dec_i0_icaf_d         =Output(UInt(1.W))  // i0 instruction access fault at decode
-  val dec_i0_icaf_f1_d      =Output(UInt(1.W))  // i0 instruction access fault at decode for f1 fetch group
+  val dec_i0_icaf_second_d      =Output(UInt(1.W))  // i0 instruction access fault at decode for f1 fetch group
   val dec_i0_dbecc_d        =Output(UInt(1.W))  // i0 double-bit error at decode
   val dec_debug_fence_d     =Output(UInt(1.W))  // debug fence inst
 }
 
 class dec_ib_ctl extends Module with param{
   val io=IO(new dec_ib_ctl_IO)
-  io.dec_i0_icaf_f1_d         :=io.ifu_ib.ifu_i0_icaf_f1
+  io.dec_i0_icaf_second_d         :=io.ifu_ib.ifu_i0_icaf_second
   io.dec_i0_dbecc_d           :=io.ifu_ib.ifu_i0_dbecc
   io.dec_i0_icaf_d            :=io.ifu_ib.ifu_i0_icaf
   io.ib_exu.dec_i0_pc_d       :=io.ifu_ib.ifu_i0_pc
@@ -36,6 +41,7 @@ class dec_ib_ctl extends Module with param{
   io.dec_i0_bp_index          :=io.ifu_ib.ifu_i0_bp_index
   io.dec_i0_bp_fghr           :=io.ifu_ib.ifu_i0_bp_fghr
   io.dec_i0_bp_btag           :=io.ifu_ib.ifu_i0_bp_btag
+  io.dec_i0_bp_fa_index := io.ifu_i0_fa_index
 
   // GPR accesses
   // put reg to read on rs1
@@ -52,7 +58,7 @@ class dec_ib_ctl extends Module with param{
   val debug_valid     =io.dbg_ib.dbg_cmd_valid & (io.dbg_ib.dbg_cmd_type =/= 2.U)
   val debug_read      =debug_valid & !io.dbg_ib.dbg_cmd_write
   val debug_write     =debug_valid &  io.dbg_ib.dbg_cmd_write
-
+  io.dec_debug_valid_d := debug_valid
   val debug_read_gpr  = debug_read  & (io.dbg_ib.dbg_cmd_type===0.U)
   val debug_write_gpr = debug_write & (io.dbg_ib.dbg_cmd_type===0.U)
   val debug_read_csr  = debug_read  & (io.dbg_ib.dbg_cmd_type===1.U)
@@ -78,4 +84,7 @@ class dec_ib_ctl extends Module with param{
   io.dec_i0_instr_d  := Mux(debug_valid.asBool,ib0_debug_in,io.ifu_ib.ifu_i0_instr)
 
 
+}
+object ib extends App {
+  (new chisel3.stage.ChiselStage).emitVerilog(new dec_ib_ctl())
 }
