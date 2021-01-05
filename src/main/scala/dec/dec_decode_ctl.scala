@@ -496,7 +496,7 @@ if(BTB_ENABLE){
     io.lsu_p.bits.word      := 1.U(1.W)
     io.lsu_p.bits.fast_int  := 1.U(1.W)
     io.lsu_p.valid     := 1.U(1.W)
-    io.lsu_p.bits.stack     := (i0r.rs1 === 2.U(5.W))   // stack reference
+
 
   }.otherwise {
     io.lsu_p.valid                := lsu_decode_d
@@ -505,6 +505,7 @@ if(BTB_ENABLE){
     io.lsu_p.bits.by                   := i0_dp.by
     io.lsu_p.bits.half                 := i0_dp.half
     io.lsu_p.bits.word                 := i0_dp.word
+    io.lsu_p.bits.stack     := (i0r.rs1 === 2.U(5.W))   // stack reference
     io.lsu_p.bits.load_ldst_bypass_d   := load_ldst_bypass_d
     io.lsu_p.bits.store_data_bypass_d  := store_data_bypass_d
     io.lsu_p.bits.store_data_bypass_m  := store_data_bypass_m
@@ -614,8 +615,8 @@ if(BTB_ENABLE){
   // performance monitor signals
   io.dec_pmu_instr_decoded := io.dec_aln.dec_i0_decode_d
   io.dec_pmu_decode_stall := io.dec_ib0_valid_d & !io.dec_aln.dec_i0_decode_d
-  io.dec_pmu_postsync_stall := postsync_stall.asBool
-  io.dec_pmu_presync_stall  := presync_stall.asBool
+  io.dec_pmu_postsync_stall := postsync_stall.asBool & io.dec_ib0_valid_d
+  io.dec_pmu_presync_stall  := presync_stall.asBool & io.dec_ib0_valid_d
 
   val prior_inflight_x    =  x_d.valid
   val prior_inflight_wb   =  r_d.valid
@@ -843,7 +844,7 @@ if(BTB_ENABLE){
 
   div_active_in := i0_div_decode_d | (io.dec_div_active & !io.exu_div_wren & !nonblock_div_cancel)
 
-  io.dec_div_active := withClock(io.free_l2clk){RegNext(div_active_in, 0.U)}
+//  io.dec_div_active := withClock(io.free_l2clk){RegNext(div_active_in, 0.U)}
 
   // nonblocking div scheme
   i0_nonblock_div_stall  := (io.decode_exu.dec_i0_rs1_en_d & io.dec_div_active & (io.div_waddr_wb === i0r.rs1)) |

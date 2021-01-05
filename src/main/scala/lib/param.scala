@@ -2,6 +2,7 @@ package lib
 import chisel3._
 import chisel3.util._
 trait param {
+  val RV_FPGA_OPTIMIZE       =  0x1
   val BHT_ADDR_HI            = 	0x9
   val BHT_ADDR_LO            = 	0x2
   val BHT_ARRAY_DEPTH        = 	0x100

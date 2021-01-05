@@ -135,7 +135,7 @@ class dec_tlu_ctl_IO extends Bundle with lib {
 	val dec_tlu_mtval_wb1           = Output(UInt(32.W)) // MTVAL value
 	val  dec_tlu_pipelining_disable         = Output(UInt(1.W))      // disable pipelining
 	
-	val  dec_tlu_trace_disable         = Output(UInt(1.W))      // disable pipelining
+	val  dec_tlu_trace_disable         = Output(Bool())      // disable pipelining
 	// clock gating overrides from mcgc
 	val  dec_tlu_misc_clk_override  = Output(UInt(1.W)) // override misc clock domain gating
 	val  dec_tlu_dec_clk_override   = Output(UInt(1.W)) // override decode clock domain gating
@@ -163,7 +163,7 @@ class dec_tlu_ctl extends Module with lib with RequireAsyncReset with CSR_VAL{
 	val pause_expired_wb				=WireInit(UInt(1.W), 0.U)
 	val take_nmi_r_d1					=WireInit(UInt(1.W),0.U)
 	val exc_or_int_valid_r_d1			=WireInit(UInt(1.W),0.U)
-	val interrupt_valid_r_d1			=WireInit(UInt(1.W),0.U)
+	val interrupt_valid_r_d1			=WireInit(Bool(),0.B)
 	val tlu_flush_lower_r				=WireInit(UInt(1.W),0.U)
 	val synchronous_flush_r				=WireInit(UInt(1.W),0.U)
 	val interrupt_valid_r				=WireInit(UInt(1.W),0.U)
@@ -317,31 +317,31 @@ class dec_tlu_ctl extends Module with lib with RequireAsyncReset with CSR_VAL{
    val mpc_debug_run_req_sync		=syncro_ff(0)
    
    // for CSRs that have inpipe writes only
-	val csr_wr_clk=rvclkhdr(clock,(dec_csr_wen_r_mod | clk_override).asBool,io.scan_mode)
+	val csr_wr_clk=rvoclkhdr(clock,(dec_csr_wen_r_mod | clk_override).asBool,io.scan_mode)
 	int_timers.io.csr_wr_clk                   := csr_wr_clk
 //	val lsu_r_wb_clk=rvclkhdr(clock,(io.lsu_error_pkt_r.valid | lsu_exc_valid_r_d1 | clk_override).asBool,io.scan_mode)
 
    val e4_valid = io.dec_tlu_i0_valid_r
    val e4e5_valid = e4_valid | e5_valid
    val flush_clkvalid = internal_dbg_halt_mode_f | i_cpu_run_req_d1 | interrupt_valid_r | interrupt_valid_r_d1 | reset_delayed | pause_expired_r | pause_expired_wb | ic_perr_r  | iccm_sbecc_r  | clk_override
-   
-   	val e4e5_clk=rvclkhdr(clock,(e4e5_valid | clk_override).asBool,io.scan_mode)
-	val e4e5_int_clk=rvclkhdr(clock,(e4e5_valid | flush_clkvalid).asBool,io.scan_mode)
+//   dontTouch(flush_clkvalid)
+   	val e4e5_clk=rvoclkhdr(clock,(e4e5_valid | clk_override).asBool,io.scan_mode)
+	val e4e5_int_clk=rvoclkhdr(clock,(e4e5_valid | flush_clkvalid).asBool,io.scan_mode)
  
-	val ifu_ic_error_start_f          =rvdffie(io.tlu_mem.ifu_iccm_rd_ecc_single_err,io.free_l2clk, reset.asAsyncReset(), io.scan_mode)
-	val ifu_iccm_rd_ecc_single_err_f  =rvdffie(io.tlu_mem.ifu_ic_error_start,io.free_l2clk, reset.asAsyncReset(), io.scan_mode)
+	val ifu_ic_error_start_f          =rvdffie(io.tlu_mem.ifu_ic_error_start,io.free_l2clk, reset.asAsyncReset(), io.scan_mode)
+	val ifu_iccm_rd_ecc_single_err_f  =rvdffie(io.tlu_mem.ifu_iccm_rd_ecc_single_err,io.free_l2clk, reset.asAsyncReset(), io.scan_mode)
 	
 	val iccm_repair_state_d1		=rvdffie(iccm_repair_state_ns,io.free_l2clk, reset.asAsyncReset(), io.scan_mode)
 	//	ic_perr_r_d1					:=withClock(io.free_clk){RegNext(ic_perr_r,0.U)}
 //	iccm_sbecc_r_d1					:=withClock(io.free_clk){RegNext(iccm_sbecc_r,0.U)}
-	e5_valid						          :=withClock(io.free_clk){RegNext(e4_valid,0.U)}
-	internal_dbg_halt_mode_f		  :=withClock(io.free_clk){RegNext(internal_dbg_halt_mode,0.U)}
-	val lsu_pmu_load_external_r		=withClock(io.free_clk){RegNext(io.lsu_tlu.lsu_pmu_load_external_m,0.U)}
-	val lsu_pmu_store_external_r	=withClock(io.free_clk){RegNext(io.lsu_tlu.lsu_pmu_store_external_m,0.U)}
-	val tlu_flush_lower_r_d1		  =withClock(io.free_clk){RegNext(tlu_flush_lower_r,0.U)}
-	io.dec_tlu_i0_kill_writeb_wb	:=withClock(io.free_clk){RegNext(tlu_i0_kill_writeb_r,0.U)}
-	val internal_dbg_halt_mode_f2	=withClock(io.free_clk){RegNext(internal_dbg_halt_mode_f,0.U)}
-	io.tlu_mem.dec_tlu_force_halt			:=withClock(io.free_clk){RegNext(force_halt,0.U)}
+	e5_valid						          :=withClock(io.free_l2clk){RegNext(e4_valid,0.U)}
+	internal_dbg_halt_mode_f		  :=withClock(io.free_l2clk){RegNext(internal_dbg_halt_mode,0.U)}
+	val lsu_pmu_load_external_r		=withClock(io.free_l2clk){RegNext(io.lsu_tlu.lsu_pmu_load_external_m,0.U)}
+	val lsu_pmu_store_external_r	=withClock(io.free_l2clk){RegNext(io.lsu_tlu.lsu_pmu_store_external_m,0.U)}
+	val tlu_flush_lower_r_d1		  =withClock(io.free_l2clk){RegNext(tlu_flush_lower_r,0.U)}
+	io.dec_tlu_i0_kill_writeb_wb	:=withClock(io.free_l2clk){RegNext(tlu_i0_kill_writeb_r,0.U)}
+	val internal_dbg_halt_mode_f2	=withClock(io.free_l2clk){RegNext(internal_dbg_halt_mode_f,0.U)}
+	io.tlu_mem.dec_tlu_force_halt			:=withClock(io.free_l2clk){RegNext(force_halt,0.U)}
 	
 	
 	
@@ -953,8 +953,8 @@ int_exc.io.ext_int_freeze_d1     :=   csr.io.ext_int_freeze_d1
   csr.io.nmi_int_detected_f           := nmi_int_detected_f         
   csr.io.internal_dbg_halt_mode_f2    := internal_dbg_halt_mode_f2  
 //  ext_int_freeze_d1      := csr.io.ext_int_freeze_d1
-  csr.io.ic_perr_r                    := ic_perr_r_d1
-  csr.io.iccm_sbecc_r                 := iccm_sbecc_r_d1
+  csr.io.ic_perr_r                    := ic_perr_r
+  csr.io.iccm_sbecc_r                 := iccm_sbecc_r
 //  csr.io.lsu_single_ecc_error_r_d1    := lsu_single_ecc_error_r_d1
   csr.io.ifu_miss_state_idle_f        := ifu_miss_state_idle_f      
   csr.io.lsu_idle_any_f               := lsu_idle_any_f             
@@ -1258,7 +1258,7 @@ class CSR_IO extends Bundle with lib {
   val dec_tlu_core_ecc_disable          = Output(UInt(1.W))
   val dec_tlu_external_ldfwd_disable    = Output(UInt(1.W))
   val dec_tlu_dma_qos_prty              = Output(UInt(3.W))
-	val  dec_tlu_trace_disable         = Output(UInt(1.W))
+	val  dec_tlu_trace_disable         = Output(Bool())
   val dec_illegal_inst                  = Input(UInt(32.W))
   val lsu_error_pkt_r                   = Flipped(Valid(new lsu_error_pkt_t))// lsu precise exception/error packet
   val mexintpend                        = Input(UInt(1.W))
@@ -1313,7 +1313,7 @@ class CSR_IO extends Bundle with lib {
   val exc_cause_r                 = Input(UInt(5.W))
   val i0_valid_wb                 = Input(UInt(1.W))
   val exc_or_int_valid_r_d1       = Input(UInt(1.W))
-  val interrupt_valid_r_d1        = Input(UInt(1.W))
+  val interrupt_valid_r_d1        = Input(Bool())
   val clk_override                = Input(UInt(1.W))
   val i0_exception_valid_r_d1     = Input(UInt(1.W))
  
@@ -2127,7 +2127,7 @@ miccme_ce_req := (("hffffffff".U(32.W) << miccmect(31,27)) & Cat(0.U(5.W), miccm
 
 
  val wr_dicad0_r = io.allow_dbg_halt_csr_write & io.dec_csr_wen_r_mod & (io.dec_csr_wraddr_r(11,0) === DICAD0)
- val dicad0_ns = Mux(wr_dicad0_r.asBool, io.dec_csr_wrdata_r, io.ifu_ic_debug_rd_data)
+ val dicad0_ns = Mux(wr_dicad0_r.asBool, io.dec_csr_wrdata_r, io.ifu_ic_debug_rd_data(31,0))
 
  val dicad0 = rvdffe(dicad0_ns, (wr_dicad0_r | io.ifu_ic_debug_rd_data_valid).asBool, clock, io.scan_mode)
 
@@ -2382,6 +2382,7 @@ for(i <- 0 until 4) {io.trigger_pkt_any(i).tdata2 := mtdata2_t(i)}
 	perfmux_flop.io.perfcnt_halted                := ((io.dec_tlu_dbg_halted & io.dcsr(DCSR_STOPC)) | io.dec_tlu_pmu_fw_halted)
 	perfmux_flop.io.mstatus_ns                    := mstatus_ns
 	perfmux_flop.io.scan_mode                     := io.scan_mode
+	perfmux_flop.io.free_l2clk                     := io.free_l2clk
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  
 	//Inputs
@@ -2451,19 +2452,19 @@ for(i <- 0 until 4) {io.trigger_pkt_any(i).tdata2 := mtdata2_t(i)}
 	val dec_tlu_exc_cause_wb2  = rvdffie(dec_tlu_exc_cause_wb1_raw,clock,reset.asAsyncReset(),io.scan_mode)
 	val dec_tlu_int_valid_wb2  = rvdffie(dec_tlu_int_valid_wb1_raw,clock,reset.asAsyncReset(),io.scan_mode)
   //skid for ints
-  io.dec_tlu_exc_cause_wb1 := 0.U//Mux(dec_tlu_int_valid_wb2, dec_tlu_exc_cause_wb2, dec_tlu_exc_cause_wb1_raw)
+  io.dec_tlu_exc_cause_wb1 := Mux(dec_tlu_int_valid_wb2, dec_tlu_exc_cause_wb2, dec_tlu_exc_cause_wb1_raw)
   io.dec_tlu_int_valid_wb1 := dec_tlu_int_valid_wb2
 	io.dec_tlu_mtval_wb1  := mtval
 
  // end trace
  //--------------------------------------------------------------------------------
  // CSR read mux
-	io.dec_csr_rddata_d:=0.U
+//	io.dec_csr_rddata_d:=0.U
 	io.dec_csr_rddata_d:=Mux1H(Seq(
 		io.csr_pkt.csr_misa.asBool            -> 0x40001104.U(32.W),
 		io.csr_pkt.csr_mvendorid.asBool       -> 0x00000045.U(32.W),
 		io.csr_pkt.csr_marchid.asBool         -> 0x00000010.U(32.W),
-		io.csr_pkt.csr_mimpid.asBool          -> 0x1.U(32.W),
+		io.csr_pkt.csr_mimpid.asBool          -> 0x3.U(32.W),
 		io.csr_pkt.csr_mhartid.asBool         -> Cat(io.core_id,0.U(4.W)),
 		io.csr_pkt.csr_mstatus.asBool         -> Cat(0.U(19.W), 3.U(2.W), 0.U(3.W), io.mstatus(1), 0.U(3.W), io.mstatus(0), 0.U(3.W)),
 		io.csr_pkt.csr_mtvec.asBool           -> Cat(io.mtvec(30,1), 0.U(1.W), io.mtvec(0)),
@@ -2530,7 +2531,7 @@ class perf_csr extends Module with CSRs with lib{
 		val dec_csr_wen_r_mod             = Input(UInt(1.W))
 		val dec_csr_wraddr_r		          = Input(UInt(12.W))
 		val dec_csr_wrdata_r		          = Input(UInt(32.W))
-		val mhpmc_inc_r                   = Input(Vec(4,UInt(10.W)))
+		val mhpmc_inc_r                   = Input(Vec(4,UInt(1.W)))
 		val mhpmc_inc_r_d1                = Input(Vec(4,UInt(1.W)))
 		val perfcnt_halted_d1             = Input(Bool())
 		
@@ -2673,7 +2674,7 @@ class perf_csr extends Module with CSRs with lib{
 }
 class perf_mux_and_flops extends Module with CSRs with lib{
 	val io = IO(new Bundle{
-		val  mhpmc_inc_r               = Output(Vec(4,UInt(10.W)))
+		val  mhpmc_inc_r               = Output(Vec(4,UInt(1.W)))
 		val  mcountinhibit             = Input(UInt(7.W))
 		val  mhpme_vec                 =Input(Vec(4,UInt(10.W)))
 		val  ifu_pmu_ic_hit            = Input(UInt(1.W))
@@ -2730,7 +2731,7 @@ class perf_mux_and_flops extends Module with CSRs with lib{
 		val meicidpl                      =Output(UInt(4.W))
 		val icache_rd_valid_f             =Output(Bool())
 		val icache_wr_valid_f             =Output(Bool())
-		val mhpmc_inc_r_d1                =Output(Vec(4,UInt(10.W)))
+		val mhpmc_inc_r_d1                =Output(Vec(4,UInt(1.W)))
 		val perfcnt_halted_d1             =Output(Bool())
 		val mdseac_locked_f               =Output(Bool())
 		val lsu_single_ecc_error_r_d1     =Output(Bool())
@@ -2760,6 +2761,7 @@ class perf_mux_and_flops extends Module with CSRs with lib{
 		val perfcnt_halted            = Input(Bool())
 		val mstatus_ns                = Input(UInt(2.W))
 		val scan_mode                 = Input(Bool())
+		val free_l2clk = Input(Clock())
 		
 		
 	})
@@ -2835,46 +2837,46 @@ class perf_mux_and_flops extends Module with CSRs with lib{
 
 	
 	if(FAST_INTERRUPT_REDIRECT)  {
-				io.mdseac_locked_f                 :=rvdffie(io.mdseac_locked_ns,clock,reset.asAsyncReset(),io.scan_mode)
-				io.lsu_single_ecc_error_r_d1       :=rvdffie(io.lsu_single_ecc_error_r,clock,reset.asAsyncReset(),io.scan_mode)
-				io.lsu_exc_valid_r_d1              :=rvdffie(io.lsu_exc_valid_r,clock,reset.asAsyncReset(),io.scan_mode)
-				io.lsu_i0_exc_r_d1                 :=rvdffie(io.lsu_i0_exc_r,clock,reset.asAsyncReset(),io.scan_mode)
-				io.take_ext_int_start_d1           :=rvdffie(io.take_ext_int_start,clock,reset.asAsyncReset(),io.scan_mode)
-				io.take_ext_int_start_d2           :=rvdffie(io.take_ext_int_start_d1,clock,reset.asAsyncReset(),io.scan_mode)
-				io.take_ext_int_start_d3           :=rvdffie(io.take_ext_int_start_d2,clock,reset.asAsyncReset(),io.scan_mode)
-				io.ext_int_freeze_d1               :=rvdffie(io.ext_int_freeze,clock,reset.asAsyncReset(),io.scan_mode)
-				io.mip                             :=rvdffie(io.mip_ns,clock,reset.asAsyncReset(),io.scan_mode)
-				io.mcyclel_cout_f                  :=rvdffie(io.mcyclel_cout & ~io.wr_mcycleh_r & io.mcyclel_cout_in,clock,reset.asAsyncReset(),io.scan_mode)
-				io.minstret_enable_f               :=rvdffie(io.minstret_enable,clock,reset.asAsyncReset(),io.scan_mode)
-				io.minstretl_cout_f                :=rvdffie(io.minstretl_cout_ns,clock,reset.asAsyncReset(),io.scan_mode)
-				io.fw_halted                       :=rvdffie(io.fw_halted_ns,clock,reset.asAsyncReset(),io.scan_mode)
-				io.meicidpl                        :=rvdffie(io.meicidpl_ns,clock,reset.asAsyncReset(),io.scan_mode)
-				io.icache_rd_valid_f               :=rvdffie(io.icache_rd_valid,clock,reset.asAsyncReset(),io.scan_mode)
-				io.icache_wr_valid_f               :=rvdffie(io.icache_wr_valid,clock,reset.asAsyncReset(),io.scan_mode)
-				io.mhpmc_inc_r_d1                  :=rvdffie(io.mhpmc_inc_r,clock,reset.asAsyncReset(),io.scan_mode)
-				io.perfcnt_halted_d1               :=rvdffie(io.perfcnt_halted,clock,reset.asAsyncReset(),io.scan_mode)
-				io.mstatus                         :=rvdffie(io.mstatus_ns,clock,reset.asAsyncReset(),io.scan_mode)
+				io.mdseac_locked_f                 :=rvdffie(io.mdseac_locked_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.lsu_single_ecc_error_r_d1       :=rvdffie(io.lsu_single_ecc_error_r,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.lsu_exc_valid_r_d1              :=rvdffie(io.lsu_exc_valid_r,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.lsu_i0_exc_r_d1                 :=rvdffie(io.lsu_i0_exc_r,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.take_ext_int_start_d1           :=rvdffie(io.take_ext_int_start,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.take_ext_int_start_d2           :=rvdffie(io.take_ext_int_start_d1,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.take_ext_int_start_d3           :=rvdffie(io.take_ext_int_start_d2,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.ext_int_freeze_d1               :=rvdffie(io.ext_int_freeze,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.mip                             :=rvdffie(io.mip_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.mcyclel_cout_f                  :=rvdffie(io.mcyclel_cout & ~io.wr_mcycleh_r & io.mcyclel_cout_in,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.minstret_enable_f               :=rvdffie(io.minstret_enable,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.minstretl_cout_f                :=rvdffie(io.minstretl_cout_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.fw_halted                       :=rvdffie(io.fw_halted_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.meicidpl                        :=rvdffie(io.meicidpl_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.icache_rd_valid_f               :=rvdffie(io.icache_rd_valid,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.icache_wr_valid_f               :=rvdffie(io.icache_wr_valid,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.mhpmc_inc_r_d1                  :=rvdffie(io.mhpmc_inc_r,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.perfcnt_halted_d1               :=rvdffie(io.perfcnt_halted,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.mstatus                         :=rvdffie(io.mstatus_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
 			}
 			else{
 		io.take_ext_int_start_d1           := 0.U
 			io.take_ext_int_start_d2           :=0.U
 			io.take_ext_int_start_d3           :=0.U
 		io.ext_int_freeze_d1               :=0.U
-				io.mdseac_locked_f                 :=rvdffie(io.mdseac_locked_ns,clock,reset.asAsyncReset(),io.scan_mode)
-				io.lsu_single_ecc_error_r_d1       :=rvdffie(io.lsu_single_ecc_error_r,clock,reset.asAsyncReset(),io.scan_mode)
-				io.lsu_exc_valid_r_d1              :=rvdffie(io.lsu_exc_valid_r,clock,reset.asAsyncReset(),io.scan_mode)
-				io.lsu_i0_exc_r_d1                 :=rvdffie(io.lsu_i0_exc_r,clock,reset.asAsyncReset(),io.scan_mode)
-				io.mip                             :=rvdffie(io.mip_ns,clock,reset.asAsyncReset(),io.scan_mode)
-				io.mcyclel_cout_f                  :=rvdffie(io.mcyclel_cout & ~io.wr_mcycleh_r & io.mcyclel_cout_in,clock,reset.asAsyncReset(),io.scan_mode)
-				io.minstret_enable_f               :=rvdffie(io.minstret_enable,clock,reset.asAsyncReset(),io.scan_mode)
-				io.minstretl_cout_f                :=rvdffie(io.minstretl_cout_ns,clock,reset.asAsyncReset(),io.scan_mode)
-				io.fw_halted                       :=rvdffie(io.fw_halted_ns,clock,reset.asAsyncReset(),io.scan_mode)
-				io.meicidpl                        :=rvdffie(io.meicidpl_ns,clock,reset.asAsyncReset(),io.scan_mode)
-				io.icache_rd_valid_f               :=rvdffie(io.icache_rd_valid,clock,reset.asAsyncReset(),io.scan_mode)
-				io.icache_wr_valid_f               :=rvdffie(io.icache_wr_valid,clock,reset.asAsyncReset(),io.scan_mode)
-				io.mhpmc_inc_r_d1                  :=rvdffie(io.mhpmc_inc_r,clock,reset.asAsyncReset(),io.scan_mode)
-				io.perfcnt_halted_d1               :=rvdffie(io.perfcnt_halted,clock,reset.asAsyncReset(),io.scan_mode)
-				io.mstatus                         :=rvdffie(io.mstatus_ns,clock,reset.asAsyncReset(),io.scan_mode)
+				io.mdseac_locked_f                 :=rvdffie(io.mdseac_locked_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.lsu_single_ecc_error_r_d1       :=rvdffie(io.lsu_single_ecc_error_r,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.lsu_exc_valid_r_d1              :=rvdffie(io.lsu_exc_valid_r,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.lsu_i0_exc_r_d1                 :=rvdffie(io.lsu_i0_exc_r,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.mip                             :=rvdffie(io.mip_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.mcyclel_cout_f                  :=rvdffie(io.mcyclel_cout & ~io.wr_mcycleh_r & io.mcyclel_cout_in,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.minstret_enable_f               :=rvdffie(io.minstret_enable,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.minstretl_cout_f                :=rvdffie(io.minstretl_cout_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.fw_halted                       :=rvdffie(io.fw_halted_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.meicidpl                        :=rvdffie(io.meicidpl_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.icache_rd_valid_f               :=rvdffie(io.icache_rd_valid,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.icache_wr_valid_f               :=rvdffie(io.icache_wr_valid,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.mhpmc_inc_r_d1                  :=rvdffie(io.mhpmc_inc_r,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.perfcnt_halted_d1               :=rvdffie(io.perfcnt_halted,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
+				io.mstatus                         :=rvdffie(io.mstatus_ns,io.free_l2clk,reset.asAsyncReset(),io.scan_mode)
 			}
 }
 
@@ -2908,8 +2910,8 @@ class int_exc extends Module with CSRs with lib{
 		val tlu_flush_lower_r                = Output(UInt(1.W))
 		val dec_tlu_flush_lower_wb           = Output(UInt(1.W))
 		val dec_tlu_flush_lower_r            = Output(UInt(1.W))
-		val dec_tlu_flush_path_r             = Output(UInt(1.W))
-		val interrupt_valid_r_d1             = Output(UInt(1.W))
+		val dec_tlu_flush_path_r             = Output(UInt(31.W))
+		val interrupt_valid_r_d1             = Output(Bool())
 		val i0_exception_valid_r_d1          = Output(UInt(1.W))
 		val exc_or_int_valid_r_d1            = Output(UInt(1.W))
 		val exc_cause_wb                     = Output(UInt(5.W))
@@ -3118,14 +3120,14 @@ class int_exc extends Module with CSRs with lib{
 	// this is used to capture mepc, etc.
 	io.exc_or_int_valid_r := io.lsu_exc_valid_r | io.i0_exception_valid_r | io.interrupt_valid_r | (io.i0_trigger_hit_r & ~io.trigger_hit_dmode_r)
 	
-	io.interrupt_valid_r_d1				  :=rvdffie(io.interrupt_valid_r, io.free_l2clk,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(interrupt_valid_r,0.U)}
-	io.i0_exception_valid_r_d1		  :=rvdffie(io.i0_exception_valid_r, io.free_l2clk,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(i0_exception_valid_r,0.U)}
-	io.exc_or_int_valid_r_d1		    :=rvdffie(io.exc_or_int_valid_r, io.free_l2clk,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(exc_or_int_valid_r,0.U)}
-	io.exc_cause_wb					        :=rvdffie(io.exc_cause_r, io.free_l2clk,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(exc_cause_r,0.U)}
-	io.i0_valid_wb						      :=rvdffie(io.tlu_i0_commit_cmt, io.free_l2clk,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext((tlu_i0_commit_cmt & ~illegal_r),0.U)}
-	io.trigger_hit_r_d1				      :=rvdffie(io.i0_trigger_hit_r, io.free_l2clk,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(i0_trigger_hit_r,0.U)}
-	io.take_nmi_r_d1					    	:=rvdffie(io.take_nmi, io.free_l2clk,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(take_nmi,0.U)}
-	io.pause_expired_wb					    :=rvdffie(io.pause_expired_r, io.free_l2clk,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(pause_expired_r,0.U)}
+	io.interrupt_valid_r_d1				  :=rvdffie(io.interrupt_valid_r, clock,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(interrupt_valid_r,0.U)}
+	io.i0_exception_valid_r_d1		  :=rvdffie(io.i0_exception_valid_r, clock,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(i0_exception_valid_r,0.U)}
+	io.exc_or_int_valid_r_d1		    :=rvdffie(io.exc_or_int_valid_r, clock,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(exc_or_int_valid_r,0.U)}
+	io.exc_cause_wb					        :=rvdffie(io.exc_cause_r, clock,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(exc_cause_r,0.U)}
+	io.i0_valid_wb						      :=rvdffie(io.tlu_i0_commit_cmt & !io.illegal_r, clock,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext((tlu_i0_commit_cmt & ~illegal_r),0.U)}
+	io.trigger_hit_r_d1				      :=rvdffie(io.i0_trigger_hit_r, clock,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(i0_trigger_hit_r,0.U)}
+	io.take_nmi_r_d1					    	:=rvdffie(io.take_nmi, clock,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(take_nmi,0.U)}
+	io.pause_expired_wb					    :=rvdffie(io.pause_expired_r, clock,reset.asAsyncReset(),io.scan_mode)//withClock(e4e5_int_clk){RegNext(pause_expired_r,0.U)}
 	
 }
 
@@ -3260,7 +3262,7 @@ class dec_timer_ctl extends Module with lib with RequireAsyncReset{
 	 mitcnt0_inc1 := mitcnt0(7,0) + Cat(0.U(7.W), 1.U(1.W))
 	val mitcnt0_inc_cout = mitcnt0_inc1(8)
 	mitcnt0_inc2 := mitcnt0(31,8) + Cat(0.U(23.W), mitcnt0_inc_cout)
-	val mitcnt0_inc = Cat(mitcnt0_inc2,mitcnt0_inc1)
+	val mitcnt0_inc = Cat(mitcnt0_inc2,mitcnt0_inc1(7,0))
 	
 	val mitcnt0_ns  = Mux(wr_mitcnt0_r, io.dec_csr_wrdata_r, Mux(mit0_match_ns, 0.U, mitcnt0_inc))
 
@@ -3282,8 +3284,8 @@ class dec_timer_ctl extends Module with lib with RequireAsyncReset{
 	mitcnt1_inc1 := mitcnt1(7,0) + Cat(0.U(7.W), 1.U(1.W))
 	val mitcnt1_inc_cout = mitcnt1_inc1(8)
 	mitcnt1_inc2 := mitcnt1(31,8) + Cat(0.U(23.W), mitcnt1_inc_cout)
-	val mitcnt1_inc = Cat(mitcnt1_inc2,mitcnt1_inc1)
-	
+	val mitcnt1_inc = Cat(mitcnt1_inc2,mitcnt1_inc1(7,0))
+
 	val mitcnt1_ns  =Mux(wr_mitcnt1_r.asBool, io.dec_csr_wrdata_r, Mux(mit1_match_ns.asBool, 0.U,mitcnt1_inc))
 	
 	mitcnt1		:=Cat(rvdffe(mitcnt1_ns(31,8),(wr_mitcnt1_r | (mitcnt1_inc_ok & mitcnt1_inc_cout) | mit1_match_ns).asBool,io.free_l2clk,io.scan_mode),

@@ -345,8 +345,22 @@ trait lib extends param{
       val cg = Module(new rvclkhdr)
       cg.io.clk := clk
       cg.io.en := en
-      cg.io.scan_mode := scan_mode
+      cg.io.scan_mode := 0.U
       cg.io.l1clk
+    }
+  }
+  object rvoclkhdr {
+    def apply(clk: Clock, en: Bool, scan_mode: Bool): Clock = {
+      if(RV_FPGA_OPTIMIZE){
+        clk
+      }else{
+        val cg = Module(new rvclkhdr)
+        cg.io.clk := clk
+        cg.io.en := en
+        cg.io.scan_mode := 0.U
+        cg.io.l1clk
+      }
+
     }
   }
 
@@ -363,15 +377,20 @@ trait lib extends param{
       in_range := (addr(31,MASK_BITS) === start_addr(31,MASK_BITS)).asUInt
     (in_range,in_region)
   }
-  
-  def rvtwoscomp(din:UInt) = {   //Done for verification and testing
-    val temp = Wire(Vec(din.getWidth-1,UInt(1.W)))
-    for(i <- 1 to din.getWidth-1){
-      temp(i-1) := Mux(din(i-1,0).orR ,~din(i),din(i))
+  object rvdff_fpga {
+    def apply(din: UInt, clk: Clock, clken: Bool,rawclk:Clock):UInt = {
+      if (RV_FPGA_OPTIMIZE)
+        withClock(rawclk) {RegEnable (din, 0.U, clken)}
+      else withClock(clk) {RegNext (din, 0.U)}
     }
-    Cat(temp.asUInt,din(0))
   }
-
+  object rvdffs_fpga {
+    def apply(din: UInt, en:Bool,clk: Clock, clken: Bool,rawclk:Clock):UInt = {
+      if (RV_FPGA_OPTIMIZE)
+        withClock (rawclk) {RegEnable (din, 0.U, (clken & en))}
+      else withClock(clk) {RegEnable (din, 0.U,en)}
+    }
+  }
   ////rvdffe ///////////////////////////////////////////////////////////////////////
   object rvdffe {
     def apply(din: UInt, en: Bool, clk: Clock, scan_mode: Bool): UInt = {
@@ -379,93 +398,169 @@ trait lib extends param{
       val l1clk = obj.io.l1clk
       obj.io.clk := clk
       obj.io.en := en
-      obj.io.scan_mode := scan_mode
-      withClock(l1clk) {
-        RegNext(din, 0.U)
-      }
+      obj.io.scan_mode := 0.U
+      if(RV_FPGA_OPTIMIZE)
+        withClock(clk){RegEnable(din,0.U,en)}
+      else
+        withClock(l1clk) {
+          RegNext(din, 0.U)
+        }
     }
     def apply(din: Bundle, en: Bool, clk: Clock, scan_mode: Bool) = {
       val obj = Module(new rvclkhdr())
       val l1clk = obj.io.l1clk
       obj.io.clk := clk
       obj.io.en := en
-      obj.io.scan_mode := scan_mode
-      withClock(l1clk) {
-        RegNext(din,0.U.asTypeOf(din.cloneType))
-      }
+      obj.io.scan_mode := 0.U
+      if(RV_FPGA_OPTIMIZE)
+        withClock(clk){RegEnable(din,0.U.asTypeOf(din),en)}
+      else
+        withClock(l1clk) {
+          RegNext(din, 0.U.asTypeOf(din))
+        }
+
     }
     def apply(din: SInt, en: Bool, clk: Clock, scan_mode: Bool): Bits with Num[_ >: SInt with UInt <: Bits with Num[_ >: SInt with UInt]] = {
       val obj = Module(new rvclkhdr())
       val l1clk = obj.io.l1clk
       obj.io.clk := clk
       obj.io.en := en
-      obj.io.scan_mode := scan_mode
-      withClock(l1clk) {
-        RegNext(din, 0.S)
-      }
+      obj.io.scan_mode := 0.U
+      if(RV_FPGA_OPTIMIZE)
+        withClock(clk){RegEnable(din,0.S,en)}
+      else
+        withClock(l1clk) {
+          RegNext(din, 0.S)
+        }
     }
   }
   ////////////////////////////////////////////////////////////////////////////////////
   object rvdffie {
-    def apply(din: UInt, clk: Clock, rst_l: AsyncReset, scan_mode: Bool) :UInt = {
-      val dout = WireInit(UInt(),0.U)
+    def apply(din: UInt, clk: Clock, rst_l: AsyncReset, scan_mode: Bool)= {
+      val dout = WireInit(UInt(), 0.U)
       val en = (din ^ dout).orR
-      val obj = Module(new rvclkhdr())
-      val l1clk = obj.io.l1clk
-      obj.io.clk := clk
-      obj.io.en := en
-      obj.io.scan_mode := scan_mode
-      withClock(l1clk) {
-         dout:=RegNext(din, 0.U)
+      if (RV_FPGA_OPTIMIZE) {
+        withClock(clk) {
+          dout := RegEnable(din, 0.U, en)
+        }
+        dout
+      } else {
+
+        val obj = Module(new rvclkhdr())
+        val l1clk = obj.io.l1clk
+        obj.io.clk := clk
+        obj.io.en := en
+        obj.io.scan_mode := scan_mode
+        withClock(l1clk) {
+          dout := RegNext(din, 0.U)
+        }
+        dout
       }
-      dout
+
     }
+    def apply(din: Bool, clk: Clock, rst_l: AsyncReset, scan_mode: Bool)= {
+      val dout = WireInit(Bool(), 0.B)
+      val en = (din ^ dout).orR
+      if (RV_FPGA_OPTIMIZE) {
+        withClock(clk) {
+          dout := RegEnable(din, 0.B, en)
+        }
+        dout
+      } else {
+
+        val obj = Module(new rvclkhdr())
+        val l1clk = obj.io.l1clk
+        obj.io.clk := clk
+        obj.io.en := en
+        obj.io.scan_mode := scan_mode
+        withClock(l1clk) {
+          dout := RegNext(din, 0.B)
+        }
+        dout
+      }
+    }
+
     def apply(din: Bundle, clk: Clock, rst_l: AsyncReset, scan_mode: Bool) = {
-      val dout = RegNext(din, 0.U.asTypeOf(din.cloneType))
+      val dout = WireInit(din)
       val port = din.getElements
       val port2 = dout.getElements
-      val en = (port zip port2).map{ case (in, out) => in.asUInt^out.asUInt}.reduce(_|_)
-     
-      val obj = Module(new rvclkhdr())
-      val l1clk = obj.io.l1clk
-      obj.io.clk := clk
-      obj.io.en := en
-      obj.io.scan_mode := scan_mode
-      withClock(l1clk) {
-        RegNext(din, 0.U.asTypeOf(din.cloneType))
+      val en = (port zip port2).map { case (in, out) => (in.asUInt ^ out.asUInt).orR }.reduce(_ | _)
+      if (RV_FPGA_OPTIMIZE) {
+        withClock(clk) {
+          dout := RegEnable(din, 0.U.asTypeOf(din.cloneType), en)
+        }
+        dout
+      } else {
+        val obj = Module(new rvclkhdr())
+        val l1clk = obj.io.l1clk
+        obj.io.clk := clk
+        obj.io.en := en
+        obj.io.scan_mode := scan_mode
+        withClock(l1clk) {
+          dout := RegNext(din, 0.U.asTypeOf(din.cloneType))
+        }
+        dout
       }
+
     }
+
     def apply(din: Vec[UInt], clk: Clock, rst_l: AsyncReset, scan_mode: Bool) = {
-      val dout = RegNext(din, 0.U.asTypeOf(din.cloneType))
+      val dout = WireInit(din)
       val port = din.getElements
       val port2 = dout.getElements
-      val en = (port zip port2).map{ case (in, out) => in.asUInt^out.asUInt}.reduce(_|_)
-    
-      val obj = Module(new rvclkhdr())
-      val l1clk = obj.io.l1clk
-      obj.io.clk := clk
-      obj.io.en := en
-      obj.io.scan_mode := scan_mode
-      withClock(l1clk) {
-        RegNext(din, 0.U.asTypeOf(din.cloneType))
+      val en = (port zip port2).map { case (in, out) => (in.asUInt ^ out.asUInt).orR }.reduce(_ | _)
+      if (RV_FPGA_OPTIMIZE) {
+        withClock(clk) {
+          dout := RegEnable(din, 0.U.asTypeOf(din), en)
+        }
+        dout
+      } else {
+        val obj = Module(new rvclkhdr())
+        val l1clk = obj.io.l1clk
+        obj.io.clk := clk
+        obj.io.en := en
+        obj.io.scan_mode := scan_mode
+        withClock(l1clk) {
+          dout := RegNext(din, 0.U.asTypeOf(din.cloneType))
+        }
+        dout
       }
     }
   }
   /////////////////////////////////////////////////////////////////////////////////////////////
   object rvdffiee {
-    def apply(din: UInt, clk: Clock, rst_l: AsyncReset, en : Bool, scan_mode: Bool) = {
-      val final_en =  Wire(Bool())
-      final_en := (din ^ rvdffe(din,final_en,clk,scan_mode)).orR & en
-     rvdffe(din,final_en,clk,scan_mode)
-    }
-    def apply(din: Bundle, clk: Clock, rst_l: AsyncReset, en : Bool, scan_mode: Bool) = {
+    def apply(din: UInt, clk: Clock, rst_l: AsyncReset, en: Bool, scan_mode: Bool) = {
       val final_en = Wire(Bool())
-      val dout = rvdffe(din,final_en,clk,scan_mode)
+      val dout = WireInit(UInt(), 0.U)
+      if (RV_FPGA_OPTIMIZE) {
+        withClock(clk) {
+          dout := RegEnable(din, 0.U.asTypeOf(din), en)
+        }
+        dout
+      } else {
+        final_en := (din ^ dout).orR & en
+        dout := rvdffe(din, final_en, clk, scan_mode)
+        dout
+      }
+    }
+
+    def apply(din: Bundle, clk: Clock, rst_l: AsyncReset, en: Bool, scan_mode: Bool) = {
+      val dout = WireInit(din)
       val port = din.getElements
       val port2 = dout.getElements
-      final_en := (port zip port2).map{ case (in, out) => in.asUInt^out.asUInt}.reduce(_|_) & en
-//      final_en := (din ^ rvdffe(din,final_en,clk,scan_mode)).orR & en
-      rvdffe(din,final_en,clk,scan_mode)
+      if (RV_FPGA_OPTIMIZE) {
+        withClock(clk) {
+          dout := RegEnable(din, 0.U.asTypeOf(din), en)
+        }
+        dout
+      } else {
+        val final_en = Wire(Bool())
+
+        final_en := (port zip port2).map { case (in, out) => in.asUInt ^ out.asUInt }.reduce(_ | _) & en
+        //      final_en := (din ^ rvdffe(din,final_en,clk,scan_mode)).orR & en
+        dout := rvdffe(din, final_en, clk, scan_mode)
+        dout
+      }
     }
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -479,22 +574,45 @@ trait lib extends param{
   
   }
   object rvdfflie {
-    def apply(din: Bundle, clk: Clock, rst_l: AsyncReset, en : Bool, scan_mode: Bool, elements: Int=1) = {
-      val vec = MixedVecInit((0 until din.getElements.length).map(i=>
-      if(i<=elements)  rvdffe(din,en,clk,scan_mode)
-      else rvdffiee(din,clk,rst_l,en,scan_mode)))
-      
-      vec.asTypeOf(din)
+    def apply(din: Bundle, clk: Clock, rst_l: AsyncReset, en : Bool, scan_mode: Bool, elements: Int) = {
+      if(RV_FPGA_OPTIMIZE){
+        withClock(clk){
+          RegEnable(din,0.U.asTypeOf(din),en)
+        }
+      }
+      else{
+        val vec = MixedVecInit((0 until din.getElements.length).map(i=>
+          if(i<=elements) rvdffe(din.getElements(i).asUInt(),en,clk,scan_mode)
+          else rvdffiee(din.getElements(i).asUInt(),clk,rst_l,en,scan_mode)))
+
+        vec.asTypeOf(din)
+      }
+
+
+
     }
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   object rvdffpcie {
-    def apply(din: UInt, en : Bool,rst_l: AsyncReset, clk : Clock,  scan_mode: Bool, WIDTH : Int =31) = {
-      rvdfflie_UInt(din,clk,rst_l ,en,scan_mode, WIDTH, 19)
+    def apply(din: UInt, en: Bool, rst_l: AsyncReset, clk: Clock, scan_mode: Bool, WIDTH: Int = 31) = {
+      if (RV_FPGA_OPTIMIZE) {
+        withClock(clk) {
+          RegEnable(din, 0.U.asTypeOf(din), en)
+        }
+      }
+      else {
+        rvdfflie_UInt(din, clk, rst_l, en, scan_mode, WIDTH, 19)
+      }
     }
   }
-  //implicit def bool2int(b:Boolean): Int = if (b) 1 else 0
-  
- 
+  def rvtwoscomp(din:UInt) = {   //Done for verification and testing
+    val temp = Wire(Vec(din.getWidth-1,UInt(1.W)))
+    for(i <- 1 to din.getWidth-1){
+      temp(i-1) := Mux(din(i-1,0).orR ,~din(i),din(i))
+    }
+    Cat(temp.asUInt,din(0))
+  }
 }
+  //implicit def bool2int(b:Boolean): Int = if (b) 1 else 0
+
