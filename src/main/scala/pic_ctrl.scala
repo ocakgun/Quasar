@@ -3,6 +3,7 @@ import chisel3.util._
 import include._
 import lib._
 import chisel3.experimental.chiselName
+import chisel3.stage.ChiselStage
 
 @chiselName
 class pic_ctrl extends Module with RequireAsyncReset with lib {
@@ -69,14 +70,14 @@ class pic_ctrl extends Module with RequireAsyncReset with lib {
   val selected_int_priority        = WireInit(0.U (INTPRIORITY_BITS.W))
   val intpend_w_prior_en           = Wire(Vec(PIC_TOTAL_INT_PLUS1,UInt(INTPRIORITY_BITS.W)))///////////////////
   val intpend_id                   = Wire(Vec(PIC_TOTAL_INT_PLUS1,UInt(ID_BITS.W)))
-  val levelx_intpend_w_prior_en    = Wire(Vec((NUM_LEVELS - NUM_LEVELS/2)+1 ,Vec ((PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2).toInt)+2,UInt(INTPRIORITY_BITS.W))))
+  val levelx_intpend_w_prior_en    = Wire(Vec((NUM_LEVELS - NUM_LEVELS/2)+1 ,Vec ((PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2)+2).toInt,UInt(INTPRIORITY_BITS.W))))
   for(i<- 0 until (NUM_LEVELS - NUM_LEVELS/2)+1; j<- 0 until (PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2).toInt)+2) levelx_intpend_w_prior_en(i)(j) := 0.U
   val levelx_intpend_id            = Wire(Vec((NUM_LEVELS - NUM_LEVELS/2)+1 ,Vec ((PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2).toInt)+2,UInt(ID_BITS.W))))
   for(i<- 0 until (NUM_LEVELS - NUM_LEVELS/2)+1; j<- 0 until (PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2).toInt)+2) levelx_intpend_id(i)(j) := 0.U
-  val l2_intpend_w_prior_en_ff     = Wire(Vec(PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2).toInt,UInt(INTPRIORITY_BITS.W)))
-  for(i<- 0 until (PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2).toInt)) l2_intpend_w_prior_en_ff(i) := 0.U
-  val l2_intpend_id_ff             = Wire(Vec(PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2).toInt,UInt(ID_BITS.W)))
-  for(i<- 0 until (PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2).toInt)) l2_intpend_id_ff(i) := 0.U
+  val l2_intpend_w_prior_en_ff     = Wire(Vec((PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2)+1).toInt,UInt(INTPRIORITY_BITS.W)))
+  for(i<- 0 until (PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2)+1).toInt) l2_intpend_w_prior_en_ff(i) := 0.U
+  val l2_intpend_id_ff             = Wire(Vec((PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2)+1).toInt,UInt(ID_BITS.W)))
+  for(i<- 0 until (PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2)+1).toInt) l2_intpend_id_ff(i) := 0.U
   val config_reg                   = WireInit(0.U(1.W))
   val intpriord                    = WireInit(0.U(1.W))
   val prithresh_reg_write          = WireInit(0.U(1.W))
@@ -177,8 +178,8 @@ class pic_ctrl extends Module with RequireAsyncReset with lib {
     level_intpend_w_prior_en(0) := (0 until PIC_TOTAL_INT_PLUS1).map(i=> intpend_w_prior_en(i)) ++ IndexedSeq(0.U(4.W), 0.U(4.W), 0.U(4.W))
     level_intpend_id(0)         := (0 until PIC_TOTAL_INT_PLUS1).map(i=> intpend_id(i)) ++ IndexedSeq(0.U(8.W), 0.U(8.W), 0.U(8.W))
 
-    levelx_intpend_w_prior_en(NUM_LEVELS/2) :=  (0 until (PIC_TOTAL_INT_PLUS1/scala.math.pow(2,(NUM_LEVELS/2))).toInt).map(i=> l2_intpend_w_prior_en_ff(i)) ++ IndexedSeq(0.U(INTPRIORITY_BITS.W))
-    levelx_intpend_id(NUM_LEVELS/2)         :=  (0 until (PIC_TOTAL_INT_PLUS1/scala.math.pow(2,(NUM_LEVELS/2))).toInt).map(i=> l2_intpend_id_ff(i)) ++ IndexedSeq(1.U(ID_BITS.W))
+    levelx_intpend_w_prior_en(NUM_LEVELS - NUM_LEVELS/2) :=  (0 to (PIC_TOTAL_INT_PLUS1/scala.math.pow(2,(NUM_LEVELS/2))).toInt).map(i=> l2_intpend_w_prior_en_ff(i)) ++ IndexedSeq(0.U(INTPRIORITY_BITS.W))
+    levelx_intpend_id(NUM_LEVELS - NUM_LEVELS/2)         :=  (0 to (PIC_TOTAL_INT_PLUS1/scala.math.pow(2,(NUM_LEVELS/2))).toInt).map(i=> l2_intpend_id_ff(i)) ++ IndexedSeq(1.U(ID_BITS.W))
 
     ///  Do the prioritization of the interrupts here  ////////////
     for (l <-0 until NUM_LEVELS/2 ; m <- 0 to ((PIC_TOTAL_INT_PLUS1)/scala.math.pow(2,(l+1)).toInt)) {
@@ -195,7 +196,8 @@ class pic_ctrl extends Module with RequireAsyncReset with lib {
     (0 to PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2).toInt).map(i =>  l2_intpend_w_prior_en_ff(i) := withClock(io.free_clk){RegNext(level_intpend_w_prior_en(NUM_LEVELS/2)(i))})
     (0 to PIC_TOTAL_INT_PLUS1 / scala.math.pow(2,NUM_LEVELS/2).toInt).map(i =>  l2_intpend_id_ff(i) := withClock(io.free_clk){RegNext(level_intpend_id(NUM_LEVELS/2)(i))})
 
-    for (j <-NUM_LEVELS/2 until NUM_LEVELS ; k <- 0 to ((PIC_TOTAL_INT_PLUS1)/math.pow(2,(j+1)).toInt)) {
+    for (j <- 0 until (NUM_LEVELS - NUM_LEVELS/2) ) {
+      for(k <- 0 to ((PIC_TOTAL_INT_PLUS1)/scala.math.pow(2,(j+1+3)).toInt)) {
 
       if ( k  == (PIC_TOTAL_INT_PLUS1)/scala.math.pow(2,(j+1)).toInt) {
         levelx_intpend_w_prior_en(j + 1)(k + 1)  := 0.U
@@ -205,6 +207,7 @@ class pic_ctrl extends Module with RequireAsyncReset with lib {
       (levelx_intpend_id(j+1)(k))          :=   out_id1
       (levelx_intpend_w_prior_en(j+1)(k))  :=   out_priority1
 
+    }
     }
     claimid_in              :=     levelx_intpend_id(NUM_LEVELS - NUM_LEVELS/2)(0)   // This is the last level output
     selected_int_priority   :=     levelx_intpend_w_prior_en(NUM_LEVELS - NUM_LEVELS/2)(0)
@@ -405,3 +408,5 @@ class pic_ctrl extends Module with RequireAsyncReset with lib {
   }
 
 }
+object pic extends App {
+  println((new ChiselStage).emitVerilog(new pic_ctrl))}
