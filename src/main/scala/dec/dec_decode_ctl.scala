@@ -217,9 +217,9 @@ class dec_decode_ctl extends Module with lib with RequireAsyncReset{
   io.dec_div_active               := rvdffie(div_active_in, io.free_l2clk, reset.asAsyncReset(), io.scan_mode)
   flush_final_r                   := rvdffie(io.exu_flush_final, io.free_l2clk, reset.asAsyncReset(), io.scan_mode)
   val debug_valid_x                = rvdffie(io.dec_debug_valid_d, io.free_l2clk, reset.asAsyncReset(), io.scan_mode)
-
+  val i0_icaf_d        = io.dec_i0_icaf_d | io.dec_i0_dbecc_d
 if(BTB_ENABLE){
-  i0_brp_valid                                        := io.dec_i0_brp.valid & !leak1_mode
+  i0_brp_valid                                        := io.dec_i0_brp.valid & !leak1_mode & !i0_icaf_d
   io.decode_exu.dec_i0_predict_p_d.bits.misp          := 0.U
   io.decode_exu.dec_i0_predict_p_d.bits.ataken        := 0.U
   io.decode_exu.dec_i0_predict_p_d.bits.boffset       := 0.U
@@ -234,7 +234,7 @@ if(BTB_ENABLE){
 
   // no toffset error for a pret
   val i0_br_toffset_error                              =  i0_brp_valid & io.dec_i0_brp.bits.hist(1) & (io.dec_i0_brp.bits.toffset =/= i0_br_offset) & !i0_pret_raw
-  val i0_ret_error                                     =  i0_brp_valid & io.dec_i0_brp.bits.ret & !i0_pret_raw
+  val i0_ret_error                                     =  i0_brp_valid & (io.dec_i0_brp.bits.ret ^ i0_pret_raw)
   val i0_br_error                                      =  io.dec_i0_brp.bits.br_error | i0_notbr_error | i0_br_toffset_error | i0_ret_error
   io.decode_exu.dec_i0_predict_p_d.bits.br_error       :=  i0_br_error & i0_legal_decode_d & !leak1_mode
   io.decode_exu.dec_i0_predict_p_d.bits.br_start_error :=  io.dec_i0_brp.bits.br_start_error & i0_legal_decode_d & !leak1_mode
@@ -274,7 +274,7 @@ if(BTB_ENABLE){
   // on br error turn anything into a nop
   // on i0 instruction fetch access fault turn anything into a nop
   // nop =>   alu rs1 imm12 rd lor
-  val i0_icaf_d        = io.dec_i0_icaf_d | io.dec_i0_dbecc_d
+
   val i0_instr_error   = i0_icaf_d
   i0_dp               := i0_dp_raw
   when((i0_br_error_all | i0_instr_error).asBool){
@@ -543,8 +543,8 @@ if(BTB_ENABLE){
   val csr_imm_x = withClock(io.active_clk){RegNext(i0_dp.csr_imm, init=0.U)}
 
   // perform the update operation if any
-  val csrimm_x = rvdffe(i0(19,15),i0_x_data_en.asBool,clock,io.scan_mode)
-  val csr_rddata_x = rvdffe(io.dec_csr_rddata_d,i0_x_data_en.asBool,clock,io.scan_mode)
+  val csrimm_x = rvdffe(i0(19,15),i0_x_data_en & any_csr_d.asBool,clock,io.scan_mode)
+  val csr_rddata_x = rvdffe(io.dec_csr_rddata_d,i0_x_data_en & any_csr_d.asBool,clock,io.scan_mode)
 
   val csr_mask_x       = Mux1H(Seq(
     csr_imm_x.asBool  ->   Cat(repl(27,0.U),csrimm_x(4,0)),
